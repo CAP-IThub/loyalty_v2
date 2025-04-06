@@ -1,0 +1,40 @@
+const defaultTheme = require("tailwindcss/defaultTheme");
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    // colors: {
+    //   transparent: "transparent",
+    //   current: "currentColor",
+    //   white: "#fff",
+    //   black: "#000",
+    //   baseColor: "#0B2447",
+    //   priColor: "#19376D",
+    //   secColor: "#FC7B00",
+    //   liteColor: "#FDE2F3",
+    //   pBaseColor: "#3C6255",
+    //   pPriColor: "#61876E",
+    //   rBaseColor: "#645CBB",
+    //   rPriColor: "#A084DC",
+    // },
+    screens: {
+      xs: "380px",
+      ...defaultTheme.screens,
+
+      // sm: '640px',
+      // // => @media (min-width: 640px) { ... }
+
+      // md: '768px',
+      // // => @media (min-width: 768px) { ... }
+
+      // lg: '1024px',
+      // // => @media (min-width: 1028px) { ... }
+
+      // xl: '1280px',
+      // // => @media (min-width: 1280px) { ... }
+    },
+    extend: {},
+  },
+  plugins: [],
+};
