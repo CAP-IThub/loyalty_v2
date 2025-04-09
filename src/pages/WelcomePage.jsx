@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import capLogo from "../assets/images/cap-logo.png";
+import capLogoW from "../assets/images/capLogo-white.webp";
 import loginImage from "../assets/images/loginImage.png";
-import { FaUserTie, FaUserLock, FaUserCheck, FaUser } from "react-icons/fa";
+import {
+  AiOutlineMail,
+  AiFillEyeInvisible,
+  AiFillEye,
+} from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../slices/authSlice";
 
 const WelcomePage = () => {
@@ -11,7 +16,10 @@ const WelcomePage = () => {
   const [activeTab, setActiveTab] = useState("Partner");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
+  const auth = useSelector((state) => state.auth);
+  // console.log(auth);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,29 +42,32 @@ const WelcomePage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className={`peer w-full border-b-2 border-gray-300 bg-transparent pt-6 pb-2 placeholder-transparent text-black focus:outline-none focus:border-[#FC7B00]`}
+            className={`peer w-full border-b-2 border-gray-300 bg-transparent pt-6 pb-2 placeholder-transparent text-black text-sm focus:outline-none focus:border-[#FC7B00]`}
             placeholder="Email"
           />
           <label
             htmlFor="email"
             className={`absolute left-0 ${
               email
-                ? "top-0 text-sm text-black"
-                : "top-3.5 text-base text-gray-400"
-            } transition-all peer-focus:top-0 peer-focus:text-sm peer-focus:text-black`}
+                ? "top-0 text-sm text-black font-semibold"
+                : "top-7 text-sm text-gray-500"
+            } transition-all peer-focus:top-0 peer-focus:text-sm peer-focus:text-black peer-focus:font-semibold`}
           >
-            Email address
+            Email Address
           </label>
+          <div className="absolute right-0 bottom-2 text-gray-500 hover:text-gray-700">
+            <AiOutlineMail />
+          </div>
         </div>
 
         <div className="relative">
           <input
             id="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className={`peer w-full border-b-2 border-gray-300 bg-transparent pt-6 pb-2 placeholder-transparent focus:outline-none focus:border-[#FC7B00]  ${
+            className={`peer w-full border-b-2 border-gray-300 bg-transparent pt-6 pb-2 placeholder-transparent focus:outline-none focus:border-[#FC7B00] text-sm  ${
               password ? "text-black" : ""
             }`}
             placeholder="Password"
@@ -65,15 +76,22 @@ const WelcomePage = () => {
             htmlFor="password"
             className={`absolute left-0 ${
               password
-                ? "top-0 text-sm text-black"
-                : "top-3.5 text-base text-gray-400"
-            } transition-all peer-focus:top-0 peer-focus:text-sm peer-focus:text-black`}
+                ? "top-0 text-sm text-black font-semibold"
+                : "top-7 text-sm text-gray-500"
+            } transition-all peer-focus:top-0 peer-focus:text-sm peer-focus:text-black peer-focus:font-semibold`}
           >
             Password
           </label>
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-0 bottom-2 text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+          </button>
         </div>
 
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-sm pb-4">
           <label className="flex items-center gap-2 text-black">
             <input type="checkbox" className="accent-[#FC7B00]" /> Remember for
             30 days
@@ -112,21 +130,35 @@ const WelcomePage = () => {
           </div>
         </div>
       ) : (
-        <div className="min-h-screen flex">
+        <div className="min-h-screen md:flex">
+          <div>
+            <img
+              src={capLogoW}
+              alt="CAP Logo"
+              className="hidden md:block absolute top-4 left-4 w-24 h-auto z-50"
+            />
+
+            <img
+              src={capLogo}
+              alt="CAP Logo"
+              className="md:hidden w-40 z-50 py-5"
+            />
+          </div>
+
           {/* Left Image/Graphic Section */}
           <div className="hidden md:flex w-[50%] h-[100vh]">
             <div className="text-center">
               <img
                 src={loginImage}
                 alt="illustration"
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-center"
               />
             </div>
           </div>
 
           {/* Right Login Section */}
           <div className="w-full md:w-1/2 flex items-center justify-center">
-            <div className="w-full max-w-md border border-gray-800 rounded-sm px-14 py-16 shadow-sm">
+            <div className="w-full max-w-md md:border border-gray-400 rounded-md px-8 py-8 md:px-14 md:py-16 md:shadow-sm">
               <h2 className="text-2xl font-semibold text-center">
                 Log in to your account
               </h2>

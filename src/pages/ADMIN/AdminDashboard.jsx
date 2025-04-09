@@ -56,7 +56,7 @@ const AdminDashboard = () => {
       {/* Dashboard Overview */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <h2 className="md:text-xl font-semibold">Dashboard Overview</h2>
+          <h2 className="md:text-xl font-semibold">Admin Overview</h2>
           <div className="hidden md:flex space-x-2 text-xs">
             {["Monthly", "Quarter", "Yearly"].map((label, idx) => (
               <button

@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-// import { baseUrl } from "./api";
-// import jwt_decode from "jwt-decode";
+import { baseUrl } from "../utils/baseUrl";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
+
 
 const initialState = {
   registerToken: null,
@@ -55,7 +56,7 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (user, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${baseUrl}/login/`, {
+      const response = await axios.post(`${baseUrl}/users/login`, {
         email: user.email,
         password: user.password,
       });
@@ -110,7 +111,7 @@ const authSlice = createSlice({
       const email = localStorage.getItem("email");
 
       if (loadToken && name && email) {
-        const user = jwt_decode(loadToken);
+        const user = jwtDecode(loadToken);
         // console.log(user);
         // console.log(name);
 
@@ -186,7 +187,7 @@ const authSlice = createSlice({
     });
     builder.addCase(loginUser.fulfilled, (state, action) => {
       if (action.payload) {
-        const user = jwt_decode(action.payload.token);
+        const user = jwtDecode(action.payload.token);
         // console.log(user);
         const name = localStorage.getItem("first_name");
 
