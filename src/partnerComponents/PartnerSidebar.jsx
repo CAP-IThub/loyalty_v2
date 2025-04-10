@@ -6,7 +6,7 @@ import logo from "../assets/images/sideLogo.png";
 import navLogo from "../assets/images/nav-logo.png";
 import { HiMenuAlt2 } from "react-icons/hi";
 
-const RepSidebar = () => {
+const PartnerSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleClose = () => setIsOpen(false);
@@ -136,4 +136,4 @@ const RepSidebar = () => {
   );
 };
 
-export default RepSidebar;
+export default PartnerSidebar;

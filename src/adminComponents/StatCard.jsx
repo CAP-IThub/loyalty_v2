@@ -13,7 +13,7 @@ const StatCard = ({ icon, title, value, growth, growthType }) => {
           </div>
         </div>
         <div>
-          <p className="text-2xl font-bold pl-3 tracking-wide">{value}</p>
+          <p className="text-xl font-bold pl-3 tracking-wide">{value}</p>
           <p
             className={`text-xs flex items-center gap-1 pl-3 ${
               growthType === "up" ? "text-green-600" : "text-red-500"

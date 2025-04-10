@@ -2,14 +2,13 @@ import React, { useEffect, useState } from "react";
 import capLogo from "../assets/images/cap-logo.png";
 import capLogoW from "../assets/images/capLogo-white.webp";
 import loginImage from "../assets/images/loginImage.png";
-import {
-  AiOutlineMail,
-  AiFillEyeInvisible,
-  AiFillEye,
-} from "react-icons/ai";
+import { AiOutlineMail, AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../slices/authSlice";
+import { ClipLoader } from "react-spinners";
+// import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 const WelcomePage = () => {
   const [loading, setLoading] = useState(true);
@@ -18,8 +17,9 @@ const WelcomePage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const auth = useSelector((state) => state.auth);
-  // console.log(auth);
+  console.log(auth);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -31,6 +31,20 @@ const WelcomePage = () => {
       })
     );
   };
+
+  useEffect(() => {
+    if (auth.loginStatus === "rejected") {
+      toast.error(`${auth.loginError}`);
+    }
+  }, [auth.loginStatus, auth.loginError]);
+
+  useEffect(() => {
+    if (auth._id && auth.first_name && auth.user_type) {
+      navigate(`/${auth.user_type}`);
+      toast.success(`Welcome, ${auth.first_name}`);
+    }
+  }, [auth._id, auth.first_name, auth.user_type, navigate]);
+
 
   const renderForm = () => {
     return (
@@ -105,7 +119,11 @@ const WelcomePage = () => {
           type="submit"
           className="w-full py-2 bg-[#FC7B00] text-white text-sm rounded-lg hover:bg-orange-600 transition-all"
         >
-          Login
+          {auth.loginStatus === "pending" ? (
+            <ClipLoader size={20} color={"#fff"} />
+          ) : (
+            "Login"
+          )}
         </button>
       </form>
     );
@@ -167,7 +185,7 @@ const WelcomePage = () => {
               </p>
 
               <div className="flex mt-6 border-b border-gray-200">
-                {["Partner", "Representative", "Painter"].map((type) => (
+                {["Partner", "Rep", "Painter"].map((type) => (
                   <button
                     key={type}
                     onClick={() => setActiveTab(type)}

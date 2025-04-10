@@ -2,7 +2,9 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { baseUrl } from "../utils/baseUrl";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
+import jwt_decode from "jwt-decode";
+
 
 
 const initialState = {
@@ -12,6 +14,7 @@ const initialState = {
   last_name: window.localStorage.getItem("last_name"),
   email: window.localStorage.getItem("email"),
   phone: window.localStorage.getItem("phone"),
+  user_type: window.localStorage.getItem("user_type"),
   password: "",
   password2: "",
   _id: "",
@@ -59,18 +62,21 @@ export const loginUser = createAsyncThunk(
       const response = await axios.post(`${baseUrl}/users/login`, {
         email: user.email,
         password: user.password,
+        user_type: user.user_type,
       });
-      window.localStorage.setItem("token", response.data.token);
-      window.localStorage.setItem("first_name", response.data.first_name);
-      window.localStorage.setItem("last_name", response.data.last_name);
-      window.localStorage.setItem("email", response.data.email);
-      window.localStorage.setItem("phone", response.data.phone);
-      return response.data;
-    } catch (err) {
-      console.log(err.response.data.non_field_errors);
-      console.log(err.response.data);
+      const { access_token, user: userInfo } = response.data;
 
-      return rejectWithValue(err.response.data.non_field_errors);
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("first_name", userInfo.firstName);
+      localStorage.setItem("last_name", userInfo.lastName);
+      localStorage.setItem("email", userInfo.email);
+      localStorage.setItem("phone", userInfo.phoneNum);
+      localStorage.setItem("user_type", user.user_type); 
+
+      return { token: access_token, user: userInfo, user_type: user.user_type };
+    } catch (err) {
+      console.log(err.response?.data);
+      return rejectWithValue(err.response?.data?.message || "Login failed");
     }
   }
 );
@@ -111,7 +117,7 @@ const authSlice = createSlice({
       const email = localStorage.getItem("email");
 
       if (loadToken && name && email) {
-        const user = jwtDecode(loadToken);
+        const user = jwt_decode(loadToken);
         // console.log(user);
         // console.log(name);
 
@@ -186,22 +192,33 @@ const authSlice = createSlice({
       };
     });
     builder.addCase(loginUser.fulfilled, (state, action) => {
-      if (action.payload) {
-        const user = jwtDecode(action.payload.token);
-        // console.log(user);
-        const name = localStorage.getItem("first_name");
+    //   if (action.payload) {
+    //     const user = jwt_decode(action.payload.token);
+    //     // console.log(user);
+    //     const name = localStorage.getItem("first_name");
 
-        return {
-          ...state,
-          token: action.payload.token,
-          first_name: name,
-          _id: user.user_id,
-          phone: user.phone,
-          loginStatus: "success",
-          loading: false,
-          success: true,
-        };
-      } else return state;
+    //     return {
+    //       ...state,
+    //       token: action.payload.token,
+    //       first_name: name,
+    //       _id: user.user_id,
+    //       phone: user.phone,
+    //       loginStatus: "success",
+    //       loading: false,
+    //       success: true,
+    //     };
+    //   } else return state;
+    const { token, user, user_type } = action.payload;
+    state.token = token;
+    state.first_name = user.firstName;
+    state.last_name = user.lastName;
+    state.email = user.email;
+    state.phone = user.phoneNum;
+    state._id = user.id;
+    state.user_type = user_type; // ✅ track type for redirection
+    state.loginStatus = "success";
+    state.loading = false;
+    state.success = true;
     });
     builder.addCase(loginUser.rejected, (state, action) => {
       return {
