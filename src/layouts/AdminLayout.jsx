@@ -3,7 +3,7 @@ import AdminSidebar from "../adminComponents/AdminSidebar";
 import { Fragment, useEffect, useState } from "react";
 import { FaBell, FaKey, FaUserCircle } from "react-icons/fa";
 import capLogo from "../assets/images/cap-logo.png";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { GoSignOut } from "react-icons/go";
 import { logoutUser } from "../slices/authSlice";
 import userIcon from "../assets/images/userIcon.png";
@@ -15,12 +15,15 @@ import {
   Transition,
 } from "@headlessui/react";
 import { HiChevronDown } from "react-icons/hi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import axios from "../../utils/axiosInstance";
 // import { ClipLoader } from "react-spinners";
 
 const AdminLayout = ({ children }) => {
   const auth = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
   return (
     <div className="w-full flex h-screen">
       <AdminSidebar />

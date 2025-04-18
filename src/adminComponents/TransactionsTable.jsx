@@ -1,12 +1,13 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-const awardedData = [
+const recentAwarded = [
   {
     id: 84,
     amount: 75250,
     point: 752,
     painter: "oludayo A.",
-    shop: "Bauch In...",
+    shop: "Bauch Inc.",
     address: "4516 Wolf",
   },
   {
@@ -14,7 +15,7 @@ const awardedData = [
     amount: 75250,
     point: 752,
     painter: "oludayo A.",
-    shop: "Bauch In...",
+    shop: "Bauch Inc.",
     address: "4516 Wolf",
   },
   {
@@ -22,7 +23,7 @@ const awardedData = [
     amount: 752500,
     point: 7525,
     painter: "oludayo A.",
-    shop: "Bauch In...",
+    shop: "Bauch Inc.",
     address: "4516 Wolf",
   },
   {
@@ -43,19 +44,19 @@ const awardedData = [
   },
 ];
 
-const claimedData = [
+const recentClaimed = [
   {
     id: 27,
     point: 37625,
     painter: "Emmanuel A.",
-    shop: "Swift an...",
+    shop: "Swift and...",
     address: "70908 Litt",
   },
   {
     id: 26,
     point: 8900,
     painter: "oludayo A.",
-    shop: "Bauch In...",
+    shop: "Bauch Inc.",
     address: "4516 Wolf",
   },
   {
@@ -69,7 +70,7 @@ const claimedData = [
     id: 24,
     point: 70,
     painter: "Goke a.",
-    shop: "Bauch In...",
+    shop: "Bauch Inc.",
     address: "4516 Wolf",
   },
   {
@@ -81,78 +82,103 @@ const claimedData = [
   },
 ];
 
-const TransactionsTable = () => {
-  const renderTableRows = (data, isAwarded = true) =>
-    data.map((item, index) => (
-      <tr key={item.id} className={index % 2 === 1 ? "bg-[#f4f6f9]" : ""}>
-        <td className="py-3 px-4">{item.id}</td>
-        {isAwarded && <td className="py-3 px-4">{item.amount}</td>}
-        <td className="py-3 px-4">{item.point}</td>
-        <td className="py-3 px-4">{item.painter}</td>
-        <td className="py-3 px-4 truncate max-w-[150px]">{item.shop}</td>
-        <td className="py-3 px-4">{item.address}</td>
-      </tr>
-    ));
+const TransactionTable = ({ data, columns, title }) => {
+  const getRoute = () => {
+    if (title.toLowerCase().includes("awarded"))
+      return "/admin/awarded-transactions";
+    if (title.toLowerCase().includes("claimed"))
+      return "/admin/claimed-transactions";
+    return "/";
+  };
 
+  return (
+    <div className="bg-white shadow-md rounded-xl p-4 w-full">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-[#0B0F28]">{title}</h3>
+        <Link
+          to={getRoute()}
+          className="text-sm text-[#0B0F28] hover:underline"
+        >
+          View All
+        </Link>
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-[#f3f6fb] text-gray-600 font-semibold">
+            <tr>
+              {columns.map((col) => (
+                <th key={col.accessor} className="py-3 px-4">
+                  {col.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row, idx) => (
+              <tr key={row.id} className={idx % 2 === 1 ? "bg-gray-50" : ""}>
+                {columns.map((col) => (
+                  <td key={col.accessor} className="py-2 px-4 text-gray-700">
+                    {row[col.accessor]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Grid View */}
+      <div className="md:hidden space-y-4">
+        {data.map((row) => (
+          <div key={row.id} className="bg-[#f9fafc] rounded-md p-3 shadow-sm">
+            {columns.map((col) => (
+              <div key={col.accessor} className="text-sm text-gray-700 mb-1">
+                <span className="font-semibold text-gray-500">
+                  {col.label}:{" "}
+                </span>
+                {row[col.accessor]}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
+const TransactionsTable = () => {
   return (
     <div>
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Transactions</h3>
-        
+        <h3 className="md:text-xl font-semibold">Transactions</h3>
       </div>
-      <div className="grid md:grid-cols-2 gap-4 mt-2">
-        {/* Recent Awarded */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <h3 className="px-6 py-4 font-semibold text-lg text-[#1E2A4A] border-b">
-            RECENT AWARDED
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[#eef4fa] text-[#1E2A4A] font-semibold">
-                <tr>
-                  <th className="py-3 px-4">ID</th>
-                  <th className="py-3 px-4">AMOUNT</th>
-                  <th className="py-3 px-4">POINT</th>
-                  <th className="py-3 px-4">PAINTER</th>
-                  <th className="py-3 px-4">SHOP</th>
-                  <th className="py-3 px-4">ADDRESS</th>
-                </tr>
-              </thead>
-              <tbody>{renderTableRows(awardedData)}</tbody>
-            </table>
-          </div>
-          <div className="flex justify-center py-4">
-            <button className="bg-[#0B0F28] text-white px-6 py-2 rounded-full font-semibold text-sm hover:bg-[#1a223a]">
-              View All
-            </button>
-          </div>
-        </div>
-
-        {/* Recent Claimed */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <h3 className="px-6 py-4 font-semibold text-lg text-[#1E2A4A] border-b">
-            RECENT CLAIMED
-          </h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[#eef4fa] text-[#1E2A4A] font-semibold">
-                <tr>
-                  <th className="py-3 px-4">ID</th>
-                  <th className="py-3 px-4">POINT</th>
-                  <th className="py-3 px-4">PAINTER</th>
-                  <th className="py-3 px-4">SHOP</th>
-                  <th className="py-3 px-4">ADDRESS</th>
-                </tr>
-              </thead>
-              <tbody>{renderTableRows(claimedData, false)}</tbody>
-            </table>
-          </div>
-          <div className="flex justify-center py-4">
-            <button className="bg-[#0B0F28] text-white px-6 py-2 rounded-full font-semibold text-sm hover:bg-[#1a223a]">
-              View All
-            </button>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        <TransactionTable
+          title="Recent Awarded"
+          data={recentAwarded}
+          columns={[
+            { label: "ID", accessor: "id" },
+            { label: "Amount", accessor: "amount" },
+            { label: "Point", accessor: "point" },
+            { label: "Painter", accessor: "painter" },
+            { label: "Shop", accessor: "shop" },
+            { label: "Address", accessor: "address" },
+          ]}
+        />
+        <TransactionTable
+          title="Recent Claimed"
+          data={recentClaimed}
+          columns={[
+            { label: "ID", accessor: "id" },
+            { label: "Point", accessor: "point" },
+            { label: "Painter", accessor: "painter" },
+            { label: "Shop", accessor: "shop" },
+            { label: "Address", accessor: "address" },
+          ]}
+        />
       </div>
     </div>
   );
