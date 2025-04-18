@@ -8,7 +8,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/ADMIN/AdminDashboard";
 import RepDashboard from "./pages/REP/RepDashboard";
 import RepLayout from "./layouts/RepLayout";
-import PartnerLayout from "./layouts/partnerLayout";
+import PartnerLayout from "./layouts/PartnerLayout";
 import PartnerDashboard from "./pages/PARTNER/PartnerDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLogin from "./pages/ADMIN/AdminLogin";
