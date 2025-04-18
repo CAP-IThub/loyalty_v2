@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaCog,
   FaPowerOff,
@@ -19,11 +19,14 @@ import { HiMenuAlt2 } from "react-icons/hi";
 import { LuUser, LuUserPen, LuUsers } from "react-icons/lu";
 import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 import { TbReportAnalytics } from "react-icons/tb";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../slices/authSlice";
 
 const AdminSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const auth = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleClose = () => setIsOpen(false);
 
@@ -106,7 +109,7 @@ const AdminSidebar = () => {
               >
                 <MdDashboard /> <span>Dashboard</span>
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/orders"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
@@ -114,7 +117,7 @@ const AdminSidebar = () => {
                 }
               >
                 <MdOutlineShoppingCart /> <span>Order Management</span>
-              </NavLink>
+              </NavLink> */}
               <NavLink
                 to="/partners"
                 onClick={handleNavClick}
@@ -124,15 +127,15 @@ const AdminSidebar = () => {
               >
                 <LuUsers /> <span>Partners</span>
               </NavLink>
-              <NavLink
-                to="/painters"
+              {/* <NavLink
+                to="#"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`
                 }
               >
                 <LuUserPen /> <span>Reps</span>
-              </NavLink>
+              </NavLink> */}
               <NavLink
                 to="/painters"
                 onClick={handleNavClick}
@@ -143,7 +146,7 @@ const AdminSidebar = () => {
                 <LuUser /> <span>Painters</span>
               </NavLink>
               <NavLink
-                to="/painters"
+                to="/centers"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`
@@ -158,9 +161,9 @@ const AdminSidebar = () => {
                   `${navItem} ${isActive ? activeStyle : ""}`
                 }
               >
-                <MdOutlineInventory /> <span>Inventory</span>
+                <MdOutlineInventory /> <span>Roles</span>
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/reps"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
@@ -168,7 +171,7 @@ const AdminSidebar = () => {
                 }
               >
                 <FaShippingFast /> <span>Shipments</span>
-              </NavLink>
+              </NavLink> */}
               <NavLink
                 to="/centers"
                 onClick={handleNavClick}
@@ -185,14 +188,14 @@ const AdminSidebar = () => {
                   `${navItem} ${isActive ? activeStyle : ""}`
                 }
               >
-                <TbReportAnalytics /> <span>Reports</span>
+                <TbReportAnalytics /> <span>Admin</span>
               </NavLink>
             </nav>
           </div>
         </div>
 
         {/* Bottom Section - Fixed Settings/Logout */}
-        <div className="border-t border-gray-700 px-4 py-1">
+        <div className="px-4 mt-[4rem] py-2 border-t border-gray-700">
           <div className="flex flex-col gap-2 px-2">
             <NavLink
               to="/settings"
@@ -205,8 +208,10 @@ const AdminSidebar = () => {
             </NavLink>
 
             <NavLink
-              to="/logout"
-              onClick={handleNavClick}
+              onClick={() => {
+                dispatch(logoutUser());
+                navigate("/");
+              }}
               className="flex items-center space-x-3 py-2 px-4 text-sm text-[#FF3C3C]"
             >
               <FaPowerOff /> <span>Logout</span>

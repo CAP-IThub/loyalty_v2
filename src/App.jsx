@@ -13,6 +13,11 @@ import PartnerDashboard from "./pages/PARTNER/PartnerDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLogin from "./pages/ADMIN/AdminLogin";
 import RecentActivityPage from "./pages/ADMIN/RecentActivityPage";
+import AwardedTransactions from "./pages/ADMIN/AwardedTransactions";
+import ClaimedTransactions from "./pages/ADMIN/ClaimedTransactions";
+import Painters from "./pages/ADMIN/Painters";
+import Centers from "./pages/ADMIN/Centers";
+import Partners from "./pages/ADMIN/Partners";
 
 function App() {
   return (
@@ -39,7 +44,6 @@ function App() {
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/admin-login" element={<AdminLogin />} />
-
         {/* Admin Dashboard Routes */}
         <Route
           path="/admin"
@@ -65,6 +69,46 @@ function App() {
             </AdminLayout>
           }
         />
+        <Route
+          path="/admin/awarded-transactions"
+          element={
+            <AdminLayout>
+              <AwardedTransactions />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/admin/claimed-transactions"
+          element={
+            <AdminLayout>
+              <ClaimedTransactions />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/painters"
+          element={
+            <AdminLayout>
+              <Painters />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/partners"
+          element={
+            <AdminLayout>
+              <Partners />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/centers"
+          element={
+            <AdminLayout>
+              <Centers />
+            </AdminLayout>
+          }
+        />
 
         {/* Rep Dashboard Routes */}
         <Route
@@ -77,7 +121,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         {/* Partner Dashboard Routes */}
         <Route
           path="/partner"
@@ -89,7 +132,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>

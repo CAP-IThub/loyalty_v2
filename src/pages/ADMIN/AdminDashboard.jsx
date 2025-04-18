@@ -30,6 +30,8 @@ import axios from "../../utils/axiosInstance";
 import { ClipLoader } from "react-spinners";
 import StatisticsChartAndRecentActivity from "../../adminComponents/StatisticsChartandRecentActivity";
 import TransactionsTable from "../../adminComponents/TransactionsTable";
+import TopFivePainters from "../../adminComponents/TopFivePainters";
+import TopFiveCenters from "../../adminComponents/TopFiveCenters";
 
 const AdminDashboard = () => {
   const [data, setData] = useState({});
@@ -278,11 +280,13 @@ const AdminDashboard = () => {
 
       {/* Charts Section */}
       <StatisticsChartAndRecentActivity/>
-      <TransactionsTable />
+      <TopFivePainters/>
+      <TopFiveCenters/>
 
       {/* Tables Section */}
-      <BestSellingTable />
-      <RecentTransactionsTable />
+      <TransactionsTable />
+      {/* <BestSellingTable />
+      <RecentTransactionsTable /> */}
     </div>
   );
 };
