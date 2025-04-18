@@ -11,6 +11,8 @@ import RepLayout from "./layouts/RepLayout";
 import PartnerLayout from "./layouts/partnerLayout";
 import PartnerDashboard from "./pages/PARTNER/PartnerDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminLogin from "./pages/ADMIN/AdminLogin";
+import RecentActivityPage from "./pages/ADMIN/RecentActivityPage";
 
 function App() {
   return (
@@ -36,6 +38,7 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<WelcomePage />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
 
         {/* Admin Dashboard Routes */}
         <Route
@@ -51,6 +54,14 @@ function App() {
           element={
             <AdminLayout>
               <Orders />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/admin/activities"
+          element={
+            <AdminLayout>
+              <RecentActivityPage />
             </AdminLayout>
           }
         />

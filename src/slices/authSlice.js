@@ -1,22 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../utils/axiosInstance"; // use axios instance with interceptor
+import { toast } from "react-hot-toast";
 import { baseUrl } from "../utils/baseUrl";
-import { toast } from "react-toastify";
-// import { jwtDecode } from "jwt-decode";
-import jwt_decode from "jwt-decode";
-
-
 
 const initialState = {
-  registerToken: null,
-  token: window.localStorage.getItem("token"),
-  first_name: window.localStorage.getItem("first_name"),
-  last_name: window.localStorage.getItem("last_name"),
-  email: window.localStorage.getItem("email"),
-  phone: window.localStorage.getItem("phone"),
-  user_type: window.localStorage.getItem("user_type"),
-  password: "",
-  password2: "",
+  token: localStorage.getItem("token"),
+  first_name: localStorage.getItem("first_name"),
+  last_name: localStorage.getItem("last_name"),
+  email: localStorage.getItem("email"),
+  phone: localStorage.getItem("phone"),
+  user_type: localStorage.getItem("user_type"),
   _id: "",
   registerStatus: "",
   registerError: "",
@@ -31,26 +24,14 @@ export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (user, { rejectWithValue }) => {
     try {
-      await axios
-        .post(`${baseUrl}/register/`, {
-          first_name: user.first_name,
-          last_name: user.last_name,
-          email: user.email,
-          phone: user.phone,
-          password: user.password,
-          password2: user.password2,
-        })
-        .then((response) => {
-          if (response.status === 200) {
-            console.log("Success!!");
-          } else {
-            throw response;
-          }
-        });
+      const response = await axios.post(`${baseUrl}/register/`, user);
+      if (response.status === 200) {
+        toast.success("Registration successful");
+      }
     } catch (err) {
-      console.log(err.response.data.email);
-
-      return rejectWithValue(err.response.data.email);
+      return rejectWithValue(
+        err.response?.data?.email || "Registration failed"
+      );
     }
   }
 );
@@ -59,11 +40,7 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (user, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${baseUrl}/users/login`, {
-        email: user.email,
-        password: user.password,
-        user_type: user.user_type,
-      });
+      const response = await axios.post(`${baseUrl}/users/login`, user);
       const { access_token, user: userInfo } = response.data;
 
       localStorage.setItem("token", access_token);
@@ -71,12 +48,33 @@ export const loginUser = createAsyncThunk(
       localStorage.setItem("last_name", userInfo.lastName);
       localStorage.setItem("email", userInfo.email);
       localStorage.setItem("phone", userInfo.phoneNum);
-      localStorage.setItem("user_type", user.user_type); 
+      localStorage.setItem("user_type", user.user_type);
 
       return { token: access_token, user: userInfo, user_type: user.user_type };
     } catch (err) {
-      console.log(err.response?.data);
       return rejectWithValue(err.response?.data?.message || "Login failed");
+    }
+  }
+);
+
+export const loginAdmin = createAsyncThunk(
+  "auth/loginAdmin",
+  async (admin, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${baseUrl}/admins/login`, admin);
+      const { access_token, user: adminInfo } = response.data;
+
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("first_name", adminInfo.firstName);
+      localStorage.setItem("last_name", adminInfo.lastName);
+      localStorage.setItem("email", adminInfo.email);
+      localStorage.setItem("user_type", "admin");
+
+      return { token: access_token, user: adminInfo, user_type: "admin" };
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Admin login failed"
+      );
     }
   }
 );
@@ -85,24 +83,14 @@ export const forgotPassword = createAsyncThunk(
   "auth/forgotPassword",
   async (user, { rejectWithValue }) => {
     try {
-      await axios
-        .post(`${baseUrl}/request-password-reset/`, {
-          email: user.email,
-        })
-        .then((response) => {
-          if (response.status === 200) {
-            console.log("Success!!");
-            toast.info(`A reset link has been sent to your mail`, {
-              position: "top-left",
-            });
-          } else {
-            throw response;
-          }
-        });
+      const response = await axios.post(`${baseUrl}/request-password-reset/`, {
+        email: user.email,
+      });
+      if (response.status === 200) {
+        toast.success("Reset link sent to your email");
+      }
     } catch (err) {
-      console.log(err.response.data.message);
-
-      return rejectWithValue(err.response.data.message);
+      return rejectWithValue(err.response?.data?.message || "Reset failed");
     }
   }
 );
@@ -111,150 +99,106 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loadUser(state, action) {
-      const loadToken = state.token;
-      const name = localStorage.getItem("first_name");
-      const email = localStorage.getItem("email");
-
-      if (loadToken && name && email) {
-        const user = jwt_decode(loadToken);
-        // console.log(user);
-        // console.log(name);
-
+    loadUser(state) {
+      const token = localStorage.getItem("token");
+      if (token) {
         return {
           ...state,
-          token: loadToken,
-          first_name: name,
-          email: user.email,
-          phone: user.phone,
-          _id: user.user_id,
+          token,
+          first_name: localStorage.getItem("first_name"),
+          last_name: localStorage.getItem("last_name"),
+          email: localStorage.getItem("email"),
+          phone: localStorage.getItem("phone"),
+          user_type: localStorage.getItem("user_type"),
           userLoaded: true,
         };
-      } else return { ...state, userLoaded: true };
+      }
+      return { ...state, userLoaded: true };
     },
-    logoutUser(state, action) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("first_name");
-      localStorage.removeItem("last_name");
-      localStorage.removeItem("email");
-      localStorage.removeItem("phone");
-
+    logoutUser(state) {
+      localStorage.clear();
       return {
-        ...state,
-        token: "",
-        first_name: "",
-        last_name: "",
-        email: "",
-        phone: "",
-        password: "",
-        password2: "",
-        _id: "",
-        loading: false,
-        registerStatus: "",
-        registerError: "",
-        loginStatus: "",
-        loginError: "",
+        ...initialState,
+        token: null,
         userLoaded: false,
-        success: false,
       };
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(registerUser.pending, (state, action) => {
-      return {
-        ...state,
-        registerStatus: "pending",
-        loading: true,
-      };
-    });
-    builder.addCase(registerUser.fulfilled, (state, action) => {
-      return {
-        ...state,
-        registerStatus: "success",
-        loading: false,
-        success: true,
-      };
-    });
-    builder.addCase(registerUser.rejected, (state, action) => {
-      return {
-        ...state,
-        registerStatus: "rejected",
-        registerError: action.payload,
-        loading: false,
-      };
-    });
-
-    builder.addCase(loginUser.pending, (state, action) => {
-      return {
-        ...state,
-        loginStatus: "pending",
-        loading: true,
-      };
-    });
-    builder.addCase(loginUser.fulfilled, (state, action) => {
-    //   if (action.payload) {
-    //     const user = jwt_decode(action.payload.token);
-    //     // console.log(user);
-    //     const name = localStorage.getItem("first_name");
-
-    //     return {
-    //       ...state,
-    //       token: action.payload.token,
-    //       first_name: name,
-    //       _id: user.user_id,
-    //       phone: user.phone,
-    //       loginStatus: "success",
-    //       loading: false,
-    //       success: true,
-    //     };
-    //   } else return state;
-    const { token, user, user_type } = action.payload;
-    state.token = token;
-    state.first_name = user.firstName;
-    state.last_name = user.lastName;
-    state.email = user.email;
-    state.phone = user.phoneNum;
-    state._id = user.id;
-    state.user_type = user_type; // ✅ track type for redirection
-    state.loginStatus = "success";
-    state.loading = false;
-    state.success = true;
-    });
-    builder.addCase(loginUser.rejected, (state, action) => {
-      return {
-        ...state,
-        loginStatus: "rejected",
-        loginError: action.payload,
-        loading: false,
-      };
-    });
-
-    builder.addCase(forgotPassword.pending, (state, action) => {
-      return {
-        ...state,
-        registerStatus: "pending",
-        loading: true,
-      };
-    });
-    builder.addCase(forgotPassword.fulfilled, (state, action) => {
-      return {
-        ...state,
-        registerStatus: "success",
-        loading: false,
-        success: true,
-      };
-    });
-    builder.addCase(forgotPassword.rejected, (state, action) => {
-      return {
-        ...state,
-        registerStatus: "rejected",
-        registerError: action.payload,
-        loading: false,
-      };
-    });
+    builder
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.registerStatus = "pending";
+      })
+      .addCase(registerUser.fulfilled, (state) => {
+        state.loading = false;
+        state.registerStatus = "success";
+        state.success = true;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.registerStatus = "rejected";
+        state.registerError = action.payload;
+      })
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.loginStatus = "pending";
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        const { token, user, user_type } = action.payload;
+        state.token = token;
+        state.first_name = user.firstName;
+        state.last_name = user.lastName;
+        state.email = user.email;
+        state.phone = user.phoneNum;
+        state._id = user.id;
+        state.user_type = user_type;
+        state.loginStatus = "success";
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.loginStatus = "rejected";
+        state.loginError = action.payload;
+      })
+      .addCase(loginAdmin.pending, (state) => {
+        state.loading = true;
+        state.loginStatus = "pending";
+      })
+      .addCase(loginAdmin.fulfilled, (state, action) => {
+        const { token, user, user_type } = action.payload;
+        state.token = token;
+        state.first_name = user.firstName;
+        state.last_name = user.lastName;
+        state.email = user.email;
+        state._id = user.id;
+        state.user_type = user_type;
+        state.loginStatus = "success";
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(loginAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.loginStatus = "rejected";
+        state.loginError = action.payload;
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.registerStatus = "pending";
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.loading = false;
+        state.registerStatus = "success";
+        state.success = true;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.registerStatus = "rejected";
+        state.registerError = action.payload;
+      });
   },
 });
 
 export const { loadUser, logoutUser } = authSlice.actions;
-
 export default authSlice.reducer;

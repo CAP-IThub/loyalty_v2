@@ -1,13 +1,49 @@
-import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FaCog, FaPowerOff, FaTimes, FaBell, FaAward } from "react-icons/fa";
 import { MdDashboard, MdOutlineRedeem } from "react-icons/md";
 import logo from "../assets/images/sideLogo.png";
 import navLogo from "../assets/images/nav-logo.png";
-import { HiMenuAlt2 } from "react-icons/hi";
+import { HiMenuAlt2, HiOutlineDocumentReport } from "react-icons/hi";
+import userIcon from "../assets/images/userIcon.png";
+import axios from "../utils/axiosInstance";
+import ProfileModal from "../partnerComponents/modals/ProfileModal";
+import { baseUrl } from "../utils/baseUrl";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "../slices/authSlice";
+import { GrCatalog } from "react-icons/gr";
+import { GoStack } from "react-icons/go";
+import { RiFolderHistoryFill } from "react-icons/ri";
 
 const PartnerSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [partnerInfo, setPartnerInfo] = useState(null);
+  const auth = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPartner = async () => {
+      try {
+        const res = await axios.get(`${baseUrl}/auth/partner`);
+        // console.log(res.data.data.partner);
+        const user = res.data.data.partner[0];
+        const mappedUser = {
+          id: user.id,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          email: user.email,
+          phone: user.phoneNumber,
+        };
+        setPartnerInfo(mappedUser);
+      } catch (err) {
+        console.error("Failed to fetch Partner info:", err);
+      }
+    };
+
+    fetchPartner();
+  }, []);
 
   const handleClose = () => setIsOpen(false);
 
@@ -23,11 +59,25 @@ const PartnerSidebar = () => {
     <>
       {/* Mobile Navbar */}
       <div className="md:hidden fixed w-full h-16 shadow-md z-[997] bg-[#fff] flex items-center justify-between px-4 py-3">
-        <button onClick={() => setIsOpen(true)} className="text-white">
-          <HiMenuAlt2 size={20} color={"#000"} />
-        </button>
-        <img src={navLogo} alt="Logo" />
-        <FaBell color={"#000"} size={18} />
+        <div>
+          <button onClick={() => setIsOpen(true)} className="text-white">
+            <HiMenuAlt2 size={20} color={"#000"} />
+          </button>
+        </div>
+        <div>
+          <img src={navLogo} alt="Logo" />
+        </div>
+        <div className="flex items-center gap-2">
+          {/* <FaBell color={"#000"} size={18} /> */}
+          <div onClick={() => setShowModal(true)}>
+            <img
+              src={userIcon}
+              className="rounded-full bg-[#E87C2E]"
+              alt="profile"
+              width={30}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Overlay */}
@@ -57,7 +107,7 @@ const PartnerSidebar = () => {
         </style>
 
         {/* Top Section - Logo */}
-        <div className="flex items-center md:justify-center justify-between px-4 py-4 border-b border-gray-700 bg-[#202127] sticky top-0 z-10">
+        <div className="flex items-center md:justify-center justify-between px-4 py-3 border-b border-gray-700 bg-[#202127] sticky top-0 z-10">
           <div className="flex items-center">
             <img
               src={logo}
@@ -65,8 +115,10 @@ const PartnerSidebar = () => {
               className="w-[50px] h-[50px] rounded-full"
             />
             <div className="ml-3">
-              <p className="font-bold leading-tight text-sm">Samuel Adeleke</p>
-              <span className="text-xs text-[#D0CFFC]">Representative</span>
+              <p className="font-bold leading-tight text-sm">
+                {auth.first_name} {auth.last_name}
+              </p>
+              <span className="text-xs text-[#D0CFFC]">Partner</span>
             </div>
           </div>
           <button className="md:hidden text-white" onClick={handleClose}>
@@ -75,11 +127,11 @@ const PartnerSidebar = () => {
         </div>
 
         {/* Scrollable Middle Section */}
-        <div className="flex-1 overflow-y-auto scrollbar-hide">
+        <div className="flex-1 overflow-y-auto scrollbar-hide mt-4">
           <div className="flex flex-col px-6">
-            <nav className="mt-2 flex flex-col gap-2">
+            <nav className="mt-2 flex flex-col gap-4">
               <NavLink
-                to="/rep"
+                to="/Partner"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`
@@ -94,7 +146,7 @@ const PartnerSidebar = () => {
                   `${navItem} ${isActive ? activeStyle : ""}`
                 }
               >
-                <FaAward /> <span>Award Points</span>
+                <GrCatalog /> <span>Catalogue</span>
               </NavLink>
               <NavLink
                 to="/redeem-points"
@@ -103,7 +155,25 @@ const PartnerSidebar = () => {
                   `${navItem} ${isActive ? activeStyle : ""}`
                 }
               >
-                <MdOutlineRedeem /> <span>Redeem Points</span>
+                <GoStack /> <span>Orders</span>
+              </NavLink>
+              <NavLink
+                to="/redeem-points"
+                onClick={handleNavClick}
+                className={({ isActive }) =>
+                  `${navItem} ${isActive ? activeStyle : ""}`
+                }
+              >
+                <RiFolderHistoryFill /> <span>History</span>
+              </NavLink>
+              <NavLink
+                to="/redeem-points"
+                onClick={handleNavClick}
+                className={({ isActive }) =>
+                  `${navItem} ${isActive ? activeStyle : ""}`
+                }
+              >
+                <HiOutlineDocumentReport /> <span>Report</span>
               </NavLink>
             </nav>
           </div>
@@ -123,8 +193,10 @@ const PartnerSidebar = () => {
             </NavLink>
 
             <NavLink
-              to="/logout"
-              onClick={handleNavClick}
+              onClick={() => {
+                dispatch(logoutUser());
+                navigate("/");
+              }}
               className="flex items-center space-x-3 py-2 px-4 text-sm text-[#FF3C3C]"
             >
               <FaPowerOff /> <span>Logout</span>
@@ -132,6 +204,12 @@ const PartnerSidebar = () => {
           </div>
         </div>
       </aside>
+
+      <ProfileModal
+        isOpen={showModal}
+        closeProfileModal={() => setShowModal(false)}
+        partner={partnerInfo}
+      />
     </>
   );
 };

@@ -19,9 +19,11 @@ import { HiMenuAlt2 } from "react-icons/hi";
 import { LuUser, LuUserPen, LuUsers } from "react-icons/lu";
 import { HiOutlineBuildingOffice2 } from "react-icons/hi2";
 import { TbReportAnalytics } from "react-icons/tb";
+import { useSelector } from "react-redux";
 
 const AdminSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const auth = useSelector((state) => state.auth);
 
   const handleClose = () => setIsOpen(false);
 
@@ -80,8 +82,10 @@ const AdminSidebar = () => {
               className="w-[50px] h-[50px] rounded-full"
             />
             <div className="ml-3">
-              <p className="font-bold leading-tight text-sm">Samuel Adeleke</p>
-              <span className="text-xs text-[#D0CFFC]">Admin Account</span>
+              <p className="font-bold leading-tight text-sm">
+                {auth.first_name} {auth.last_name}
+              </p>
+              <span className="text-xs text-[#D0CFFC]">Admin</span>
             </div>
           </div>
           <button className="md:hidden text-white" onClick={handleClose}>

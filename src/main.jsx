@@ -3,17 +3,26 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
-import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
-import authReducer, { loadUser } from "./slices/authSlice";
-
-const store = configureStore({
-  reducer: {
-    auth: authReducer,
-  },
-});
+import { store } from "./redux/Store";
+import { loadUser } from "./slices/authSlice";
+import { setLogoutCallback } from "./utils/axiosInstance";
+import { logoutUser } from "./slices/authSlice";
 
 store.dispatch(loadUser(null));
+
+setLogoutCallback(() => {
+  store.dispatch(logoutUser());
+
+  const userType = localStorage.getItem("user_type");
+
+  if (userType === "admin") {
+    window.location.href = "/admin-login";
+  } else {
+    window.location.href = "/";
+  }
+});
+
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
