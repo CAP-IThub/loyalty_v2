@@ -1,147 +1,239 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "../../utils/axiosInstance";
 import { FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
-import { MdPerson } from "react-icons/md";
-
-const paintersData = [
-  {
-    id: 352,
-    name: "Test Painter",
-    phone: "08012345678",
-    address: "",
-    gender: "Male",
-  },
-  {
-    id: 351,
-    name: "oludayo Ajala",
-    phone: "07038477786",
-    address: "Ogudu, Lagos",
-    gender: "Male",
-  },
-  {
-    id: 350,
-    name: "YUSUF ADIO",
-    phone: "0810 403 5384",
-    address: "",
-    gender: "Male",
-  },
-  {
-    id: 349,
-    name: "YUSUF BALOGUN",
-    phone: "0803 313 0240",
-    address: "",
-    gender: "Male",
-  },
-  {
-    id: 348,
-    name: "YEMI OWOLABI",
-    phone: "0802 813 9361",
-    address: "",
-    gender: "Male",
-  },
-  {
-    id: 347,
-    name: "YELE AKINDIYO",
-    phone: "0806 238 5819",
-    address: "",
-    gender: "Male",
-  },
-];
-
-const PainterRow = ({ painter, index }) => (
-  <tr className={index % 2 === 1 ? "bg-gray-100" : ""}>
-    <td className="py-3 px-4 text-sm font-medium">{painter.id}</td>
-    <td className="py-3 px-4 text-sm capitalize">{painter.name}</td>
-    <td className="py-3 px-4 text-sm">{painter.phone}</td>
-    <td className="py-3 px-4 text-sm">{painter.address || "—"}</td>
-    <td className="py-3 px-4 text-sm">{painter.gender}</td>
-    <td className="py-3 px-4 text-center">
-      <MdPerson size={24} className="text-[#2E2E2E]" />
-    </td>
-    <td className="py-3 px-4 space-x-2">
-      <button className="text-blue-600 hover:text-blue-800">
-        <FaEye />
-      </button>
-      <button className="text-green-600 hover:text-green-800">
-        <FaEdit />
-      </button>
-      <button className="text-red-600 hover:text-red-800">
-        <FaTrash />
-      </button>
-    </td>
-  </tr>
-);
+import Pagination from "../../components/Pagination";
+import { ClipLoader } from "react-spinners";
+import AddCenterModal from "../../adminComponents/modals/centerModal/AddCenterModal";
+import DeleteCenterModal from "../../adminComponents/modals/centerModal/DeleteCenterModal";
+import EditCenterModal from "../../adminComponents/modals/centerModal/EditCenterModal";
+import CenterModal from "../../adminComponents/modals/centerModal/CenterModal";
 
 const Centers = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("name");
   const [perPage, setPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [centers, setCenters] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [selectedCenter, setSelectedCenter] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [isModalOpen3, setIsModalOpen3] = useState(false);
+  const [isModalOpen4, setIsModalOpen4] = useState(false);
 
-  const filteredPainters = paintersData.filter((painter) =>
-    painter.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const fetchCenters = async () => {
+    try {
+      setLoading(true);
+      const url = `/shop?page=${currentPage}&per_page=${perPage}&sort_by=${sortBy}&sort_order=asc`;
+      const res = await axios.get(url);
+      setCenters(res.data.data.data);
+      setTotal(res.data.data.total);
+    } catch (err) {
+      console.error("Failed to fetch centers", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCenters();
+  }, [currentPage, perPage, sortBy]);
+
+  const openModal = (c) => {
+    setSelectedCenter(c);
+    setIsModalOpen(true);
+  };
+  const openEditModal = (c) => {
+    setSelectedCenter(c);
+    setIsModalOpen2(true);
+  };
+  const openDeleteModal = (c) => {
+    setSelectedCenter(c);
+    setIsModalOpen3(true);
+  };
+
+  const closeAll = () => {
+    setIsModalOpen(false);
+    setIsModalOpen2(false);
+    setIsModalOpen3(false);
+    setIsModalOpen4(false);
+    setSelectedCenter(null);
+  };
+
+  const onUpdate = () => fetchCenters();
+  const onDelete = () => fetchCenters();
+
+  const filtered = centers.filter((c) =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center pt-[2rem]">
-        <button className="bg-[#0B0F28] text-white px-6 py-2 rounded-full shadow font-medium">
+      <div className="flex justify-between items-center md:pt-[2rem]">
+        <button
+          className="bg-[#1A1A27] text-white px-6 py-2 rounded-full shadow font-medium"
+          onClick={() => setIsModalOpen4(true)}
+        >
           Add Center
         </button>
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-md">
-        {/* <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-[#0B0F28]">Painters</h2>
-          <span className="text-lg font-semibold text-[#0B0F28]">
-            {paintersData.length}
-          </span>
-        </div> */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+        <div className="flex flex-wrap gap-4 md:items-center justify-between mb-4">
+          <div className="flex gap-2">
+            <select
+              value={sortBy}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setSortBy(e.target.value);
+              }}
+              className="border border-gray-300 px-3 py-2 rounded-full text-sm"
+            >
+              <option value="name">Sort by Name</option>
+              <option value="id">Sort by ID</option>
+            </select>
+
+            <select
+              value={perPage}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setPerPage(Number(e.target.value));
+              }}
+              className="border border-gray-300 px-3 py-2 rounded-full text-sm"
+            >
+              {[10, 25, 50, 75, 100].map((num) => (
+                <option key={num}>{num}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="relative w-full md:max-w-sm">
             <input
               type="text"
-              placeholder="Search table"
+              placeholder="Search by name"
               className="w-full border border-gray-300 rounded-full px-4 py-2 pl-10 text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">No. of Column</label>
-            <select
-              value={perPage}
-              onChange={(e) => setPerPage(Number(e.target.value))}
-              className="border border-gray-300 px-3 py-2 rounded-full text-sm"
-            >
-              {[5, 10, 20, 50].map((num) => (
-                <option key={num} value={num}>
-                  {num}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm border-t">
-            <thead className="bg-[#eef4fa] text-gray-700 font-semibold">
-              <tr>
-                <th className="py-3 px-4">ID</th>
-                <th className="py-3 px-4">Name</th>
-                <th className="py-3 px-4">Phone</th>
-                <th className="py-3 px-4">Address</th>
-                <th className="py-3 px-4">Gender</th>
-                <th className="py-3 px-4 text-center">Image</th>
-                <th className="py-3 px-4">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPainters.slice(0, perPage).map((painter, index) => (
-                <PainterRow key={painter.id} painter={painter} index={index} />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {/* Desktop Table */}
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <ClipLoader size={30} color="#0B1C39" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto hidden md:block">
+            <table className="w-full text-left text-sm border-t">
+              <thead className="bg-[#eef4fa] text-gray-700 font-semibold">
+                <tr>
+                  <th className="py-3 px-4">ID</th>
+                  <th className="py-3 px-4">Shop Code</th>
+                  <th className="py-3 px-4">Name</th>
+                  <th className="py-3 px-4">Address</th>
+                  <th className="py-3 px-4">Choice</th>
+                  <th className="py-3 px-4">Partner Status</th>
+                  <th className="py-3 px-4">Rep Status</th>
+                  <th className="py-3 px-4">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((center, index) => (
+                  <tr
+                    key={center.id}
+                    className={index % 2 ? "bg-gray-100" : ""}
+                  >
+                    <td className="py-3 px-4">{center.id}</td>
+                    <td className="py-3 px-4">{center.shopCode}</td>
+                    <td className="py-3 px-4 capitalize">{center.name}</td>
+                    <td className="py-3 px-4">{center.address || "—"}</td>
+                    <td className="py-3 px-4 capitalize">
+                      {center.choice || "—"}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium flex items-center justify-center ${
+                          center.status === "ASSIGNED-TO-PARTNER"
+                            ? "bg-green-100 text-green-700 text-center"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {center.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium flex items-center justify-center ${
+                          center.status2 === "ASSIGNED-TO-REP"
+                            ? "bg-green-100 text-green-700 text-center"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {center.status2}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 flex items-center gap-2">
+                      <button
+                        onClick={() => openModal(center)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <FaEye />
+                      </button>
+                      <button
+                        onClick={() => openEditModal(center)}
+                        className="text-green-600 hover:text-green-800"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => openDeleteModal(center)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(total / perPage)}
+          onPageChange={setCurrentPage}
+          totalEntries={total}
+          perPage={perPage}
+        />
       </div>
+
+      {/* Modals */}
+      <CenterModal
+        isOpen={isModalOpen}
+        closeCenterModal={closeAll}
+        center={selectedCenter}
+      />
+      <EditCenterModal
+        isOpen={isModalOpen2}
+        closeCenterModal={closeAll}
+        center={selectedCenter}
+        onUpdate={onUpdate}
+      />
+      <DeleteCenterModal
+        isOpen={isModalOpen3}
+        closeDeleteModal={closeAll}
+        center={selectedCenter}
+        onDelete={onDelete}
+      />
+      <AddCenterModal
+        isOpen={isModalOpen4}
+        closeCenterModal={closeAll}
+        onUpdate={onUpdate}
+      />
     </div>
   );
 };

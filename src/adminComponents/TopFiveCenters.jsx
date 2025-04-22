@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -9,41 +9,18 @@ import {
   LabelList,
   CartesianGrid,
 } from "recharts";
+import axios from "../utils/axiosInstance";
 
-const centerData = {
-  "Top Center (Purchase)": [
-    { name: "Shopper...", value: 9525670.38 },
-    { name: "Swift and...", value: 4993550.44 },
-    { name: "Breitenbe...", value: 1684771.3 },
-    { name: "Gislason ...", value: 1305087 },
-    { name: "Bauch Inc...", value: 1133500 },
-  ],
-  "Top Center (Frequency)": [
-    { name: "Shopper...", value: 35 },
-    { name: "Swift and...", value: 10 },
-    { name: "Breitenbe...", value: 10 },
-    { name: "Dietrich ...", value: 9 },
-    { name: "Gislason ...", value: 7 },
-  ],
-  "Top Partner (Claimed)": [
-    { name: "Shopper...", value: 219000 },
-    { name: "Swift and...", value: 50625 },
-    { name: "Breitenbe...", value: 37000 },
-    { name: "Dietrich ...", value: 35500 },
-    { name: "Gislason ...", value: 9000 },
-  ],
-  "Top Partner (Enrolled)": [
-    { name: "Breitenbe...", value: 4 },
-    { name: "Swift and...", value: 3 },
-    { name: "Bauch Inc...", value: 3 },
-    { name: "Dietrich ...", value: 3 },
-    { name: "Gislason ...", value: 2 },
-  ],
+const endpointMap = {
+  "Top Center (Accrued)": "/center/top/accrued",
+  "Top Center (Visits)": "/center/top/visit",
+  "Top Partner (Claimed)": "/center/top/claim",
+  "Top Partner (Enrolled)": "/center/top/enrol",
 };
 
 const centerColors = {
-  "Top Center (Purchase)": "#3949ab",
-  "Top Center (Frequency)": "#00897b",
+  "Top Center (Accrued)": "#3949ab",
+  "Top Center (Visits)": "#00897b",
   "Top Partner (Claimed)": "#f4511e",
   "Top Partner (Enrolled)": "#6a1b9a",
 };
@@ -54,12 +31,7 @@ const CenterBarChart = ({ title, data, color }) => (
       {title}
     </h4>
     <ResponsiveContainer width="100%" height={250}>
-      <BarChart
-        layout="vertical"
-        data={data}
-        // margin={{ top: 5, right: 40, bottom: 5, left: 10 }}
-        margin={{ right: 20, left: -20, }}
-      >
+      <BarChart layout="vertical" data={data} margin={{ right: 20, left: -20 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis type="number" hide />
         <YAxis
@@ -83,9 +55,35 @@ const CenterBarChart = ({ title, data, color }) => (
 );
 
 const TopFiveCenters = () => {
+  const [centerData, setCenterData] = useState({});
+
+  const fetchChartData = async () => {
+    try {
+      const chartEntries = await Promise.all(
+        Object.entries(endpointMap).map(async ([title, endpoint]) => {
+          const res = await axios.get(endpoint);
+          const formatted = res.data.data.map((item) => ({
+            name: item.name,
+            value: item.amount ?? item.visit ?? item.points ?? item.customers,
+          }));
+          return [title, formatted];
+        })
+      );
+
+      const result = Object.fromEntries(chartEntries);
+      setCenterData(result);
+    } catch (err) {
+      console.error("Failed to fetch center data", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchChartData();
+  }, []);
+
   return (
-    <div className="space-y-6 mt-6">
-      <h2 className="md:text-xl font-semibold text-center">Top Five Centers</h2>
+    <div className="space-y-6 pt-[2rem]">
+      <h2 className="md:text-xl font-semibold">Top Five Centers</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.entries(centerData).map(([title, data]) => (
           <CenterBarChart

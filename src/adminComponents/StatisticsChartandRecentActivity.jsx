@@ -57,7 +57,7 @@ const StatisticsChartAndRecentActivity = () => {
   }, [year]);
 
   return (
-    <div className="grid md:grid-cols-3 gap-4 mt-6">
+    <div className="grid md:grid-cols-3 gap-4 pt-[2rem]">
       <div className="col-span-2 bg-white p-4 rounded-xl shadow-md">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-semibold">Statistics</h3>

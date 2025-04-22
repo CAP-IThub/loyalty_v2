@@ -1,59 +1,59 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../utils/axiosInstance";
 import { FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
-import { MdPerson } from "react-icons/md";
 import Pagination from "../../components/Pagination";
 import { ClipLoader } from "react-spinners";
-import PartnerModal from "../../adminComponents/modals/partnerModal/PartnerModal";
-import EditPartnerModal from "../../adminComponents/modals/partnerModal/EditPartnerModal";
-import DeletePartnerModal from "../../adminComponents/modals/partnerModal/DeletePartnerModal";
-import AddPartnerModal from "../../adminComponents/modals/partnerModal/AddPartnerModal";
+import AddRepModal from "../../adminComponents/modals/repModal/AddRepModal";
+import DeleteRepModal from "../../adminComponents/modals/repModal/DeleteRepModal";
+import EditRepModal from "../../adminComponents/modals/repModal/EditRepModal";
+import RepModal from "../../adminComponents/modals/repModal/RepModal";
 
-const Partners = () => {
+const Reps = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [partners, setPartners] = useState([]);
+  const [reps, setReps] = useState([]);
   const [perPage, setPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [selectedPartner, setSelectedPartner] = useState(null);
+  const [selectedRep, setSelectedRep] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [isModalOpen3, setIsModalOpen3] = useState(false);
   const [isModalOpen4, setIsModalOpen4] = useState(false);
 
-  const fetchPartners = async () => {
+  const fetchReps = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/partner");
-      const formatted = res.data.data.partner.map((p) => ({
-        id: p.id,
+      const res = await axios.get("/reps");
+      const formatted = res.data.data.rep.map((rep) => ({
+        id: rep.id,
         name: `${
-          p.firstName[0].toUpperCase() + p.firstName.slice(1).toLowerCase()
-        } ${p.lastName[0].toUpperCase() + p.lastName.slice(1).toLowerCase()}`,
+          rep.firstName[0].toUpperCase() + rep.firstName.slice(1).toLowerCase()
+        } ${
+          rep.lastName[0].toUpperCase() + rep.lastName.slice(1).toLowerCase()
+        }`,
         firstName: `${
-          p.firstName[0].toUpperCase() + p.firstName.slice(1).toLowerCase()
+          rep.firstName[0].toUpperCase() + rep.firstName.slice(1).toLowerCase()
         }`,
         lastName: `${
-          p.lastName[0].toUpperCase() + p.lastName.slice(1).toLowerCase()
+          rep.lastName[0].toUpperCase() + rep.lastName.slice(1).toLowerCase()
         }`,
-        phone: p.phoneNum,
-        address: p.address,
-        email: p.email,
+        phone: rep.phoneNum,
+        email: rep.email,
       }));
-      setPartners(formatted);
+      setReps(formatted);
     } catch (err) {
-      console.error("Failed to fetch partners", err);
+      console.error("Failed to fetch reps", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPartners();
+    fetchReps();
   }, []);
 
-  const filtered = partners.filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = reps.filter((rep) =>
+    rep.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const paginated = filtered.slice(
@@ -61,34 +61,34 @@ const Partners = () => {
     currentPage * perPage
   );
 
-  const openModal = (partner) => {
-    setSelectedPartner(partner);
+  const openModal = (rep) => {
+    setSelectedRep(rep);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedPartner(null);
+    setSelectedRep(null);
   };
 
-  const openEditModal = (partner) => {
-    setSelectedPartner(partner);
+  const openEditModal = (rep) => {
+    setSelectedRep(rep);
     setIsModalOpen2(true);
   };
 
   const closeEditModal = () => {
     setIsModalOpen2(false);
-    setSelectedPartner(null);
+    setSelectedRep(null);
   };
 
-  const openDeleteModal = (partner) => {
-    setSelectedPartner(partner);
+  const openDeleteModal = (rep) => {
+    setSelectedRep(rep);
     setIsModalOpen3(true);
   };
 
   const closeDeleteModal = () => {
     setIsModalOpen3(false);
-    setSelectedPartner(null);
+    setSelectedRep(null);
   };
 
   const openAddModal = () => {
@@ -100,11 +100,11 @@ const Partners = () => {
   };
 
   const onUpdate = () => {
-    fetchPartners();
+    fetchReps();
   };
 
   const onDelete = () => {
-    fetchPartners();
+    fetchReps();
   };
 
   return (
@@ -114,7 +114,7 @@ const Partners = () => {
           className="bg-[#1A1A27] text-white px-6 py-2 rounded-full shadow font-medium"
           onClick={() => openAddModal()}
         >
-          Add Partner
+          Add Rep
         </button>
       </div>
 
@@ -159,44 +159,33 @@ const Partners = () => {
                   <th className="py-3 px-4">ID</th>
                   <th className="py-3 px-4">Name</th>
                   <th className="py-3 px-4">Phone</th>
-                  <th className="py-3 px-4">Address</th>
                   <th className="py-3 px-4">Email</th>
                   <th className="py-3 px-4">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {paginated.map((partner, index) => (
-                  <tr
-                    key={partner.id}
-                    className={index % 2 ? "bg-gray-100" : ""}
-                  >
-                    <td className="py-3 px-4 text-sm">{partner.id}</td>
-                    <td className="py-3 px-4 text-sm capitalize">
-                      {partner.name}
-                    </td>
-                    <td className="py-3 px-4 text-sm">{partner.phone}</td>
-                    <td className="py-3 px-4 text-sm">
-                      {partner.address || "—"}
-                    </td>
-                    <td className="py-3 px-4 text-sm">
-                      {partner.email || "—"}
-                    </td>
+                {paginated.map((rep, index) => (
+                  <tr key={rep.id} className={index % 2 ? "bg-gray-100" : ""}>
+                    <td className="py-3 px-4 text-sm">{rep.id}</td>
+                    <td className="py-3 px-4 text-sm capitalize">{rep.name}</td>
+                    <td className="py-3 px-4 text-sm">{rep.phone}</td>
+                    <td className="py-3 px-4 text-sm">{rep.email || "—"}</td>
                     <td className="py-3 px-4 flex items-center gap-2">
                       <button
-                        onClick={() => openModal(partner)}
+                        onClick={() => openModal(rep)}
                         className="text-blue-600 hover:text-blue-800"
                       >
                         <FaEye />
                       </button>
                       <button
                         className="text-green-600 hover:text-green-800"
-                        onClick={() => openEditModal(partner)}
+                        onClick={() => openEditModal(rep)}
                       >
                         <FaEdit />
                       </button>
                       <button
                         className="text-red-600 hover:text-red-800"
-                        onClick={() => openDeleteModal(partner)}
+                        onClick={() => openDeleteModal(rep)}
                       >
                         <FaTrash />
                       </button>
@@ -209,44 +198,39 @@ const Partners = () => {
 
           {/* Mobile Grid */}
           <div className="md:hidden space-y-4">
-            {paginated.map((partner) => (
+            {paginated.map((rep) => (
               <div
-                key={partner.id}
+                key={rep.id}
                 className="border border-gray-200 rounded-lg p-4 shadow-sm"
               >
                 <div className="mb-2 font-semibold text-[#0B0F28] text-base">
-                  {partner.name}
+                  {rep.name}
                 </div>
                 <div className="text-sm text-gray-600 space-y-1">
                   <p>
-                    <span className="font-semibold">Phone:</span>{" "}
-                    {partner.phone}
-                  </p>
-                  <p className="truncate">
-                    <span className="font-semibold">Address:</span>{" "}
-                    {partner.address || "—"}
+                    <span className="font-semibold">Phone:</span> {rep.phone}
                   </p>
                   <p>
                     <span className="font-semibold">Email:</span>{" "}
-                    {partner.email || "—"}
+                    {rep.email || "—"}
                   </p>
                 </div>
                 <div className="flex justify-end gap-3 mt-3">
                   <button
                     className="text-blue-600 hover:text-blue-800"
-                    onClick={() => openModal(partner)}
+                    onClick={() => openModal(rep)}
                   >
                     <FaEye />
                   </button>
                   <button
                     className="text-green-600 hover:text-green-800"
-                    onClick={() => openEditModal(partner)}
+                    onClick={() => openEditModal(rep)}
                   >
                     <FaEdit />
                   </button>
                   <button
                     className="text-red-600 hover:text-red-800"
-                    onClick={() => openDeleteModal(partner)}
+                    onClick={() => openDeleteModal(rep)}
                   >
                     <FaTrash />
                   </button>
@@ -265,33 +249,33 @@ const Partners = () => {
         </div>
       )}
 
-      <PartnerModal
+      <RepModal
         isOpen={isModalOpen}
-        closePartnerModal={closeModal}
-        partner={selectedPartner}
+        closeRepModal={closeModal}
+        rep={selectedRep}
       />
 
-      <EditPartnerModal
+      <EditRepModal
         isOpen={isModalOpen2}
-        closePartnerModal={closeEditModal}
-        partner={selectedPartner}
+        closeRepModal={closeEditModal}
+        rep={selectedRep}
         onUpdate={onUpdate}
       />
 
-      <DeletePartnerModal
+      <DeleteRepModal
         isOpen={isModalOpen3}
         closeDeleteModal={closeDeleteModal}
-        partner={selectedPartner}
+        rep={selectedRep}
         onDelete={onDelete}
       />
 
-      <AddPartnerModal
+      <AddRepModal
         isOpen={isModalOpen4}
-        closePartnerModal={closeAddModal}
+        closeRepModal={closeAddModal}
         onUpdate={onUpdate}
       />
     </div>
   );
 };
 
-export default Partners;
+export default Reps;

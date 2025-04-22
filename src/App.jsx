@@ -18,6 +18,7 @@ import ClaimedTransactions from "./pages/ADMIN/ClaimedTransactions";
 import Painters from "./pages/ADMIN/Painters";
 import Centers from "./pages/ADMIN/Centers";
 import Partners from "./pages/ADMIN/Partners";
+import Reps from "./pages/ADMIN/Reps";
 
 function App() {
   return (
@@ -86,6 +87,14 @@ function App() {
           }
         />
         <Route
+          path="/awarded-transactions"
+          element={
+            <AdminLayout>
+              <AwardedTransactions />
+            </AdminLayout>
+          }
+        />
+        <Route
           path="/painters"
           element={
             <AdminLayout>
@@ -106,6 +115,14 @@ function App() {
           element={
             <AdminLayout>
               <Centers />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/reps"
+          element={
+            <AdminLayout>
+              <Reps />
             </AdminLayout>
           }
         />
