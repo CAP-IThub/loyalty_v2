@@ -109,15 +109,6 @@ const AdminSidebar = () => {
               >
                 <MdDashboard /> <span>Dashboard</span>
               </NavLink>
-              {/* <NavLink
-                to="/orders"
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `${navItem} ${isActive ? activeStyle : ""}`
-                }
-              >
-                <MdOutlineShoppingCart /> <span>Order Management</span>
-              </NavLink> */}
               <NavLink
                 to="/partners"
                 onClick={handleNavClick}
@@ -127,15 +118,15 @@ const AdminSidebar = () => {
               >
                 <LuUsers /> <span>Partners</span>
               </NavLink>
-              {/* <NavLink
-                to="#"
+              <NavLink
+                to="/reps"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`
                 }
               >
                 <LuUserPen /> <span>Reps</span>
-              </NavLink> */}
+              </NavLink>
               <NavLink
                 to="/painters"
                 onClick={handleNavClick}
@@ -155,7 +146,7 @@ const AdminSidebar = () => {
                 <HiOutlineBuildingOffice2 /> <span>Centers</span>
               </NavLink>
               <NavLink
-                to="/painters"
+                to="/roles"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`
@@ -163,17 +154,8 @@ const AdminSidebar = () => {
               >
                 <MdOutlineInventory /> <span>Roles</span>
               </NavLink>
-              {/* <NavLink
-                to="/reps"
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `${navItem} ${isActive ? activeStyle : ""}`
-                }
-              >
-                <FaShippingFast /> <span>Shipments</span>
-              </NavLink> */}
               <NavLink
-                to="/centers"
+                to="/awarded-transactions"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`
@@ -182,7 +164,7 @@ const AdminSidebar = () => {
                 <FaFileInvoice /> <span>Transaction History</span>
               </NavLink>
               <NavLink
-                to="/inventory"
+                to="#"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`
