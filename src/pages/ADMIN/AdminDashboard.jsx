@@ -77,12 +77,14 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
-  const formatValue = (val) => {
+  const formatValue = (val, isCurrency = false) => {
     if (loading || val === undefined) {
       return <ClipLoader size={15} color="#FC7B00" />;
     }
-    return Number(val).toLocaleString();
+    const formatted = Number(val).toLocaleString();
+    return isCurrency ? `₦${formatted}` : formatted;
   };
+
 
   const getGrowthProps = (current, previous) => {
     if (loading) return { growth: null, growthType: null };
@@ -256,19 +258,19 @@ const AdminDashboard = () => {
             <StatCard
               icon={completedIcon}
               title="Total AP"
-              value={formatValue(data.totalAP)}
+              value={formatValue(data.totalAP, true)}
               {...getGrowthProps(data.totalAP, previousData.totalAP)}
             />
             <StatCard
               icon={deliveredIcon}
               title="Total Claimed"
-              value={formatValue(data.totalClaimed)}
+              value={formatValue(data.totalClaimed, true)}
               {...getGrowthProps(data.totalClaimed, previousData.totalClaimed)}
             />
             <StatCard
               icon={pendingIcon}
               title="Total Unclaimed"
-              value={formatValue(data.totalUnclaimed)}
+              value={formatValue(data.totalUnclaimed, true)}
               {...getGrowthProps(
                 data.totalUnclaimed,
                 previousData.totalUnclaimed
@@ -279,9 +281,9 @@ const AdminDashboard = () => {
       </div>
 
       {/* Charts Section */}
-      <StatisticsChartAndRecentActivity/>
-      <TopFivePainters/>
-      <TopFiveCenters/>
+      <StatisticsChartAndRecentActivity />
+      <TopFivePainters />
+      <TopFiveCenters />
 
       {/* Tables Section */}
       <TransactionsTable />

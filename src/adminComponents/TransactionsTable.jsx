@@ -15,6 +15,12 @@ const capitalizeName = (first, last) => {
   }`;
 };
 
+const formatNumber = (val, isCurrency = false) => {
+  const formatted = Number(val).toLocaleString();
+  return isCurrency ? `₦${formatted}` : formatted;
+};
+
+
 const TransactionTable = ({ data, columns, title }) => {
   const getRoute = () => {
     if (title.toLowerCase().includes("awarded"))
@@ -95,8 +101,8 @@ const TransactionsTable = () => {
 
         const awardedData = awardedRes.data.data.slice(0, 5).map((item) => ({
           id: item.id,
-          amount: item.amount,
-          point: item.points,
+          amount: formatNumber(item.amount, true), 
+          point: formatNumber(item.points),
           painter: capitalizeName(
             item.customerFirstName,
             item.customerLastName
@@ -107,7 +113,7 @@ const TransactionsTable = () => {
 
         const claimedData = claimedRes.data.data.slice(0, 5).map((item) => ({
           id: item.id,
-          point: item.pointsClaimed,
+          point: formatNumber(item.pointsClaimed),
           painter: capitalizeName(
             item.customerFirstName,
             item.customerLastName
@@ -127,7 +133,7 @@ const TransactionsTable = () => {
   }, []);
 
   return (
-    <div className="py-[2rem]">
+    <div className="pb-[2rem]">
       <div className="flex justify-between items-center">
         <h3 className="md:text-xl font-semibold">Transactions</h3>
       </div>

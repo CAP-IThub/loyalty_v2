@@ -92,7 +92,7 @@ const TopFivePainters = () => {
   }, []);
 
   return (
-    <div className="space-y-6 pt-[2rem]">
+    <div className="space-y-3">
       <h2 className="md:text-xl font-semibold">
         Top Five Painters
       </h2>

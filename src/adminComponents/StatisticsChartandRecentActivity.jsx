@@ -42,6 +42,11 @@ const StatisticsChartAndRecentActivity = () => {
     }
   };
 
+  const formatNumber = (value) => {
+    return new Intl.NumberFormat().format(value);
+  };
+
+
   const fetchRecentActivities = async () => {
     try {
       const res = await axios.get("/activity");
@@ -57,8 +62,8 @@ const StatisticsChartAndRecentActivity = () => {
   }, [year]);
 
   return (
-    <div className="grid md:grid-cols-3 gap-4 pt-[2rem]">
-      <div className="col-span-2 bg-white p-4 rounded-xl shadow-md">
+    <div className="grid md:grid-cols-3 gap-2">
+      <div className="col-span-2 bg-white pt-4 px-2 rounded-xl shadow-md">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-semibold">Statistics</h3>
           <select
@@ -77,12 +82,16 @@ const StatisticsChartAndRecentActivity = () => {
           <BarChart
             data={chartData}
             barSize={6}
-            margin={{ top: 20, right: 0, left: 0, bottom: 5 }}
+            margin={{ top: 30, right: 0, left: 5, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" className="text-sm" />
-            <YAxis className="text-xs" />
-            <Tooltip className="text-xs" />
+            <YAxis className="text-xs" tickFormatter={formatNumber} />
+            <Tooltip
+              className="text-xs"
+              formatter={(value) => formatNumber(value)}
+              labelFormatter={(label) => `Month: ${label}`}
+            />
             <Legend className="text-xs" />
             <Bar
               dataKey="customers"
