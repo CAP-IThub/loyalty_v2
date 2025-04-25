@@ -15,7 +15,6 @@ import {
   MenuItems,
   Transition,
 } from "@headlessui/react";
-import { FiDownloadCloud } from "react-icons/fi";
 import { IoIosPersonAdd } from "react-icons/io";
 
 const Partners = () => {
