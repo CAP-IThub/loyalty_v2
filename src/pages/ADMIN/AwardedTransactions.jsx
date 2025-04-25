@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
+import { FiDownloadCloud } from "react-icons/fi";
 import axios from "../../utils/axiosInstance";
 import Pagination from "../../components/Pagination";
 import { saveAs } from "file-saver";
 import { ClipLoader } from "react-spinners";
+import { Link } from "react-router-dom";
+import { MdOutlineArrowBackIos } from "react-icons/md";
 
 const AwardedTransactions = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,6 +22,11 @@ const AwardedTransactions = () => {
       .join(" ");
   };
 
+  const formatNumber = (value, isCurrency = false) => {
+    const formatted = Number(value).toLocaleString();
+    return isCurrency ? `₦${formatted}` : formatted;
+  };
+
   const fetchTransactions = async () => {
     try {
       setLoading(true);
@@ -28,11 +36,11 @@ const AwardedTransactions = () => {
         painter: formatName(
           `${item.customerFirstName} ${item.customerLastName}`
         ),
-        amount: item.amount,
-        claims: item.points,
+        amount: formatNumber(item.amount, true),
+        claims: formatNumber(item.points),
         invoice: item.invoiceNum.trim(),
         center: item.shop,
-        address: item.address.split(" ").slice(0, 20).join(" ") + "...",
+        address: item.address.split(" ").slice(0, 3).join(" ") + "...",
         rep: formatName(`${item.customerFirstName} ${item.customerLastName}`),
         date: new Date(item.transactionTime).toLocaleDateString(),
       }));
@@ -66,9 +74,49 @@ const AwardedTransactions = () => {
   };
 
   return (
-    <div className="py-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="md:text-xl font-semibold">All Awarded Transactions</h2>
+    <div className="py-6 px-2">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+        <div>
+          <div className="inline-flex gap-1 items-center">
+            <Link to="/admin">
+              <span className="text-xs text-gray-500 cursor-pointer hover:underline">
+                Dashboard
+              </span>
+            </Link>
+            <MdOutlineArrowBackIos className="text-xs text-gray-500 mt-1" />
+          </div>
+          <h2 className="md:text-lg font-semibold">All Awarded Transactions</h2>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-4 w-full md:w-auto">
+          <div className="relative w-full md:w-[450px]">
+            <input
+              type="text"
+              placeholder="Search table...."
+              className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+          </div>
+          <select
+            id="rows"
+            className="border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none"
+            value={perPage}
+            onChange={(e) => setPerPage(Number(e.target.value))}
+          >
+            {[5, 10, 20, 50].map((num) => (
+              <option key={num} value={num}>
+                {num}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={downloadCSV}
+            className="flex items-center gap-2 bg-[#FC7B00] text-white rounded-md px-4 py-2 text-sm hover:opacity-90"
+          >
+            <FiDownloadCloud size={16} />
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -76,92 +124,110 @@ const AwardedTransactions = () => {
           <ClipLoader size={30} color="#0B1C39" />
         </div>
       ) : (
-        <div className="bg-white p-6 rounded-xl shadow-md">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-            <div className="relative w-full md:w-[300px]">
-              <input
-                type="text"
-                placeholder="Search table"
-                className="w-full border border-gray-300 rounded-full px-4 py-2 pl-10 text-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <FaSearch className="absolute left-3 top-3 text-gray-400" />
-            </div>
-            <div className="flex items-center gap-2">
-              <label htmlFor="rows" className="text-sm text-gray-600">
-                No. of Rows
-              </label>
-              <select
-                id="rows"
-                className="border border-gray-300 px-3 py-2 rounded-full text-sm"
-                value={perPage}
-                onChange={(e) => setPerPage(Number(e.target.value))}
-              >
-                {[5, 10, 20, 50].map((num) => (
-                  <option key={num} value={num}>
-                    {num}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={downloadCSV}
-                className="bg-[#0B1C39] text-white rounded-lg px-4 py-2 text-sm hover:opacity-90"
-              >
-                Download CSV
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile View */}
-          <div className="md:hidden space-y-4">
-            {paginatedData.map((item) => (
-              <div
-                key={item.id}
-                className="border rounded-lg p-4 shadow-sm space-y-1 text-sm"
-              >
-                {Object.entries(item).map(([key, val]) => (
-                  <p key={key}>
-                    <strong className="capitalize">{key}:</strong> {val}
-                  </p>
-                ))}
-              </div>
-            ))}
-          </div>
-
-          {/* Desktop Table */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-sm border-t">
-              <thead className="bg-[#F1F5F9] text-gray-800 font-semibold">
+        <div>
+          <div className="border border-gray-200 hidden md:block">
+            <table className="w-full text-sm whitespace-nowrap">
+              <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>
-                  <th className="py-3 px-4 text-left">ID</th>
-                  <th className="py-3 px-4 text-left">Painter</th>
-                  <th className="py-3 px-4 text-left">Amount</th>
-                  <th className="py-3 px-4 text-left">Claims</th>
-                  <th className="py-3 px-4 text-left">Invoice No.</th>
-                  <th className="py-3 px-4 text-left">Center</th>
-                  <th className="py-3 px-4 text-left">Address</th>
-                  <th className="py-3 px-4 text-left">Rep</th>
-                  <th className="py-3 px-4 text-left">Date</th>
+                  <th className="text-left px-3 py-4 border-b">Painter</th>
+                  <th className="text-left px-3 py-4 border-b">Invoice No.</th>
+                  <th className="text-left px-3 py-4 border-b">Amount</th>
+                  <th className="text-left px-3 py-4 border-b">Claims</th>
+                  <th className="text-left px-3 py-4 border-b">Center</th>
+                  <th className="text-left px-3 py-4 border-b">Address</th>
+                  <th className="text-left px-3 py-4 border-b">Rep</th>
+                  <th className="text-left px-3 py-4 border-b">Date</th>
                 </tr>
               </thead>
               <tbody>
-                {paginatedData.map((item, index) => (
+                {paginatedData.map((item) => (
                   <tr
                     key={item.id}
-                    className={index % 2 === 1 ? "bg-gray-100" : ""}
+                    className="bg-white border-b border-gray-100 hover:bg-gray-50"
                   >
-                    {Object.values(item).map((val, i) => (
-                      <td key={i} className="py-2 px-4">
-                        {val}
-                      </td>
-                    ))}
+                    <td className="px-3 py-4">{item.painter}</td>
+                    <td className="px-3 py-4">
+                      {item.invoice.trim().toUpperCase()}
+                    </td>
+                    <td className="px-3 py-4">{item.amount}</td>
+                    <td className="px-3 py-4">{item.claims}</td>
+                    <td className="px-3 py-4">{item.center}</td>
+                    <td className="px-3 py-4">{item.address}</td>
+                    <td className="px-3 py-4">{item.rep}</td>
+                    <td className="px-3 py-4">{item.date}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
+          {/* Mobile Grid View */}
+          <div className="md:hidden grid grid-cols-1 gap-4">
+            {paginatedData.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white shadow-2xl rounded-xl px-4 py-6 space-y-3 text-sm text-[#0B1C39]"
+              >
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-semibold">
+                    {item.painter}
+                  </span>
+                  <span className="text-xs bg-[#FC7B00] text-white px-2 py-2 rounded-full">
+                    {item.invoice}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs text-gray-500 py-2">
+                      Amount
+                      <br />
+                      <span className="font-semibold text-black">
+                        {item.amount}
+                      </span>
+                    </p>
+                    <p className="text-xs text-gray-500 py-2">
+                      Claims
+                      <br />
+                      <span className="font-semibold text-black">
+                        {item.claims}
+                      </span>
+                    </p>
+                    <p className="text-xs text-gray-500 py-2">
+                      Center
+                      <br />
+                      <span className="font-semibold text-black">
+                        {item.center}
+                      </span>
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-gray-500 py-2">
+                      Address
+                      <br />
+                      <span className="font-semibold text-black">
+                        {item.address}
+                      </span>
+                    </p>
+                    <p className="text-xs text-gray-500 py-2">
+                      Rep
+                      <br />
+                      <span className="font-semibold text-black">
+                        {item.rep}
+                      </span>
+                    </p>
+                    <p className="text-xs text-gray-500 py-2">
+                      Date
+                      <br />
+                      <span className="font-semibold text-black">
+                        {item.date}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
           <Pagination
             currentPage={currentPage}
             totalPages={Math.ceil(filtered.length / perPage)}

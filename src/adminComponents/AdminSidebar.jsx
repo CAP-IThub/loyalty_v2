@@ -98,8 +98,8 @@ const AdminSidebar = () => {
 
         {/* Scrollable Middle Section */}
         <div className="overflow-y-auto scrollbar-hide">
-          <div className="flex flex-col items-center justify-center">
-            <nav className="mt-2 flex flex-col gap-2">
+          <div className="flex flex-col px-6 py-2">
+            <nav className="mt-2 mb-9 flex flex-col gap-2">
               <NavLink
                 to="/admin"
                 onClick={handleNavClick}
@@ -155,16 +155,7 @@ const AdminSidebar = () => {
                 <MdOutlineInventory /> <span>Roles</span>
               </NavLink>
               <NavLink
-                to="/awarded-transactions"
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `${navItem} ${isActive ? activeStyle : ""}`
-                }
-              >
-                <FaFileInvoice /> <span>Transaction History</span>
-              </NavLink>
-              <NavLink
-                to="#"
+                to="/"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`
@@ -177,7 +168,7 @@ const AdminSidebar = () => {
         </div>
 
         {/* Bottom Section - Fixed Settings/Logout */}
-        <div className="px-4 mt-[4rem] py-2 border-t border-gray-700">
+        <div className="px-4 py-2 border-t border-gray-700">
           <div className="flex flex-col gap-2 px-2">
             <NavLink
               to="/settings"

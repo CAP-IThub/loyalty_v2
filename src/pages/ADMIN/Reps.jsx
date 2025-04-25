@@ -111,7 +111,7 @@ const Reps = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center md:pt-[2rem]">
         <button
-          className="bg-[#1A1A27] text-white px-6 py-2 rounded-full shadow font-medium"
+          className="bg-[#1A1A27] text-white px-6 py-2 rounded-lg shadow font-medium"
           onClick={() => openAddModal()}
         >
           Add Rep
