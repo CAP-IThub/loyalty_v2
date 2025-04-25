@@ -48,7 +48,7 @@ const TransactionTable = ({ data, columns, title }) => {
           <thead className="bg-[#f3f6fb] text-gray-600 font-semibold">
             <tr>
               {columns.map((col) => (
-                <th key={col.accessor} className="py-3 px-4">
+                <th key={col.accessor} className="py-3 px-2">
                   {col.label}
                 </th>
               ))}
@@ -137,7 +137,7 @@ const TransactionsTable = () => {
       <div className="flex justify-between items-center">
         <h3 className="md:text-xl font-semibold">Transactions</h3>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
         <TransactionTable
           title="Recent Awarded"
           data={awarded}

@@ -1,13 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import axios from "../../utils/axiosInstance";
-import { FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
-import { MdPerson } from "react-icons/md";
+import { FaSearch, FaEye } from "react-icons/fa";
+import { HiDotsVertical } from "react-icons/hi";
 import Pagination from "../../components/Pagination";
 import { ClipLoader } from "react-spinners";
 import PartnerModal from "../../adminComponents/modals/partnerModal/PartnerModal";
 import EditPartnerModal from "../../adminComponents/modals/partnerModal/EditPartnerModal";
 import DeletePartnerModal from "../../adminComponents/modals/partnerModal/DeletePartnerModal";
 import AddPartnerModal from "../../adminComponents/modals/partnerModal/AddPartnerModal";
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  Transition,
+} from "@headlessui/react";
+import { FiDownloadCloud } from "react-icons/fi";
+import { IoIosPersonAdd } from "react-icons/io";
 
 const Partners = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -66,19 +75,9 @@ const Partners = () => {
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedPartner(null);
-  };
-
   const openEditModal = (partner) => {
     setSelectedPartner(partner);
     setIsModalOpen2(true);
-  };
-
-  const closeEditModal = () => {
-    setIsModalOpen2(false);
-    setSelectedPartner(null);
   };
 
   const openDeleteModal = (partner) => {
@@ -86,175 +85,133 @@ const Partners = () => {
     setIsModalOpen3(true);
   };
 
-  const closeDeleteModal = () => {
-    setIsModalOpen3(false);
-    setSelectedPartner(null);
-  };
-
-  const openAddModal = () => {
-    setIsModalOpen4(true);
-  };
-
-  const closeAddModal = () => {
-    setIsModalOpen4(false);
-  };
-
-  const onUpdate = () => {
-    fetchPartners();
-  };
-
-  const onDelete = () => {
-    fetchPartners();
-  };
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center md:pt-[2rem]">
-        <button
-          className="bg-[#1A1A27] text-white px-6 py-2 rounded-lg shadow font-medium"
-          onClick={() => openAddModal()}
-        >
-          Add Partner
-        </button>
+    <div className="py-6 px-2 space-y-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+        <div>
+          <h2 className="md:text-lg font-semibold">Partners</h2>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-4 w-full md:w-auto">
+          <div className="relative w-full md:w-[450px]">
+            <input
+              type="text"
+              placeholder="Search table...."
+              className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+          </div>
+          <select
+            id="rows"
+            className="border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none"
+            value={perPage}
+            onChange={(e) => setPerPage(Number(e.target.value))}
+          >
+            {[5, 10, 20, 50].map((num) => (
+              <option key={num} value={num}>
+                {num}
+              </option>
+            ))}
+          </select>
+          <button
+            className="flex items-center gap-2 bg-[#FC7B00] text-white rounded-md px-4 py-2 text-sm hover:opacity-90"
+            onClick={() => setIsModalOpen4(true)}
+          >
+            <IoIosPersonAdd size={16} /> Add Partner
+          </button>
+        </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-8">
+        <div className="flex justify-center py-10">
           <ClipLoader size={30} color="#0B1C39" />
         </div>
       ) : (
-        <div className="bg-white p-6 rounded-xl shadow-md">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-            <div className="relative w-full md:max-w-sm">
-              <input
-                type="text"
-                placeholder="Search table"
-                className="w-full border border-gray-300 rounded-full px-4 py-2 pl-10 text-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <FaSearch className="absolute left-3 top-3 text-gray-400" />
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600">No. of Column</label>
-              <select
-                value={perPage}
-                onChange={(e) => setPerPage(Number(e.target.value))}
-                className="border border-gray-300 px-3 py-2 rounded-full text-sm"
-              >
-                {[5, 10, 20, 50].map((num) => (
-                  <option key={num} value={num}>
-                    {num}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Desktop Table */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left text-sm border-t">
-              <thead className="bg-[#eef4fa] text-gray-700 font-semibold">
+        <>
+          <div className="hidden md:block border border-gray-200 rounded-xl">
+            <table className="w-full text-sm whitespace-nowrap">
+              <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>
-                  <th className="py-3 px-4">ID</th>
-                  <th className="py-3 px-4">Name</th>
-                  <th className="py-3 px-4">Phone</th>
-                  <th className="py-3 px-4">Address</th>
-                  <th className="py-3 px-4">Email</th>
-                  <th className="py-3 px-4">Action</th>
+                  <th className="text-left px-3 py-4 border-b">Name</th>
+                  <th className="text-left px-3 py-4 border-b">Phone</th>
+                  <th className="text-left px-3 py-4 border-b">Address</th>
+                  <th className="text-left px-3 py-4 border-b">Email</th>
+                  <th className="text-left px-3 py-4 border-b">View</th>
+                  <th className="text-left px-3 py-4 border-b"></th>
                 </tr>
               </thead>
               <tbody>
-                {paginated.map((partner, index) => (
+                {paginated.map((partner) => (
                   <tr
                     key={partner.id}
-                    className={index % 2 ? "bg-gray-100" : ""}
+                    className="bg-white border-b border-gray-100 hover:bg-gray-50"
                   >
-                    <td className="py-3 px-4 text-sm">{partner.id}</td>
-                    <td className="py-3 px-4 text-sm capitalize">
-                      {partner.name}
-                    </td>
-                    <td className="py-3 px-4 text-sm">{partner.phone}</td>
-                    <td className="py-3 px-4 text-sm">
-                      {partner.address || "—"}
-                    </td>
-                    <td className="py-3 px-4 text-sm">
-                      {partner.email || "—"}
-                    </td>
-                    <td className="py-3 px-4 flex items-center gap-2">
+                    <td className="px-3 py-4 capitalize">{partner.name}</td>
+                    <td className="px-3 py-4">{partner.phone}</td>
+                    <td className="px-3 py-4">{partner.address}</td>
+                    <td className="px-3 py-4">{partner.email}</td>
+                    <td className="px-3 py-4">
                       <button
+                        className="text-blue-600"
                         onClick={() => openModal(partner)}
-                        className="text-blue-600 hover:text-blue-800"
                       >
                         <FaEye />
                       </button>
-                      <button
-                        className="text-green-600 hover:text-green-800"
-                        onClick={() => openEditModal(partner)}
+                    </td>
+                    <td className="px-6 py-4 relative">
+                      <Menu
+                        as="div"
+                        className="relative inline-block text-left"
                       >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="text-red-600 hover:text-red-800"
-                        onClick={() => openDeleteModal(partner)}
-                      >
-                        <FaTrash />
-                      </button>
+                        <MenuButton className="text-gray-600 hover:text-gray-800">
+                          <HiDotsVertical />
+                        </MenuButton>
+                        <Transition
+                          as={Fragment}
+                          enter="transition ease-out duration-100"
+                          enterFrom="transform opacity-0 scale-95"
+                          enterTo="transform opacity-100 scale-100"
+                          leave="transition ease-in duration-75"
+                          leaveFrom="transform opacity-100 scale-100"
+                          leaveTo="transform opacity-0 scale-95"
+                        >
+                          <MenuItems className="absolute right-0 mt-2 w-28 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                            <div className="py-1 flex flex-col">
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => openEditModal(partner)}
+                                    className={`${
+                                      active ? "bg-gray-100" : ""
+                                    } w-full text-left px-4 py-2 text-sm text-gray-700`}
+                                  >
+                                    Edit
+                                  </button>
+                                )}
+                              </MenuItem>
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => openDeleteModal(partner)}
+                                    className={`${
+                                      active ? "bg-gray-100" : ""
+                                    } w-full text-left px-4 py-2 text-sm text-red-600`}
+                                  >
+                                    Delete
+                                  </button>
+                                )}
+                              </MenuItem>
+                            </div>
+                          </MenuItems>
+                        </Transition>
+                      </Menu>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-
-          {/* Mobile Grid */}
-          <div className="md:hidden space-y-4">
-            {paginated.map((partner) => (
-              <div
-                key={partner.id}
-                className="border border-gray-200 rounded-lg p-4 shadow-sm"
-              >
-                <div className="mb-2 font-semibold text-[#0B0F28] text-base">
-                  {partner.name}
-                </div>
-                <div className="text-sm text-gray-600 space-y-1">
-                  <p>
-                    <span className="font-semibold">Phone:</span>{" "}
-                    {partner.phone}
-                  </p>
-                  <p className="truncate">
-                    <span className="font-semibold">Address:</span>{" "}
-                    {partner.address || "—"}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Email:</span>{" "}
-                    {partner.email || "—"}
-                  </p>
-                </div>
-                <div className="flex justify-end gap-3 mt-3">
-                  <button
-                    className="text-blue-600 hover:text-blue-800"
-                    onClick={() => openModal(partner)}
-                  >
-                    <FaEye />
-                  </button>
-                  <button
-                    className="text-green-600 hover:text-green-800"
-                    onClick={() => openEditModal(partner)}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-800"
-                    onClick={() => openDeleteModal(partner)}
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
           <Pagination
             currentPage={currentPage}
             totalPages={Math.ceil(filtered.length / perPage)}
@@ -262,33 +219,30 @@ const Partners = () => {
             totalEntries={filtered.length}
             perPage={perPage}
           />
-        </div>
+        </>
       )}
 
       <PartnerModal
         isOpen={isModalOpen}
-        closePartnerModal={closeModal}
+        closePartnerModal={() => setIsModalOpen(false)}
         partner={selectedPartner}
       />
-
       <EditPartnerModal
         isOpen={isModalOpen2}
-        closePartnerModal={closeEditModal}
+        closePartnerModal={() => setIsModalOpen2(false)}
         partner={selectedPartner}
-        onUpdate={onUpdate}
+        onUpdate={fetchPartners}
       />
-
       <DeletePartnerModal
         isOpen={isModalOpen3}
-        closeDeleteModal={closeDeleteModal}
+        closeDeleteModal={() => setIsModalOpen3(false)}
         partner={selectedPartner}
-        onDelete={onDelete}
+        onDelete={fetchPartners}
       />
-
       <AddPartnerModal
         isOpen={isModalOpen4}
-        closePartnerModal={closeAddModal}
-        onUpdate={onUpdate}
+        closePartnerModal={() => setIsModalOpen4(false)}
+        onUpdate={fetchPartners}
       />
     </div>
   );
