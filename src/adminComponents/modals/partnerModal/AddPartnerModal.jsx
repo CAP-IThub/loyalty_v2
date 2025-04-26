@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import {
   Dialog,
   DialogPanel,
@@ -6,7 +6,6 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
 import axios from "../../../utils/axiosInstance";
 import toast from "react-hot-toast";
@@ -61,6 +60,15 @@ const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
       await axios.post(`/partner`, formData);
       toast.success("Partner Added");
       onUpdate();
+      setFormData({
+        firstName: "",
+        lastName: "",
+        phoneNum: "",
+        email: "",
+        address: "",
+        password: "",
+        password_confirmation: "",
+      });
       closePartnerModal();
     } catch (err) {
       console.error(err);
@@ -96,95 +104,99 @@ const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <div className="flex items-center justify-between mb-4">
+              <DialogPanel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white px-8 md:px-20 py-9 text-left align-middle shadow-2xl transition-all">
+                <div className="flex items-center justify-between mb-6">
                   <DialogTitle
                     as="h3"
-                    className="text-lg font-medium leading-6 text-[#1A1A27]"
+                    className="text-2xl font-semibold text-[#1A1A27]"
                   >
-                    Add Partner
+                    Add New Partner
                   </DialogTitle>
                   <button
                     type="button"
-                    className="text-[#1A1A27]"
+                    className="text-[#1A1A27] hover:text-gray-600"
                     onClick={closePartnerModal}
                   >
-                    <IoClose size={24} />
+                    <IoClose size={28} />
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        First Name
-                      </label>
-                      <input
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Last Name
-                      </label>
-                      <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
-                        required
-                      />
-                    </div>
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00] placeholder:text-xs"
+                      placeholder="Enter first name"
+                      required
+                    />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Phone Number
-                      </label>
-                      <input
-                        type="text"
-                        name="phoneNum"
-                        value={formData.phoneNum}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Email
-                      </label>
-                      <input
-                        type="text"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
-                        required
-                      />
-                    </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00] placeholder:text-xs"
+                      placeholder="Enter last name"
+                      required
+                    />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Email
+                    </label>
+                    <input
+                      type="text"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00] placeholder:text-xs"
+                      placeholder="Enter Email"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Phone Number
+                    </label>
+                    <input
+                      type="text"
+                      name="phoneNum"
+                      value={formData.phoneNum}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00] placeholder:text-xs"
+                      placeholder="Enter Phone Number"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Password
+                    </label>
                     <div className="relative">
-                      <label className="text-sm font-medium text-gray-700">
-                        Password
-                      </label>
                       <input
                         type={showPassword ? "text" : "password"}
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
+                        className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FC7B00] text-sm"
                         required
                       />
                       <span
-                        className="absolute right-3 top-[38px] cursor-pointer text-gray-500"
+                        className="absolute right-3 top-[14px] cursor-pointer text-gray-500"
                         onClick={() => setShowPassword((prev) => !prev)}
                       >
                         {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
@@ -195,21 +207,23 @@ const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
                         </p>
                       )}
                     </div>
+                  </div>
 
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Confirm Password
+                    </label>
                     <div className="relative">
-                      <label className="text-sm font-medium text-gray-700">
-                        Confirm Password
-                      </label>
                       <input
                         type={showConfirmPassword ? "text" : "password"}
                         name="password_confirmation"
                         value={formData.password_confirmation}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
+                        className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FC7B00] text-sm"
                         required
                       />
                       <span
-                        className="absolute right-3 top-[38px] cursor-pointer text-gray-500"
+                        className="absolute right-3 top-[14px] cursor-pointer text-gray-500"
                         onClick={() => setShowConfirmPassword((prev) => !prev)}
                       >
                         {showConfirmPassword ? (
@@ -225,6 +239,7 @@ const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
                       )}
                     </div>
                   </div>
+
                   <div>
                     <label className="text-sm font-medium text-gray-700">
                       Address
@@ -234,17 +249,19 @@ const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
                       rows="2"
                       value={formData.address}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
+                      className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FC7B00] placeholder:text-xs text-sm"
+                      placeholder="Enter Address"
                       required
                     ></textarea>
                   </div>
-                  <div className="md:col-span-2 mt-4 text-right">
+
+                  <div className="pt-4">
                     <button
                       type="submit"
                       disabled={loading}
-                      className="bg-[#FC7B00] hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md disabled:opacity-70 text-sm"
+                      className="w-full bg-[#FC7B00] hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-md text-sm transition"
                     >
-                      {loading ? "Adding..." : "Add Partner"}
+                      {loading ? "Adding..." : "Proceed to adding partner"}
                     </button>
                   </div>
                 </form>
