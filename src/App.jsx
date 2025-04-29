@@ -19,6 +19,8 @@ import Painters from "./pages/ADMIN/Painters";
 import Centers from "./pages/ADMIN/Centers";
 import Partners from "./pages/ADMIN/Partners";
 import Reps from "./pages/ADMIN/Reps";
+import Roles from "./pages/ADMIN/Roles";
+import Admins from "./pages/ADMIN/Admins";
 
 function App() {
   return (
@@ -123,6 +125,22 @@ function App() {
           element={
             <AdminLayout>
               <Reps />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/roles"
+          element={
+            <AdminLayout>
+              <Roles />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/admins"
+          element={
+            <AdminLayout>
+              <Admins />
             </AdminLayout>
           }
         />

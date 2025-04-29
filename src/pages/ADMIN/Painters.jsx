@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import axios from "../../utils/axiosInstance";
 import { FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import Pagination from "../../components/Pagination";
@@ -7,10 +7,21 @@ import PainterModal from "../../adminComponents/modals/painterModal/PainterModal
 import EditPainterModal from "../../adminComponents/modals/painterModal/EditPainterModal";
 import DeletePainterModal from "../../adminComponents/modals/painterModal/DeletePainterModal";
 import AddPainterModal from "../../adminComponents/modals/painterModal/AddPainterModal";
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  Transition,
+} from "@headlessui/react";
+import { IoIosPersonAdd } from "react-icons/io";
+import { HiChevronDown, HiDotsVertical } from "react-icons/hi";
 
 const Painters = () => {
   const [searchStatus, setSearchStatus] = useState("ALL");
   const [sortBy, setSortBy] = useState("firstName");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [searchGender, setSearchGender] = useState("ALL");
   const [perPage, setPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [painters, setPainters] = useState([]);
@@ -26,10 +37,19 @@ const Painters = () => {
   const fetchPainters = async () => {
     try {
       setLoading(true);
-      let url = `/customer?page=${currentPage}&per_page=${perPage}&sort_by=${sortBy}`;
-      if (searchStatus !== "ALL") url += `&search=${searchStatus}`;
+
+      let url = `/customer?page=${currentPage}&per_page=${perPage}&sort_by=${sortBy}&sort_order=${sortOrder}`;
+
+      if (searchStatus !== "ALL") {
+        url += `&search=${searchStatus}`;
+      }
+
+      if (searchGender !== "ALL") {
+        url += `&gender=${searchGender.toLowerCase()}`;
+      }
 
       const res = await axios.get(url);
+
       const rawData = res.data.data.data;
 
       const formatted = rawData.map((p) => ({
@@ -58,7 +78,7 @@ const Painters = () => {
 
   useEffect(() => {
     fetchPainters();
-  }, [currentPage, perPage, searchStatus, sortBy]);
+  }, [currentPage, perPage, searchStatus, searchGender, sortBy]);
 
   const openModal = (p) => {
     setSelectedPainter(p);
@@ -84,15 +104,141 @@ const Painters = () => {
   const onUpdate = () => fetchPainters();
   const onDelete = () => fetchPainters();
 
+  const sortOptions = [
+    { label: "First Name", value: "firstName" },
+    { label: "Last Name", value: "lastName" },
+    { label: "Address", value: "address" },
+    { label: "Phone Number", value: "phoneNum" },
+  ];
+
+  const sortByDisplay = (value) => {
+    const found = sortOptions.find((opt) => opt.value === value);
+    return found ? found.label : value;
+  };
+
+  const handleSortChange = (newSort) => {
+    setSortBy(newSort);
+    setCurrentPage(1);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center md:pt-[2rem]">
-        <button
-          className="bg-[#1A1A27] text-white px-6 py-2 rounded-lg shadow font-medium"
-          onClick={() => setIsModalOpen4(true)}
-        >
-          Add Painter
-        </button>
+    <div className="py-6 px-2 space-y-6">
+      <div>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2 gap-4">
+          <div>
+            <h2 className="md:text-lg font-semibold">Painters</h2>
+          </div>
+          <button
+            className="flex items-center gap-2 bg-[#FC7B00] text-white rounded-md px-4 py-2 text-sm hover:opacity-90"
+            onClick={() => setIsModalOpen4(true)}
+          >
+            <IoIosPersonAdd size={16} /> Add Painter
+          </button>
+        </div>
+        <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+          <div className="flex gap-2">
+            <Menu as="div" className="relative">
+              <MenuButton className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg text-sm shadow-sm bg-white">
+                <span className="text-gray-700 font-medium">
+                  Sort by: {sortByDisplay(sortBy)}
+                </span>
+                <HiChevronDown className="w-4 h-4" />
+              </MenuButton>
+
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <MenuItems className="absolute left-0 mt-2 w-48 origin-top-left bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
+                  {sortOptions.map((option) => (
+                    <MenuItem key={option.value}>
+                      {({ active }) => (
+                        <button
+                          onClick={() => handleSortChange(option.value)}
+                          className={`flex justify-between items-center w-full px-4 py-2 text-sm ${
+                            active ? "bg-gray-100" : ""
+                          }`}
+                        >
+                          <span>{option.label}</span>
+                          {sortBy === option.value && (
+                            <svg
+                              className="w-4 h-4 text-green-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      )}
+                    </MenuItem>
+                  ))}
+                </MenuItems>
+              </Transition>
+            </Menu>
+
+            <select
+              value={searchStatus}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setSearchStatus(e.target.value);
+              }}
+              className="border border-gray-300 px-4 py-2 rounded-lg text-sm shadow-sm"
+            >
+              <option value="ALL">Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+
+            <select
+              value={searchGender}
+              onChange={(e) => {
+                setCurrentPage(1);
+                setSearchGender(e.target.value);
+              }}
+              className="border border-gray-300 px-4 py-2 rounded-lg text-sm shadow-sm"
+            >
+              <option value="ALL">Gender</option>
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+            </select>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <div className="relative w-full md:w-[450px]">
+              <input
+                type="text"
+                placeholder="Search table...."
+                className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <FaSearch className="absolute left-3 top-3 text-gray-400" />
+            </div>
+            {/* <select
+              id="rows"
+              className="border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none"
+              value={perPage}
+              onChange={(e) => setPerPage(Number(e.target.value))}
+            >
+              {[5, 10, 20, 50].map((num) => (
+                <option key={num} value={num}>
+                  {num}
+                </option>
+              ))}
+            </select> */}
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -100,71 +246,19 @@ const Painters = () => {
           <ClipLoader size={30} color="#0B1C39" />
         </div>
       ) : (
-        <div className="bg-white p-6 rounded-xl shadow-md">
-          <div className="flex flex-wrap gap-4 md:items-center justify-between mb-4">
-            <div className="flex flex-wrap gap-2">
-              <select
-                value={searchStatus}
-                onChange={(e) => {
-                  setCurrentPage(1);
-                  setSearchStatus(e.target.value);
-                }}
-                className="border border-gray-300 px-3 py-2 rounded-full text-sm"
-              >
-                <option value="ALL">All Status</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-              </select>
-
-              <select
-                value={sortBy}
-                onChange={(e) => {
-                  setCurrentPage(1);
-                  setSortBy(e.target.value);
-                }}
-                className="border border-gray-300 px-3 py-2 rounded-full text-sm"
-              >
-                <option value="firstName">Sort by First Name</option>
-                <option value="id">Sort by ID</option>
-              </select>
-
-              <select
-                value={perPage}
-                onChange={(e) => {
-                  setCurrentPage(1);
-                  setPerPage(Number(e.target.value));
-                }}
-                className="border border-gray-300 px-3 py-2 rounded-full text-sm"
-              >
-                {[10, 25, 50, 75, 100].map((num) => (
-                  <option key={num}>{num}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="relative w-full md:max-w-sm">
-              <input
-                type="text"
-                placeholder="Search by name"
-                className="w-full border border-gray-300 rounded-full px-4 py-2 pl-10 text-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <FaSearch className="absolute left-3 top-3 text-gray-400" />
-            </div>
-          </div>
-
-          <div className="overflow-x-auto hidden md:block">
-            <table className="w-full text-left text-sm border-t ">
-              <thead className="bg-[#eef4fa] text-gray-700 font-semibold">
+        <>
+          <div className="hidden md:block overflow-x-auto border border-gray-200 rounded-xl">
+            <table className="w-full text-sm whitespace-nowrap">
+              <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>
-                  <th className="py-3 px-4">ID</th>
-                  <th className="py-3 px-4">Name</th>
-                  <th className="py-3 px-4">Phone</th>
-                  <th className="py-3 px-4">Address</th>
-                  <th className="py-3 px-4">Email</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Action</th>
+                  {/* <th className="text-left px-3 py-4 border-b">ID</th> */}
+                  <th className="text-left px-3 py-4 border-b">Name</th>
+                  <th className="text-left px-3 py-4 border-b">Phone</th>
+                  <th className="text-left px-3 py-4 border-b">Address</th>
+                  <th className="text-left px-3 py-4 border-b">Email</th>
+                  <th className="text-left px-3 py-4 border-b">Status</th>
+                  <th className="text-left px-3 py-4 border-b">View</th>
+                  <th className="text-left px-3 py-4 border-b"></th>
                 </tr>
               </thead>
               <tbody>
@@ -175,14 +269,14 @@ const Painters = () => {
                   .map((painter, index) => (
                     <tr
                       key={painter.id}
-                      className={index % 2 === 1 ? "bg-gray-100" : ""}
+                      className="bg-white border-b border-gray-100 hover:bg-gray-50"
                     >
-                      <td className="py-3 px-4">{painter.id}</td>
-                      <td className="py-3 px-4 capitalize">{painter.name}</td>
-                      <td className="py-3 px-4">{painter.phone}</td>
-                      <td className="py-3 px-4">{painter.address || "—"}</td>
-                      <td className="py-3 px-4">{painter.email || "—"}</td>
-                      <td className="py-3 px-4">
+                      {/* <td className="px-3 py-4">{painter.id}</td> */}
+                      <td className="px-3 py-4 capitalize">{painter.name}</td>
+                      <td className="px-3 py-4">{painter.phone}</td>
+                      <td className="px-3 py-4">{painter.address || "—"}</td>
+                      <td className="px-3 py-4">{painter.email || "—"}</td>
+                      <td className="px-3 py-4">
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium ${
                             painter.status === "ACTIVE"
@@ -193,96 +287,131 @@ const Painters = () => {
                           {painter.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 flex items-center gap-2">
+                      <td className="px-3 py-4">
                         <button
+                          className="text-blue-600"
                           onClick={() => openModal(painter)}
-                          className="text-blue-600 hover:text-blue-800"
                         >
                           <FaEye />
                         </button>
-                        <button
-                          onClick={() => openEditModal(painter)}
-                          className="text-green-600 hover:text-green-800"
+                      </td>
+                      <td className="px-6 py-4 relative">
+                        <Menu
+                          as="div"
+                          className="relative inline-block text-left"
                         >
-                          <FaEdit />
-                        </button>
-                        <button
-                          onClick={() => openDeleteModal(painter)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <FaTrash />
-                        </button>
+                          <MenuButton className="text-gray-600 hover:text-gray-800">
+                            <HiDotsVertical />
+                          </MenuButton>
+                          <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                          >
+                            <MenuItems className="absolute right-0 mt-2 w-28 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                              <div className="py-1 flex flex-col">
+                                <MenuItem>
+                                  {({ active }) => (
+                                    <button
+                                      onClick={() => openEditModal(painter)}
+                                      className={`${
+                                        active ? "bg-gray-100" : ""
+                                      } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                    >
+                                      Edit <FaEdit className="ml-2" />
+                                    </button>
+                                  )}
+                                </MenuItem>
+                                <MenuItem>
+                                  {({ active }) => (
+                                    <button
+                                      onClick={() => openDeleteModal(painter)}
+                                      className={`${
+                                        active ? "bg-gray-100" : ""
+                                      } flex justify-between items-center w-full px-4 py-2 text-sm text-red-600`}
+                                    >
+                                      Delete <FaTrash className="ml-2" />
+                                    </button>
+                                  )}
+                                </MenuItem>
+                              </div>
+                            </MenuItems>
+                          </Transition>
+                        </Menu>
                       </td>
                     </tr>
                   ))}
               </tbody>
             </table>
-          </div>
 
-          {/* Mobile Grid View */}
-          <div className="md:hidden space-y-4 mt-4">
-            {painters
-              .filter((p) =>
-                p.name.toLowerCase().includes(searchTerm.toLowerCase())
-              )
-              .map((painter) => (
-                <div
-                  key={painter.id}
-                  className="border rounded-lg p-4 shadow-sm bg-white"
-                >
-                  <div className="mb-1 text-base font-semibold text-[#1A1A27]">
-                    {painter.name}
-                  </div>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p>
-                      <span className="font-medium">Phone:</span>{" "}
-                      {painter.phone}
-                    </p>
-                    <p>
-                      <span className="font-medium">Email:</span>{" "}
-                      {painter.email || "—"}
-                    </p>
-                    <p>
-                      <span className="font-medium">Address:</span>{" "}
-                      {painter.address || "—"}
-                    </p>
-                    <p>
-                      <span className="font-medium">Status:</span>{" "}
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          painter.status === "ACTIVE"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
+            {/* Mobile Grid View */}
+            <div className="md:hidden space-y-4 mt-4">
+              {painters
+                .filter((p) =>
+                  p.name.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((painter) => (
+                  <div
+                    key={painter.id}
+                    className="border rounded-lg p-4 shadow-sm bg-white"
+                  >
+                    <div className="mb-1 text-base font-semibold text-[#1A1A27]">
+                      {painter.name}
+                    </div>
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <p>
+                        <span className="font-medium">Phone:</span>{" "}
+                        {painter.phone}
+                      </p>
+                      <p>
+                        <span className="font-medium">Email:</span>{" "}
+                        {painter.email || "—"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Address:</span>{" "}
+                        {painter.address || "—"}
+                      </p>
+                      <p>
+                        <span className="font-medium">Status:</span>{" "}
+                        <span
+                          className={`px-1 py-1 rounded-md text-xs font-medium ${
+                            painter.status === "ACTIVE"
+                              ? "text-white bg-green-500"
+                              : "text-white bg-red-500"
+                          }`}
+                        >
+                          {painter.status}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex justify-end gap-3 mt-3">
+                      <button
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => openModal(painter)}
                       >
-                        {painter.status}
-                      </span>
-                    </p>
+                        <FaEye />
+                      </button>
+                      <button
+                        className="text-green-600 hover:text-green-800"
+                        onClick={() => openEditModal(painter)}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-800"
+                        onClick={() => openDeleteModal(painter)}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex justify-end gap-3 mt-3">
-                    <button
-                      className="text-blue-600 hover:text-blue-800"
-                      onClick={() => openModal(painter)}
-                    >
-                      <FaEye />
-                    </button>
-                    <button
-                      className="text-green-600 hover:text-green-800"
-                      onClick={() => openEditModal(painter)}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-800"
-                      onClick={() => openDeleteModal(painter)}
-                    >
-                      <FaTrash />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))}
+            </div>
           </div>
-
           <Pagination
             currentPage={currentPage}
             totalPages={Math.ceil(total / perPage)}
@@ -290,7 +419,7 @@ const Painters = () => {
             totalEntries={total}
             perPage={perPage}
           />
-        </div>
+        </>
       )}
 
       <PainterModal

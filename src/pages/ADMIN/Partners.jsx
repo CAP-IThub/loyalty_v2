@@ -135,7 +135,7 @@ const Partners = () => {
         </div>
       ) : (
         <>
-          <div className="hidden md:block border border-gray-200 rounded-xl">
+          <div className="hidden md:block overflow-x-auto border border-gray-200 rounded-xl">
             <table className="w-full text-sm whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>

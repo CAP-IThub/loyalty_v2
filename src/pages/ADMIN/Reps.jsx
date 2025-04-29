@@ -40,6 +40,12 @@ const Reps = () => {
         } ${
           rep.lastName[0].toUpperCase() + rep.lastName.slice(1).toLowerCase()
         }`,
+        firstName: `${
+          rep.firstName[0].toUpperCase() + rep.firstName.slice(1).toLowerCase()
+        }`,
+        lastName: `${
+          rep.lastName[0].toUpperCase() + rep.lastName.slice(1).toLowerCase()
+        }`,
         phone: rep.phoneNum,
         email: rep.email,
       }));
@@ -123,7 +129,7 @@ const Reps = () => {
         </div>
       ) : (
         <>
-          <div className="hidden md:block border border-gray-200 rounded-xl">
+          <div className="hidden md:block overflow-x-auto border border-gray-200 rounded-xl">
             <table className="w-full text-sm whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>

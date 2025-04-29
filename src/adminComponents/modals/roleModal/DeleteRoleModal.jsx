@@ -11,12 +11,7 @@ import { IoClose } from "react-icons/io5";
 import axiosInstance from "../../../utils/axiosInstance";
 import { toast } from "react-hot-toast";
 
-const DeleteRepModal = ({
-  isOpen,
-  closeDeleteModal,
-  rep,
-  onDelete,
-}) => {
+const DeleteRoleModal = ({ isOpen, closeDeleteModal, rep, onDelete }) => {
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
@@ -107,4 +102,4 @@ const DeleteRepModal = ({
   );
 };
 
-export default DeleteRepModal;
+export default DeleteRoleModal;

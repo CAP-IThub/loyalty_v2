@@ -12,7 +12,7 @@ import axios from "../../../utils/axiosInstance";
 import toast from "react-hot-toast";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
-const AddRepModal = ({ isOpen, closeRepModal, onUpdate }) => {
+const AddRoleModal = ({ isOpen, closeRepModal, onUpdate }) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -258,4 +258,4 @@ const AddRepModal = ({ isOpen, closeRepModal, onUpdate }) => {
   );
 };
 
-export default AddRepModal;
+export default AddRoleModal;

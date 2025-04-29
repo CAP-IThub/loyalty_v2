@@ -11,29 +11,25 @@ import { IoClose } from "react-icons/io5";
 import axios from "../../../utils/axiosInstance";
 import toast from "react-hot-toast";
 
-const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
+const EditRoleModal = ({ isOpen, closeRepModal, rep, onUpdate }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    location: "",
-    street: "",
-    state: "",
-    region: "",
-    country: "",
+    firstName: "",
+    lastName: "",
+    phoneNum: "",
+    email: "",
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (center) {
+    if (rep) {
       setFormData({
-        name: center.name || "",
-        location: center.location || "",
-        street: center.address?.street || "",
-        state: center.address?.state || "",
-        region: center.address?.region || "",
-        country: center.address?.country || "",
+        firstName: rep.firstName || "",
+        lastName: rep.lastName || "",
+        phoneNum: rep.phone || "",
+        email: rep.email || "",
       });
     }
-  }, [center]);
+  }, [rep]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,15 +41,13 @@ const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
     setLoading(true);
 
     try {
-      // Send as normal JSON
-      await axios.patch(`/shop/${center.id}`, formData);
-
-      toast.success("Center info updated");
+      await axios.patch(`/rep/${rep.id}`, formData);
+      toast.success("Rep info updated");
       onUpdate();
-      closeCenterModal();
+      closeRepModal();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update center");
+      toast.error("Failed to update Rep");
     } finally {
       setLoading(false);
     }
@@ -61,7 +55,7 @@ const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[999]" onClose={closeCenterModal}>
+      <Dialog as="div" className="relative z-[999]" onClose={closeRepModal}>
         <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
@@ -85,18 +79,18 @@ const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white px-8 md:px-20 py-9 text-left align-middle shadow-2xl transition-all">
-                <div className="flex items-center justify-between mb-6">
+              <DialogPanel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white px-8 md:px-20 py-9 text-left align-middle shadow-2xl transition-all">
+                <div className="flex items-center justify-between mb-4">
                   <DialogTitle
                     as="h3"
                     className="text-2xl font-semibold text-[#1A1A27]"
                   >
-                    Edit Center's Information
+                    Edit Rep's Information
                   </DialogTitle>
                   <button
                     type="button"
                     className="text-[#1A1A27]"
-                    onClick={closeCenterModal}
+                    onClick={closeRepModal}
                   >
                     <IoClose size={28} />
                   </button>
@@ -105,99 +99,62 @@ const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
                 <form onSubmit={handleSubmit} className="space-y-3">
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      Name
+                      First Name
                     </label>
                     <input
                       type="text"
-                      name="name"
-                      value={formData.name}
+                      name="firstName"
+                      value={formData.firstName}
                       onChange={handleChange}
                       className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
                       required
                     />
                   </div>
-
-                  {/* Location */}
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      Location
+                      Last Name
                     </label>
                     <input
                       type="text"
-                      name="location"
-                      value={formData.location}
+                      name="lastName"
+                      value={formData.lastName}
                       onChange={handleChange}
                       className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
                       required
                     />
                   </div>
 
-                  {/* Street */}
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      Street
+                      Phone Number
                     </label>
                     <input
                       type="text"
-                      name="street"
-                      value={formData.street}
+                      name="phone"
+                      value={formData.phoneNum}
                       onChange={handleChange}
                       className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
                       required
                     />
                   </div>
-
-                  {/* State */}
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      State
+                      Email
                     </label>
                     <input
                       type="text"
-                      name="state"
-                      value={formData.state}
+                      name="email"
+                      value={formData.email}
                       onChange={handleChange}
-                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FC7B00] text-sm"
                       required
                     />
                   </div>
-
-                  {/* Region */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Region
-                    </label>
-                    <input
-                      type="text"
-                      name="region"
-                      value={formData.region}
-                      onChange={handleChange}
-                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
-                      required
-                    />
-                  </div>
-
-                  {/* Country */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Country
-                    </label>
-                    <input
-                      type="text"
-                      name="country"
-                      value={formData.country}
-                      onChange={handleChange}
-                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
-                      required
-                    />
-                  </div>
-
-                  {/* Submit */}
-                  <div className="mt-6 w-full">
+                  <div className="md:col-span-2 mt-4 text-right">
                     <button
                       type="submit"
                       disabled={loading}
-                      className="bg-[#FC7B00] hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md disabled:opacity-70 text-sm w-full"
+                      className="bg-[#FC7B00] hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md disabled:opacity-70 text-sm"
                     >
                       {loading ? "Saving..." : "Save Changes"}
                     </button>
@@ -212,4 +169,4 @@ const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
   );
 };
 
-export default EditCenterModal;
+export default EditRoleModal;
