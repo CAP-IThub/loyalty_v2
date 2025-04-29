@@ -155,7 +155,7 @@ const AdminSidebar = () => {
                 <MdOutlineInventory /> <span>Roles</span>
               </NavLink>
               <NavLink
-                to="/"
+                to="/#"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`

@@ -76,7 +76,9 @@ const ClaimedTransactions = () => {
         <div>
           <div className="inline-flex gap-1 items-center">
             <Link to="/admin">
-              <span className="text-xs text-gray-500 cursor-pointer hover:underline">Dashboard</span>
+              <span className="text-xs text-gray-500 cursor-pointer hover:underline">
+                Dashboard
+              </span>
             </Link>
             <MdOutlineArrowBackIos className="text-xs text-gray-500 mt-1" />
           </div>
@@ -121,7 +123,7 @@ const ClaimedTransactions = () => {
       ) : (
         <>
           {/* Desktop Table */}
-          <div className="hidden md:block rounded-xl border border-gray-200">
+          <div className="hidden md:block overflow-x-auto rounded-xl border border-gray-200">
             <table className="w-full text-sm whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>

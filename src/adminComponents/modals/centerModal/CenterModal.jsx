@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Dialog,
   DialogPanel,
@@ -42,25 +42,25 @@ const CenterModal = ({ isOpen, closeCenterModal, center }) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <div className="flex items-center justify-between mb-4">
+                <DialogPanel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white px-6 py-8 text-left align-middle shadow-2xl transition-all">
+                  <div className="flex items-center justify-between mb-6">
                     <DialogTitle
                       as="h3"
-                      className="text-lg font-medium leading-6 text-purple-700"
+                      className="text-xl font-semibold text-[#1A1A27]"
                     >
                       Center's Information
                     </DialogTitle>
                     <button
                       type="button"
-                      className="text-purple-600 hover:text-purple-800"
+                      className="text-gray-600 hover:text-gray-900"
                       onClick={closeCenterModal}
                     >
-                      <IoClose size={24} />
+                      <IoClose size={26} />
                     </button>
                   </div>
 
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border bg-[#E87C2E]">
+                  <div className="flex flex-col items-center justify-between gap-6">
+                    <div className="w-[120px] h-[120px] rounded-full overflow-hidden border-4 border-[#FC7B00] shadow-md">
                       <img
                         src={userIcon}
                         alt="avatar"
@@ -68,26 +68,118 @@ const CenterModal = ({ isOpen, closeCenterModal, center }) => {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-purple-800 md:w-[30rem]">
-                      <p>
-                        <strong>First Name:</strong> {center?.firstName || "-"}
-                      </p>
-                      <p>
-                        <strong>Last Name:</strong> {center?.lastName || "-"}
-                      </p>
-                      <p>
-                        <strong>Phone Number:</strong> {center?.phone || "-"}
-                      </p>
-                      <p>
-                        <strong>Center ID:</strong> {center?.id || "-"}
-                      </p>
-                      <p>
-                        <strong>Center Address:</strong>{" "}
-                        {center?.address || "-"}
-                      </p>
-                      <p>
-                        <strong>Center Email:</strong> {center?.email || "-"}
-                      </p>
+                    <div className="w-full space-y-4 text-sm text-gray-700 pl-10">
+                      <div className="grid grid-cols-2 md:grid-cols-3  gap-4">
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Center Name
+                          </p>
+                          <p className="font-medium">{center?.name || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Shop Code
+                          </p>
+                          <p className="font-medium">
+                            {center?.shopCode || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Choice
+                          </p>
+                          <p className="font-medium capitalize">
+                            {center?.choice || "-"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-3  gap-4">
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Location
+                          </p>
+                          <p className="font-medium">
+                            {center?.location || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Country
+                          </p>
+                          <p className="font-medium">
+                            {center?.address?.country || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Center ID
+                          </p>
+                          <p className="font-medium">{center?.id || "-"}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-3  gap-4">
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            State
+                          </p>
+                          <p className="font-medium">
+                            {center?.address?.state || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Region
+                          </p>
+                          <p className="font-medium">
+                            {center?.address?.region || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Street
+                          </p>
+                          <p className="font-medium">
+                            {center?.address?.street || "-"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Partner Status
+                          </p>
+                          <p className="font-medium mt-1">
+                            <span
+                              className={`px-2 py-1 rounded-md text-xs font-medium ${
+                                center?.status === "ASSIGNED-TO-PARTNER"
+                                  ? "text-white bg-green-500"
+                                  : "text-white bg-red-500"
+                              }`}
+                            >
+                              {center?.status || "-"}
+                            </span>
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Rep Status
+                          </p>
+                          <p className="font-medium mt-1">
+                            <span
+                              className={`px-2 py-1 rounded-md text-xs font-medium ${
+                                center?.status2 === "ASSIGNED-TO-REP"
+                                  ? "text-white bg-green-500"
+                                  : "text-white bg-red-500"
+                              }`}
+                            >
+                              {center?.status2 || "-"}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </DialogPanel>

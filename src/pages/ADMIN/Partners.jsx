@@ -1,6 +1,6 @@
 import React, { useEffect, useState, Fragment } from "react";
 import axios from "../../utils/axiosInstance";
-import { FaSearch, FaEye } from "react-icons/fa";
+import { FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
 import Pagination from "../../components/Pagination";
 import { ClipLoader } from "react-spinners";
@@ -59,6 +59,13 @@ const Partners = () => {
   useEffect(() => {
     fetchPartners();
   }, []);
+
+  const truncateAddress = (address, wordLimit = 3) => {
+    const words = address.split(" ");
+    return words.length > wordLimit
+      ? words.slice(0, wordLimit).join(" ") + "..."
+      : address;
+  };
 
   const filtered = partners.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -128,7 +135,7 @@ const Partners = () => {
         </div>
       ) : (
         <>
-          <div className="hidden md:block border border-gray-200 rounded-xl">
+          <div className="hidden md:block overflow-x-auto border border-gray-200 rounded-xl">
             <table className="w-full text-sm whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>
@@ -148,7 +155,9 @@ const Partners = () => {
                   >
                     <td className="px-3 py-4 capitalize">{partner.name}</td>
                     <td className="px-3 py-4">{partner.phone}</td>
-                    <td className="px-3 py-4">{partner.address}</td>
+                    <td className="px-3 py-4">
+                      {truncateAddress(partner.address)}
+                    </td>
                     <td className="px-3 py-4">{partner.email}</td>
                     <td className="px-3 py-4">
                       <button
@@ -183,9 +192,9 @@ const Partners = () => {
                                     onClick={() => openEditModal(partner)}
                                     className={`${
                                       active ? "bg-gray-100" : ""
-                                    } w-full text-left px-4 py-2 text-sm text-gray-700`}
+                                    } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
                                   >
-                                    Edit
+                                    Edit <FaEdit className="ml-2" />
                                   </button>
                                 )}
                               </MenuItem>
@@ -195,9 +204,9 @@ const Partners = () => {
                                     onClick={() => openDeleteModal(partner)}
                                     className={`${
                                       active ? "bg-gray-100" : ""
-                                    } w-full text-left px-4 py-2 text-sm text-red-600`}
+                                    } flex justify-between items-center w-full px-4 py-2 text-sm text-red-600`}
                                   >
-                                    Delete
+                                    Delete <FaTrash className="ml-2" />
                                   </button>
                                 )}
                               </MenuItem>
@@ -210,6 +219,54 @@ const Partners = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Grid */}
+          <div className="md:hidden space-y-4">
+            {paginated.map((partner) => (
+              <div
+                key={partner.id}
+                className="border border-gray-200 rounded-lg p-4 shadow-md bg-white"
+              >
+                <div className="mb-2 font-semibold text-[#0B0F28] text-base">
+                  {partner.name}
+                </div>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <span className="font-semibold">Phone:</span>{" "}
+                    {partner.phone}
+                  </p>
+                  <p className="truncate">
+                    <span className="font-semibold">Address:</span>{" "}
+                    {partner.address || "—"}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Email:</span>{" "}
+                    {partner.email || "—"}
+                  </p>
+                </div>
+                <div className="flex justify-end gap-3 mt-3">
+                  <button
+                    className="text-blue-600 hover:text-blue-800"
+                    onClick={() => openModal(partner)}
+                  >
+                    <FaEye />
+                  </button>
+                  <button
+                    className="text-green-600 hover:text-green-800"
+                    onClick={() => openEditModal(partner)}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => openDeleteModal(partner)}
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
           <Pagination
             currentPage={currentPage}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogPanel,
@@ -6,18 +6,18 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
+import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
 import axios from "../../../utils/axiosInstance";
 import toast from "react-hot-toast";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
-const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
+const AddRoleModal = ({ isOpen, closeRepModal, onUpdate }) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     phoneNum: "",
     email: "",
-    address: "",
     password: "",
     password_confirmation: "",
   });
@@ -57,22 +57,21 @@ const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
     setLoading(true);
 
     try {
-      await axios.post(`/partner`, formData);
-      toast.success("Partner Added");
+      await axios.post(`/rep`, formData);
+      toast.success("Rep Added");
       onUpdate();
       setFormData({
         firstName: "",
         lastName: "",
         phoneNum: "",
         email: "",
-        address: "",
         password: "",
         password_confirmation: "",
       });
-      closePartnerModal();
+      closeRepModal();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to Add partner");
+      toast.error("Failed to Add Rep");
     } finally {
       setLoading(false);
     }
@@ -80,7 +79,7 @@ const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[999]" onClose={closePartnerModal}>
+      <Dialog as="div" className="relative z-[999]" onClose={closeRepModal}>
         <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
@@ -110,12 +109,12 @@ const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
                     as="h3"
                     className="text-2xl font-semibold text-[#1A1A27]"
                   >
-                    Add New Partner
+                    Add New Representative
                   </DialogTitle>
                   <button
                     type="button"
-                    className="text-[#1A1A27] hover:text-gray-600"
-                    onClick={closePartnerModal}
+                    className="text-[#1A1A27]"
+                    onClick={closeRepModal}
                   >
                     <IoClose size={28} />
                   </button>
@@ -240,28 +239,13 @@ const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Address
-                    </label>
-                    <textarea
-                      name="address"
-                      rows="2"
-                      value={formData.address}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FC7B00] placeholder:text-xs text-sm"
-                      placeholder="Enter Address"
-                      required
-                    ></textarea>
-                  </div>
-
                   <div className="pt-4">
                     <button
                       type="submit"
                       disabled={loading}
                       className="w-full bg-[#FC7B00] hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-md text-sm transition"
                     >
-                      {loading ? "Adding..." : "Proceed to adding partner"}
+                      {loading ? "Adding..." : "Proceed to adding rep"}
                     </button>
                   </div>
                 </form>
@@ -274,4 +258,4 @@ const AddPartnerModal = ({ isOpen, closePartnerModal, onUpdate }) => {
   );
 };
 
-export default AddPartnerModal;
+export default AddRoleModal;

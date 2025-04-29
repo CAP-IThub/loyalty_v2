@@ -10,7 +10,7 @@ import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
 import userIcon from "../../../assets/images/userIcon.png";
 
-const RepModal = ({ isOpen, closeRepModal, rep }) => {
+const RoleModal = ({ isOpen, closeRepModal, rep }) => {
   return (
     <div>
       <Transition appear show={isOpen} as={Fragment}>
@@ -117,4 +117,4 @@ const RepModal = ({ isOpen, closeRepModal, rep }) => {
   );
 };
 
-export default RepModal;
+export default RoleModal;

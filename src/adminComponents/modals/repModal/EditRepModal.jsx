@@ -79,11 +79,11 @@ const EditRepModal = ({ isOpen, closeRepModal, rep, onUpdate }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+              <DialogPanel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white px-8 md:px-20 py-9 text-left align-middle shadow-2xl transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <DialogTitle
                     as="h3"
-                    className="text-lg font-medium leading-6 text-[#1A1A27]"
+                    className="text-2xl font-semibold text-[#1A1A27]"
                   >
                     Edit Rep's Information
                   </DialogTitle>
@@ -92,66 +92,63 @@ const EditRepModal = ({ isOpen, closeRepModal, rep, onUpdate }) => {
                     className="text-[#1A1A27]"
                     onClick={closeRepModal}
                   >
-                    <IoClose size={24} />
+                    <IoClose size={28} />
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        First Name
-                      </label>
-                      <input
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Last Name
-                      </label>
-                      <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
-                        required
-                      />
-                    </div>
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      required
+                    />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Phone Number
-                      </label>
-                      <input
-                        type="text"
-                        name="phone"
-                        value={formData.phoneNum}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Email
-                      </label>
-                      <input
-                        type="text"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
-                        required
-                      />
-                    </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Phone Number
+                    </label>
+                    <input
+                      type="text"
+                      name="phone"
+                      value={formData.phoneNum}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Email
+                    </label>
+                    <input
+                      type="text"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#FC7B00] text-sm"
+                      required
+                    />
                   </div>
                   <div className="md:col-span-2 mt-4 text-right">
                     <button

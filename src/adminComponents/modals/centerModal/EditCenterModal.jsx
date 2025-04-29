@@ -15,8 +15,10 @@ const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
   const [formData, setFormData] = useState({
     name: "",
     location: "",
-    address: "",
-    Choice: "",
+    street: "",
+    state: "",
+    region: "",
+    country: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -24,9 +26,11 @@ const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
     if (center) {
       setFormData({
         name: center.name || "",
-        choice: center.choice || "",
         location: center.location || "",
-        address: center.address || "",
+        street: center.address?.street || "",
+        state: center.address?.state || "",
+        region: center.address?.region || "",
+        country: center.address?.country || "",
       });
     }
   }, [center]);
@@ -41,13 +45,15 @@ const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
     setLoading(true);
 
     try {
+      // Send as normal JSON
       await axios.patch(`/shop/${center.id}`, formData);
+
       toast.success("Center info updated");
       onUpdate();
       closeCenterModal();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update Center");
+      toast.error("Failed to update center");
     } finally {
       setLoading(false);
     }
@@ -79,11 +85,11 @@ const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <div className="flex items-center justify-between mb-4">
+              <DialogPanel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white px-8 md:px-20 py-9 text-left align-middle shadow-2xl transition-all">
+                <div className="flex items-center justify-between mb-6">
                   <DialogTitle
                     as="h3"
-                    className="text-lg font-medium leading-6 text-[#1A1A27]"
+                    className="text-2xl font-semibold text-[#1A1A27]"
                   >
                     Edit Center's Information
                   </DialogTitle>
@@ -92,75 +98,106 @@ const EditCenterModal = ({ isOpen, closeCenterModal, center, onUpdate }) => {
                     className="text-[#1A1A27]"
                     onClick={closeCenterModal}
                   >
-                    <IoClose size={24} />
+                    <IoClose size={28} />
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Choice
-                      </label>
-                      <select
-                        name="choice"
-                        value={formData.choice}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg text-sm"
-                        required
-                      >
-                        <option value="Dulux">Dulux</option>
-                        <option value="Sandtex">Sandtex</option>
-                        <option value="Combo">Combo</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Location
-                      </label>
-                      <input
-                        type="text"
-                        name="location"
-                        value={formData.location}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
-                        required
-                      />
-                    </div>
-                  </div>
+                <form onSubmit={handleSubmit} className="space-y-3">
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      Address
+                      Name
                     </label>
-                    <textarea
-                      name="address"
-                      rows="2"
-                      value={formData.address}
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 mt-1 border rounded-lg focus:outline-none focus:border-[#FC7B00] text-sm"
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
                       required
-                    ></textarea>
+                    />
                   </div>
-                  <div className="md:col-span-2 mt-4 text-right">
+
+                  {/* Location */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      required
+                    />
+                  </div>
+
+                  {/* Street */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Street
+                    </label>
+                    <input
+                      type="text"
+                      name="street"
+                      value={formData.street}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      required
+                    />
+                  </div>
+
+                  {/* State */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      State
+                    </label>
+                    <input
+                      type="text"
+                      name="state"
+                      value={formData.state}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      required
+                    />
+                  </div>
+
+                  {/* Region */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Region
+                    </label>
+                    <input
+                      type="text"
+                      name="region"
+                      value={formData.region}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      required
+                    />
+                  </div>
+
+                  {/* Country */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Country
+                    </label>
+                    <input
+                      type="text"
+                      name="country"
+                      value={formData.country}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      required
+                    />
+                  </div>
+
+                  {/* Submit */}
+                  <div className="mt-6 w-full">
                     <button
                       type="submit"
                       disabled={loading}
-                      className="bg-[#FC7B00] hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md disabled:opacity-70 text-sm"
+                      className="bg-[#FC7B00] hover:bg-orange-600 text-white font-medium py-2 px-6 rounded-md disabled:opacity-70 text-sm w-full"
                     >
                       {loading ? "Saving..." : "Save Changes"}
                     </button>

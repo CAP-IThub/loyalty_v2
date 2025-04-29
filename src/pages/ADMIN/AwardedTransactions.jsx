@@ -125,7 +125,7 @@ const AwardedTransactions = () => {
         </div>
       ) : (
         <div>
-          <div className="border border-gray-200 hidden md:block">
+          <div className="border border-gray-200 hidden md:block overflow-x-auto">
             <table className="w-full text-sm whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>

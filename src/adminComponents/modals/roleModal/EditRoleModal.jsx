@@ -11,7 +11,7 @@ import { IoClose } from "react-icons/io5";
 import axios from "../../../utils/axiosInstance";
 import toast from "react-hot-toast";
 
-const EditPartnerModal = ({ isOpen, closePartnerModal, partner, onUpdate }) => {
+const EditRoleModal = ({ isOpen, closeRepModal, rep, onUpdate }) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -21,15 +21,15 @@ const EditPartnerModal = ({ isOpen, closePartnerModal, partner, onUpdate }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (partner) {
+    if (rep) {
       setFormData({
-        firstName: partner.firstName || "",
-        lastName: partner.lastName || "",
-        phoneNum: partner.phone || "",
-        email: partner.email || "",
+        firstName: rep.firstName || "",
+        lastName: rep.lastName || "",
+        phoneNum: rep.phone || "",
+        email: rep.email || "",
       });
     }
-  }, [partner]);
+  }, [rep]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,13 +41,13 @@ const EditPartnerModal = ({ isOpen, closePartnerModal, partner, onUpdate }) => {
     setLoading(true);
 
     try {
-      await axios.patch(`/partner/${partner.id}`, formData);
-      toast.success("Partner info updated");
+      await axios.patch(`/rep/${rep.id}`, formData);
+      toast.success("Rep info updated");
       onUpdate();
-      closePartnerModal();
+      closeRepModal();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update partner");
+      toast.error("Failed to update Rep");
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ const EditPartnerModal = ({ isOpen, closePartnerModal, partner, onUpdate }) => {
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[999]" onClose={closePartnerModal}>
+      <Dialog as="div" className="relative z-[999]" onClose={closeRepModal}>
         <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
@@ -85,44 +85,44 @@ const EditPartnerModal = ({ isOpen, closePartnerModal, partner, onUpdate }) => {
                     as="h3"
                     className="text-2xl font-semibold text-[#1A1A27]"
                   >
-                    Edit Partner's Information
+                    Edit Rep's Information
                   </DialogTitle>
                   <button
                     type="button"
                     className="text-[#1A1A27]"
-                    onClick={closePartnerModal}
+                    onClick={closeRepModal}
                   >
                     <IoClose size={28} />
                   </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-3">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        First Name
-                      </label>
-                      <input
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">
-                        Last Name
-                      </label>
-                      <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
-                        required
-                      />
-                    </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                      required
+                    />
+                  </div>
 
                   <div>
                     <label className="text-sm font-medium text-gray-700">
@@ -169,4 +169,4 @@ const EditPartnerModal = ({ isOpen, closePartnerModal, partner, onUpdate }) => {
   );
 };
 
-export default EditPartnerModal;
+export default EditRoleModal;
