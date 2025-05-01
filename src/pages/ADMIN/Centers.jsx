@@ -18,6 +18,10 @@ import { IoIosPersonAdd } from "react-icons/io";
 import { HiChevronDown, HiDotsVertical } from "react-icons/hi";
 import { MdAssignmentAdd } from "react-icons/md";
 import { IoArrowUndoCircleSharp } from "react-icons/io5";
+import AssignPartnerModal from "../../adminComponents/modals/centerModal/AssignPartnerModal";
+import UnassignPartnerModal from "../../adminComponents/modals/centerModal/UnassignPartnerModal";
+import AssignRepModal from "../../adminComponents/modals/centerModal/AssignRepModal";
+import UnassignRepModal from "../../adminComponents/modals/centerModal/UnassignRepModal";
 
 const Centers = () => {
   const [sortBy, setSortBy] = useState("");
@@ -33,6 +37,10 @@ const Centers = () => {
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [isModalOpen3, setIsModalOpen3] = useState(false);
   const [isModalOpen4, setIsModalOpen4] = useState(false);
+  const [isModalOpen5, setIsModalOpen5] = useState(false);
+  const [isModalOpen6, setIsModalOpen6] = useState(false);
+  const [isModalOpen7, setIsModalOpen7] = useState(false);
+  const [isModalOpen8, setIsModalOpen8] = useState(false);
 
   const fetchCenters = async () => {
     try {
@@ -60,7 +68,7 @@ const Centers = () => {
           region: p.address?.region,
           country: p.address?.country,
         },
-      }));      
+      }));
 
       setCenters(formatted);
       setTotal(res.data.data.total);
@@ -87,12 +95,32 @@ const Centers = () => {
     setSelectedCenter(center);
     setIsModalOpen3(true);
   };
+  const openAssignModal1 = (center) => {
+    setSelectedCenter(center);
+    setIsModalOpen5(true);
+  };
+  const openUnassignModal1 = (center) => {
+    setSelectedCenter(center);
+    setIsModalOpen6(true);
+  };
+  const openAssignModal2 = (center) => {
+    setSelectedCenter(center);
+    setIsModalOpen7(true);
+  };
+  const openUnassignModal2 = (center) => {
+    setSelectedCenter(center);
+    setIsModalOpen8(true);
+  };
 
   const closeAll = () => {
     setIsModalOpen(false);
     setIsModalOpen2(false);
     setIsModalOpen3(false);
     setIsModalOpen4(false);
+    setIsModalOpen5(false);
+    setIsModalOpen6(false);
+    setIsModalOpen7(false);
+    setIsModalOpen8(false);
     setSelectedCenter(null);
   };
 
@@ -340,7 +368,7 @@ const Centers = () => {
                                 <MenuItem>
                                   {({ active }) => (
                                     <button
-                                      // onClick={() => openEditModal(center)}
+                                      onClick={() => openAssignModal1(center)}
                                       className={`${
                                         active ? "bg-gray-100" : ""
                                       } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
@@ -353,12 +381,12 @@ const Centers = () => {
                                 <MenuItem>
                                   {({ active }) => (
                                     <button
-                                      // onClick={() => openEditModal(center)}
+                                      onClick={() => openUnassignModal1(center)}
                                       className={`${
                                         active ? "bg-gray-100" : ""
                                       } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
                                     >
-                                      Unassign Center to Partner{" "}
+                                      Unassign Center from Partner{" "}
                                       <IoArrowUndoCircleSharp className="ml-2" />
                                     </button>
                                   )}
@@ -366,7 +394,7 @@ const Centers = () => {
                                 <MenuItem>
                                   {({ active }) => (
                                     <button
-                                      // onClick={() => openEditModal(center)}
+                                      onClick={() => openAssignModal2(center)}
                                       className={`${
                                         active ? "bg-gray-100" : ""
                                       } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
@@ -379,12 +407,12 @@ const Centers = () => {
                                 <MenuItem>
                                   {({ active }) => (
                                     <button
-                                      // onClick={() => openEditModal(center)}
+                                      onClick={() => openUnassignModal2(center)}
                                       className={`${
                                         active ? "bg-gray-100" : ""
                                       } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
                                     >
-                                      Unassign Center to Rep{" "}
+                                      Unassign Center from Rep{" "}
                                       <IoArrowUndoCircleSharp className="ml-2" />
                                     </button>
                                   )}
@@ -429,8 +457,86 @@ const Centers = () => {
                   key={center.id}
                   className="border rounded-lg p-4 shadow-sm bg-white"
                 >
-                  <div className="mb-1 text-base font-semibold text-[#1A1A27]">
-                    {center.name}
+                  <div className="flex items-center justify-between">
+                    <div className="mb-1 text-base font-semibold text-[#1A1A27]">
+                      {center.name}
+                    </div>
+                    <div>
+                      <Menu
+                        as="div"
+                        className="relative inline-block text-left"
+                      >
+                        <MenuButton className="text-gray-600 hover:text-gray-800">
+                          <HiDotsVertical />
+                        </MenuButton>
+                        <Transition
+                          as={Fragment}
+                          enter="transition ease-out duration-100"
+                          enterFrom="transform opacity-0 scale-95"
+                          enterTo="transform opacity-100 scale-100"
+                          leave="transition ease-in duration-75"
+                          leaveFrom="transform opacity-100 scale-100"
+                          leaveTo="transform opacity-0 scale-95"
+                        >
+                          <MenuItems className="absolute right-0 mt-2  w-[15rem] origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                            <div className="py-1 flex flex-col">
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => openAssignModal1(center)}
+                                    className={`${
+                                      active ? "bg-gray-100" : ""
+                                    } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                  >
+                                    Assign Center to Partner{" "}
+                                    <MdAssignmentAdd className="ml-2" />
+                                  </button>
+                                )}
+                              </MenuItem>
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => openUnassignModal1(center)}
+                                    className={`${
+                                      active ? "bg-gray-100" : ""
+                                    } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                  >
+                                    Unassign Center from Partner{" "}
+                                    <IoArrowUndoCircleSharp className="ml-2" />
+                                  </button>
+                                )}
+                              </MenuItem>
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => openAssignModal2(center)}
+                                    className={`${
+                                      active ? "bg-gray-100" : ""
+                                    } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                  >
+                                    Assign Center to Rep{" "}
+                                    <MdAssignmentAdd className="ml-2" />
+                                  </button>
+                                )}
+                              </MenuItem>
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => openUnassignModal2(center)}
+                                    className={`${
+                                      active ? "bg-gray-100" : ""
+                                    } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                  >
+                                    Unassign Center from Rep{" "}
+                                    <IoArrowUndoCircleSharp className="ml-2" />
+                                  </button>
+                                )}
+                              </MenuItem>
+                            </div>
+                          </MenuItems>
+                        </Transition>
+                      </Menu>
+                    </div>
                   </div>
                   <div className="text-sm text-gray-600 space-y-1">
                     <p>
@@ -445,7 +551,7 @@ const Centers = () => {
                       <span className="font-medium">Region:</span>{" "}
                       {center.region || "—"}
                     </p>
-                    <p>
+                    <p className="capitalize">
                       <span className="font-medium">Choice:</span>{" "}
                       {center.choice || "—"}
                     </p>
@@ -532,6 +638,30 @@ const Centers = () => {
       <AddCenterModal
         isOpen={isModalOpen4}
         closeCenterModal={closeAll}
+        onUpdate={onUpdate}
+      />
+      <AssignPartnerModal
+        isOpen={isModalOpen5}
+        closeCenterModal={closeAll}
+        center={selectedCenter}
+        onUpdate={onUpdate}
+      />
+      <UnassignPartnerModal
+        isOpen={isModalOpen6}
+        closeCenterModal={closeAll}
+        center={selectedCenter}
+        onUpdate={onUpdate}
+      />
+      <AssignRepModal
+        isOpen={isModalOpen7}
+        closeCenterModal={closeAll}
+        center={selectedCenter}
+        onUpdate={onUpdate}
+      />
+      <UnassignRepModal
+        isOpen={isModalOpen8}
+        closeCenterModal={closeAll}
+        center={selectedCenter}
         onUpdate={onUpdate}
       />
     </div>

@@ -21,6 +21,7 @@ import Partners from "./pages/ADMIN/Partners";
 import Reps from "./pages/ADMIN/Reps";
 import Roles from "./pages/ADMIN/Roles";
 import Admins from "./pages/ADMIN/Admins";
+import Settings from "./pages/ADMIN/Settings";
 
 function App() {
   return (
@@ -141,6 +142,14 @@ function App() {
           element={
             <AdminLayout>
               <Admins />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <AdminLayout>
+              <Settings />
             </AdminLayout>
           }
         />

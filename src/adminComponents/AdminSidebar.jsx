@@ -155,7 +155,7 @@ const AdminSidebar = () => {
                 <MdOutlineInventory /> <span>Roles</span>
               </NavLink>
               <NavLink
-                to="/#"
+                to="/admins"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`
@@ -180,15 +180,15 @@ const AdminSidebar = () => {
               <FaCog /> <span>Settings</span>
             </NavLink>
 
-            <NavLink
+            <button
               onClick={() => {
                 dispatch(logoutUser());
                 navigate("/");
               }}
-              className="flex items-center space-x-3 py-2 px-4 text-sm text-[#FF3C3C]"
+              className="flex items-center space-x-3 py-2 px-4 text-sm text-[#FF3C3C] w-full text-left"
             >
               <FaPowerOff /> <span>Logout</span>
-            </NavLink>
+            </button>
           </div>
         </div>
       </aside>

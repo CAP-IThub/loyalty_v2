@@ -146,7 +146,7 @@ const Roles = () => {
                     <td className="px-3 py-4">
                       <button
                         className="text-blue-600"
-                        // onClick={() => openModal(role)}
+                        onClick={() => openModal(role)}
                       >
                         <FaEye />
                       </button>
@@ -154,7 +154,7 @@ const Roles = () => {
                     <td className="px-3 py-4">
                       <button
                         className="text-green-600"
-                        // onClick={() => openEditModal(role)}
+                        onClick={() => openEditModal(role)}
                       >
                         <FaEdit />
                       </button>
@@ -162,7 +162,7 @@ const Roles = () => {
                     <td className="px-3 py-4">
                       <button
                         className="text-red-600"
-                        // onClick={() => openDeleteModal(role)}
+                        onClick={() => openDeleteModal(role)}
                       >
                         <FaTrash />
                       </button>
@@ -186,8 +186,8 @@ const Roles = () => {
 
                 <div className="text-sm text-gray-600 space-y-1">
                   <p>
-                    <span className="font-semibold">Guard Name:</span>{" "}
-                    {role.guard_name || "—"}
+                    <span className="font-semibold">Name:</span>{" "}
+                    {role.name || "—"}
                   </p>
                   <p>
                     <span className="font-semibold">Created At:</span>{" "}
@@ -200,19 +200,19 @@ const Roles = () => {
                 <div className="flex justify-end gap-3 mt-3">
                   <button
                     className="text-blue-600 hover:text-blue-800"
-                    // onClick={() => openModal(role)}
+                    onClick={() => openModal(role)}
                   >
                     <FaEye />
                   </button>
                   <button
                     className="text-green-600 hover:text-green-800"
-                    // onClick={() => openEditModal(role)}
+                    onClick={() => openEditModal(role)}
                   >
                     <FaEdit />
                   </button>
                   <button
                     className="text-red-600 hover:text-red-800"
-                    // onClick={() => openDeleteModal(role)}
+                    onClick={() => openDeleteModal(role)}
                   >
                     <FaTrash />
                   </button>

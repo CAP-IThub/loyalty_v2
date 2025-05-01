@@ -11,20 +11,25 @@ import { IoClose } from "react-icons/io5";
 import axiosInstance from "../../../utils/axiosInstance";
 import { toast } from "react-hot-toast";
 
-const DeleteRoleModal = ({ isOpen, closeDeleteModal, role, onDelete }) => {
+const DeleteAdminModal = ({
+  isOpen,
+  closeDeleteModal,
+  admin,
+  onDelete,
+}) => {
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async () => {
-    if (!role?.id) return;
+    if (!admin?.id) return;
     try {
       setLoading(true);
-      await axiosInstance.delete(`/role/${role.id}`);
-      toast.success("Role deleted successfully");
+      await axiosInstance.delete(`/admin/${admin.id}`);
+      toast.success("Admin deleted successfully");
       closeDeleteModal();
       if (onDelete) onDelete();
     } catch (error) {
-      console.error("Failed to delete role", error);
-      toast.error("Failed to delete role");
+      console.error("Failed to delete admin", error);
+      toast.error("Failed to delete admin");
     } finally {
       setLoading(false);
     }
@@ -59,7 +64,7 @@ const DeleteRoleModal = ({ isOpen, closeDeleteModal, role, onDelete }) => {
               <DialogPanel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                 <div className="flex items-center justify-between mb-4">
                   <DialogTitle className="text-lg font-medium text-[#1A1A27]">
-                    Delete Role
+                    Delete admin
                   </DialogTitle>
                   <button
                     type="button"
@@ -73,7 +78,7 @@ const DeleteRoleModal = ({ isOpen, closeDeleteModal, role, onDelete }) => {
                 <p className="text-sm text-gray-600 mb-6">
                   Are you sure you want to delete{" "}
                   <strong>
-                    {role?.name} role
+                    {admin?.firstName} {admin?.lastName}
                   </strong>
                   ? This action cannot be undone.
                 </p>
@@ -102,4 +107,4 @@ const DeleteRoleModal = ({ isOpen, closeDeleteModal, role, onDelete }) => {
   );
 };
 
-export default DeleteRoleModal;
+export default DeleteAdminModal;

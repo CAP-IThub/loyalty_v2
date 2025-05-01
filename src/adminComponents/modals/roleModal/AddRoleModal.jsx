@@ -10,68 +10,71 @@ import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
 import axios from "../../../utils/axiosInstance";
 import toast from "react-hot-toast";
-import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { FaTimes } from "react-icons/fa";
 
-const AddRoleModal = ({ isOpen, closeRepModal, onUpdate }) => {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    phoneNum: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-  });
+const AddRoleModal = ({ isOpen, closeRoleModal, onUpdate }) => {
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({ name: "", permissions: [] });
+  const [permissionsList, setPermissionsList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const res = await axios.get("/permissions");
+        const data = res.data.data || {};
+        const list = Object.entries(data).map(([id, label]) => ({ id, label }));
+        setPermissionsList(list);
+      } catch (err) {
+        console.error("Failed to load permissions", err);
+        toast.error("Could not load permissions");
+      }
+    };
+    if (isOpen) fetchPermissions();
+  }, [isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  useEffect(() => {
-    const newErrors = {};
-    const { password, password_confirmation } = formData;
-
-    if (password.length > 0 && password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    } else if (password.length > 12) {
-      newErrors.password = "Password cannot exceed 12 characters";
+  const handleSelectPermission = (perm) => {
+    if (!formData.permissions.includes(perm.label)) {
+      setFormData((prev) => ({
+        ...prev,
+        permissions: [...prev.permissions, perm.label], // use label
+      }));
     }
+    setSearchTerm("");
+  };
 
-    if (
-      password &&
-      password_confirmation &&
-      password !== password_confirmation
-    ) {
-      newErrors.password_confirmation = "Passwords do not match";
-    }
+  const handleRemovePermission = (label) => {
+    setFormData((prev) => ({
+      ...prev,
+      permissions: prev.permissions.filter((permLabel) => permLabel !== label),
+    }));
+  };
 
-    setErrors(newErrors);
-  }, [formData.password, formData.password_confirmation]);
+  const filteredPermissions = permissionsList.filter(
+    (perm) =>
+      perm.label.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      !formData.permissions.includes(perm.label)
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      await axios.post(`/rep`, formData);
-      toast.success("Rep Added");
+      await axios.post("/role", formData); 
+      toast.success("Role added successfully");
       onUpdate();
-      setFormData({
-        firstName: "",
-        lastName: "",
-        phoneNum: "",
-        email: "",
-        password: "",
-        password_confirmation: "",
-      });
-      closeRepModal();
+      setFormData({ name: "", permissions: [] });
+      closeRoleModal();
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to Add Rep");
+      console.error("Failed to add role", err);
+      const msg = err?.response?.data?.message || "Failed to add role";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -79,7 +82,7 @@ const AddRoleModal = ({ isOpen, closeRepModal, onUpdate }) => {
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-[999]" onClose={closeRepModal}>
+      <Dialog as="div" className="relative z-[999]" onClose={closeRoleModal}>
         <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
@@ -109,132 +112,78 @@ const AddRoleModal = ({ isOpen, closeRepModal, onUpdate }) => {
                     as="h3"
                     className="text-2xl font-semibold text-[#1A1A27]"
                   >
-                    Add New Representative
+                    Add New Role
                   </DialogTitle>
                   <button
                     type="button"
                     className="text-[#1A1A27]"
-                    onClick={closeRepModal}
+                    onClick={closeRoleModal}
                   >
                     <IoClose size={28} />
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-3">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      First Name
+                      Name of Role
                     </label>
                     <input
                       type="text"
-                      name="firstName"
-                      value={formData.firstName}
+                      name="name"
+                      value={formData.name}
                       onChange={handleChange}
                       className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00] placeholder:text-xs"
-                      placeholder="Enter first name"
+                      placeholder="Enter name"
                       required
                     />
                   </div>
 
                   <div>
                     <label className="text-sm font-medium text-gray-700">
-                      Last Name
+                      Select Permissions
                     </label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleChange}
-                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00] placeholder:text-xs"
-                      placeholder="Enter last name"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Email
-                    </label>
-                    <input
-                      type="text"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00] placeholder:text-xs"
-                      placeholder="Enter Email"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Phone Number
-                    </label>
-                    <input
-                      type="text"
-                      name="phoneNum"
-                      value={formData.phoneNum}
-                      onChange={handleChange}
-                      className="mt-1 w-full border border-gray-300 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00] placeholder:text-xs"
-                      placeholder="Enter Phone Number"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Password
-                    </label>
-                    <div className="relative">
+                    <div className="border border-gray-300 rounded-md p-2 mt-1 ">
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {formData.permissions.map((label) => (
+                          <span
+                            key={label}
+                            className="bg-[#FC7B00]/10 text-[#FC7B00] text-xs px-2 py-1 rounded-full flex items-center gap-1"
+                          >
+                            {label}
+                            <button
+                              type="button"
+                              className="ml-1 text-[#FC7B00] hover:text-red-600"
+                              onClick={() => handleRemovePermission(label)}
+                            >
+                              <FaTimes className="text-xs" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
                       <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FC7B00] text-sm"
-                        required
+                        type="text"
+                        placeholder="Search permissions..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() =>
+                          setTimeout(() => setIsFocused(false), 200)
+                        }
+                        className="w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
                       />
-                      <span
-                        className="absolute right-3 top-[14px] cursor-pointer text-gray-500"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                      >
-                        {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
-                      </span>
-                      {errors.password && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.password}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Confirm Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        name="password_confirmation"
-                        value={formData.password_confirmation}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FC7B00] text-sm"
-                        required
-                      />
-                      <span
-                        className="absolute right-3 top-[14px] cursor-pointer text-gray-500"
-                        onClick={() => setShowConfirmPassword((prev) => !prev)}
-                      >
-                        {showConfirmPassword ? (
-                          <AiFillEyeInvisible />
-                        ) : (
-                          <AiFillEye />
-                        )}
-                      </span>
-                      {errors.password_confirmation && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.password_confirmation}
-                        </p>
+                      {isFocused && filteredPermissions.length > 0 && (
+                        <ul className="mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-md shadow text-sm">
+                          {filteredPermissions.map((perm) => (
+                            <li
+                              key={perm.id}
+                              className="px-4 py-2 hover:bg-orange-100 cursor-pointer"
+                              onClick={() => handleSelectPermission(perm)}
+                            >
+                              {perm.label}
+                            </li>
+                          ))}
+                        </ul>
                       )}
                     </div>
                   </div>
@@ -245,7 +194,7 @@ const AddRoleModal = ({ isOpen, closeRepModal, onUpdate }) => {
                       disabled={loading}
                       className="w-full bg-[#FC7B00] hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-md text-sm transition"
                     >
-                      {loading ? "Adding..." : "Proceed to adding rep"}
+                      {loading ? "Adding..." : "Proceed to adding role"}
                     </button>
                   </div>
                 </form>
