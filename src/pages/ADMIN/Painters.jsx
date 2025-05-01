@@ -65,6 +65,7 @@ const Painters = () => {
         status: p.status,
         image: p.image,
         gender: p.gender,
+        serial_num: p.serial_num,
       }));
 
       setPainters(formatted);
@@ -128,12 +129,26 @@ const Painters = () => {
           <div>
             <h2 className="md:text-lg font-semibold">Painters</h2>
           </div>
-          <button
-            className="flex items-center gap-2 bg-[#FC7B00] text-white rounded-md px-4 py-2 text-sm hover:opacity-90"
-            onClick={() => setIsModalOpen4(true)}
-          >
-            <IoIosPersonAdd size={16} /> Add Painter
-          </button>
+          <div className="flex gap-4">
+            <select
+              id="rows"
+              className="border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none"
+              value={perPage}
+              onChange={(e) => setPerPage(Number(e.target.value))}
+            >
+              {[5, 10, 20, 50].map((num) => (
+                <option key={num} value={num}>
+                  {num}
+                </option>
+              ))}
+            </select>
+            <button
+              className="flex items-center gap-2 bg-[#FC7B00] text-white rounded-md px-4 py-2 text-sm hover:opacity-90"
+              onClick={() => setIsModalOpen4(true)}
+            >
+              <IoIosPersonAdd size={16} /> Add Painter
+            </button>
+          </div>
         </div>
         <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
           <div className="flex gap-2">
@@ -225,18 +240,6 @@ const Painters = () => {
               />
               <FaSearch className="absolute left-3 top-3 text-gray-400" />
             </div>
-            {/* <select
-              id="rows"
-              className="border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none"
-              value={perPage}
-              onChange={(e) => setPerPage(Number(e.target.value))}
-            >
-              {[5, 10, 20, 50].map((num) => (
-                <option key={num} value={num}>
-                  {num}
-                </option>
-              ))}
-            </select> */}
           </div>
         </div>
       </div>
@@ -251,7 +254,7 @@ const Painters = () => {
             <table className="w-full text-sm whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>
-                  {/* <th className="text-left px-3 py-4 border-b">ID</th> */}
+                  <th className="text-left px-3 py-4 border-b">S/N</th>
                   <th className="text-left px-3 py-4 border-b">Name</th>
                   <th className="text-left px-3 py-4 border-b">Phone</th>
                   <th className="text-left px-3 py-4 border-b">Address</th>
@@ -271,7 +274,7 @@ const Painters = () => {
                       key={painter.id}
                       className="bg-white border-b border-gray-100 hover:bg-gray-50"
                     >
-                      {/* <td className="px-3 py-4">{painter.id}</td> */}
+                      <td className="px-3 py-4">{painter.serial_num}</td>
                       <td className="px-3 py-4 capitalize">{painter.name}</td>
                       <td className="px-3 py-4">{painter.phone}</td>
                       <td className="px-3 py-4">{painter.address || "—"}</td>
