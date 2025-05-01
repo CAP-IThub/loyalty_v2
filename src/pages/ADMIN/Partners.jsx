@@ -47,6 +47,7 @@ const Partners = () => {
         phone: p.phoneNum,
         address: p.address,
         email: p.email,
+        serial_num: p.serial_num,
       }));
       setPartners(formatted);
     } catch (err) {
@@ -139,6 +140,7 @@ const Partners = () => {
             <table className="w-full text-sm whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>
+                  {/* <th className="text-left px-3 py-4 border-b">S/N</th> */}
                   <th className="text-left px-3 py-4 border-b">Name</th>
                   <th className="text-left px-3 py-4 border-b">Phone</th>
                   <th className="text-left px-3 py-4 border-b">Address</th>
@@ -153,6 +155,7 @@ const Partners = () => {
                     key={partner.id}
                     className="bg-white border-b border-gray-100 hover:bg-gray-50"
                   >
+                    {/* <td className="px-3 py-4">{partner.serial_num}</td> */}
                     <td className="px-3 py-4 capitalize">{partner.name}</td>
                     <td className="px-3 py-4">{partner.phone}</td>
                     <td className="px-3 py-4">

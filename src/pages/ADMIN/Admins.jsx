@@ -38,20 +38,18 @@ const Admins = () => {
     try {
       setLoading(true);
       const res = await axios.get("/admin");
-      const formatted = res.data.data.admin.map((p) => ({
+      const formatted = res.data.data.admin.data.map((p) => ({
         id: p.id,
         name: `${
           p.firstName[0].toUpperCase() + p.firstName.slice(1).toLowerCase()
         } ${p.lastName[0].toUpperCase() + p.lastName.slice(1).toLowerCase()}`,
-        firstName: `${
-          p.firstName[0].toUpperCase() + p.firstName.slice(1).toLowerCase()
-        }`,
-        lastName: `${
-          p.lastName[0].toUpperCase() + p.lastName.slice(1).toLowerCase()
-        }`,
+        firstName: p.firstName,
+        lastName: p.lastName,
         dept: p.dept,
         email: p.email,
+        serial_num: p.serial_num
       }));
+
       setAdmins(formatted);
     } catch (err) {
       console.error("Failed to fetch admins", err);
@@ -136,7 +134,7 @@ const Admins = () => {
             <table className="w-full text-sm whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>
-                  {/* <th className="text-left px-3 py-4 border-b">ID</th> */}
+                  <th className="text-left px-3 py-4 border-b">S/N</th>
                   <th className="text-left px-3 py-4 border-b">Name</th>
                   <th className="text-left px-3 py-4 border-b">Department</th>
                   <th className="text-left px-3 py-4 border-b">Email</th>
@@ -150,7 +148,7 @@ const Admins = () => {
                     key={admin.id}
                     className="bg-white border-b border-gray-100 hover:bg-gray-50"
                   >
-                    {/* <td className="px-3 py-4 capitalize">{admin.id}</td> */}
+                    <td className="px-3 py-4 capitalize">{admin.serial_num}</td>
                     <td className="px-3 py-4 capitalize">{admin.name}</td>
                     <td className="px-3 py-4">{admin.dept}</td>
                     <td className="px-3 py-4">{admin.email}</td>
