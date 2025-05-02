@@ -3,7 +3,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 // import "react-toastify/dist/ReactToastify.css";
 import { Toaster } from "react-hot-toast";
 import WelcomePage from "./pages/WelcomePage";
-import Orders from "./pages/ADMIN/Orders";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboard from "./pages/ADMIN/AdminDashboard";
 import RepDashboard from "./pages/REP/RepDashboard";
@@ -21,7 +20,7 @@ import Partners from "./pages/ADMIN/Partners";
 import Reps from "./pages/ADMIN/Reps";
 import Roles from "./pages/ADMIN/Roles";
 import Admins from "./pages/ADMIN/Admins";
-import Settings from "./pages/ADMIN/Settings";
+import Settings from "./pages/ADMIN/settings/Settings";
 
 function App() {
   return (
@@ -54,14 +53,6 @@ function App() {
           element={
             <AdminLayout>
               <AdminDashboard />
-            </AdminLayout>
-          }
-        />
-        <Route
-          path="/orders"
-          element={
-            <AdminLayout>
-              <Orders />
             </AdminLayout>
           }
         />
@@ -146,7 +137,7 @@ function App() {
           }
         />
         <Route
-          path="/settings"
+          path="/settings/*"
           element={
             <AdminLayout>
               <Settings />

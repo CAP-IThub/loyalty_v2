@@ -242,7 +242,7 @@ const AddCenterModal = ({ isOpen, closeCenterModal, onUpdate }) => {
                       disabled={loading}
                       className="w-full bg-[#FC7B00] hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-md text-sm transition"
                     >
-                      {loading ? "Adding..." : "Proceed to Adding Center"}
+                      {loading ? "Adding..." : "Add Center"}
                     </button>
                   </div>
                 </form>
