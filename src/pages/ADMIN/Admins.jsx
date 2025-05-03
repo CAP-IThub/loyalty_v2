@@ -4,10 +4,6 @@ import { FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { HiDotsVertical } from "react-icons/hi";
 import Pagination from "../../components/Pagination";
 import { ClipLoader } from "react-spinners";
-import PartnerModal from "../../adminComponents/modals/partnerModal/PartnerModal";
-import EditPartnerModal from "../../adminComponents/modals/partnerModal/EditPartnerModal";
-import DeletePartnerModal from "../../adminComponents/modals/partnerModal/DeletePartnerModal";
-import AddPartnerModal from "../../adminComponents/modals/partnerModal/AddPartnerModal";
 import {
   Menu,
   MenuButton,

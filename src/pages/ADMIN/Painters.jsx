@@ -1,3 +1,4 @@
+// Same import statements as before
 import React, { Fragment, useEffect, useState } from "react";
 import axios from "../../utils/axiosInstance";
 import { FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
@@ -19,13 +20,11 @@ import { HiChevronDown, HiDotsVertical } from "react-icons/hi";
 
 const Painters = () => {
   const [searchStatus, setSearchStatus] = useState("ALL");
-  const [sortBy, setSortBy] = useState("firstName");
+  const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchGender, setSearchGender] = useState("ALL");
   const [perPage, setPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [painters, setPainters] = useState([]);
-  const [total, setTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedPainter, setSelectedPainter] = useState(null);
@@ -34,22 +33,27 @@ const Painters = () => {
   const [isModalOpen3, setIsModalOpen3] = useState(false);
   const [isModalOpen4, setIsModalOpen4] = useState(false);
 
+  const [allPainters, setAllPainters] = useState([]);
+  const [displayedPainters, setDisplayedPainters] = useState([]);
+  const [total, setTotal] = useState(0);
+
   const fetchPainters = async () => {
     try {
       setLoading(true);
+      let url = `/customer?per_page=1000`;
 
-      let url = `/customer?page=${currentPage}&per_page=${perPage}&sort_by=${sortBy}&sort_order=${sortOrder}`;
+      if (sortBy) {
+        url += `&sort_by=${sortBy}&sort_order=${sortOrder}`;
+      }
 
       if (searchStatus !== "ALL") {
         url += `&search=${searchStatus}`;
       }
-
       if (searchGender !== "ALL") {
         url += `&gender=${searchGender.toLowerCase()}`;
       }
 
       const res = await axios.get(url);
-
       const rawData = res.data.data.data;
 
       const formatted = rawData.map((p) => ({
@@ -68,8 +72,7 @@ const Painters = () => {
         serial_num: p.serial_num,
       }));
 
-      setPainters(formatted);
-      setTotal(res.data.data.total);
+      setAllPainters(formatted);
     } catch (err) {
       console.error("Failed to fetch painters", err);
     } finally {
@@ -79,7 +82,32 @@ const Painters = () => {
 
   useEffect(() => {
     fetchPainters();
-  }, [currentPage, perPage, searchStatus, searchGender, sortBy]);
+  }, [searchStatus, searchGender, sortBy, sortOrder]);
+
+  useEffect(() => {
+    let filtered = allPainters;
+
+    if (searchTerm.trim() !== "") {
+      const lower = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (p) =>
+          p.name.toLowerCase().includes(lower) ||
+          p.phone.toLowerCase().includes(lower) ||
+          (p.email && p.email.toLowerCase().includes(lower)) ||
+          (p.address && p.address.toLowerCase().includes(lower))
+      );
+    }
+
+    const startIndex = (currentPage - 1) * perPage;
+    const paginated = filtered.slice(startIndex, startIndex + perPage);
+
+    setDisplayedPainters(paginated);
+    setTotal(filtered.length);
+  }, [allPainters, searchTerm, currentPage, perPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const openModal = (p) => {
     setSelectedPainter(p);
@@ -106,16 +134,19 @@ const Painters = () => {
   const onDelete = () => fetchPainters();
 
   const sortOptions = [
+    { label: "Default", value: "" },
     { label: "First Name", value: "firstName" },
     { label: "Last Name", value: "lastName" },
     { label: "Address", value: "address" },
     { label: "Phone Number", value: "phoneNum" },
   ];
 
+
   const sortByDisplay = (value) => {
     const found = sortOptions.find((opt) => opt.value === value);
-    return found ? found.label : value;
+    return found ? found.label : "Default";
   };
+
 
   const handleSortChange = (newSort) => {
     setSortBy(newSort);
@@ -250,6 +281,7 @@ const Painters = () => {
         </div>
       ) : (
         <>
+          {/* Desktop Table View */}
           <div className="hidden md:block overflow-x-auto border border-gray-200 rounded-xl">
             <table className="w-full text-sm whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
@@ -265,156 +297,149 @@ const Painters = () => {
                 </tr>
               </thead>
               <tbody>
-                {painters
-                  .filter((p) =>
-                    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .map((painter, index) => (
-                    <tr
-                      key={painter.id}
-                      className="bg-white border-b border-gray-100 hover:bg-gray-50"
-                    >
-                      <td className="px-3 py-4">{painter.serial_num}</td>
-                      <td className="px-3 py-4 capitalize">{painter.name}</td>
-                      <td className="px-3 py-4">{painter.phone}</td>
-                      <td className="px-3 py-4">{painter.address || "—"}</td>
-                      <td className="px-3 py-4">{painter.email || "—"}</td>
-                      <td className="px-3 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            painter.status === "ACTIVE"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {painter.status}
-                        </span>
-                      </td>
-                      <td className="px-3 py-4">
-                        <button
-                          className="text-blue-600"
-                          onClick={() => openModal(painter)}
-                        >
-                          <FaEye />
-                        </button>
-                      </td>
-                      <td className="px-6 py-4 relative">
-                        <Menu
-                          as="div"
-                          className="relative inline-block text-left"
-                        >
-                          <MenuButton className="text-gray-600 hover:text-gray-800">
-                            <HiDotsVertical />
-                          </MenuButton>
-                          <Transition
-                            as={Fragment}
-                            enter="transition ease-out duration-100"
-                            enterFrom="transform opacity-0 scale-95"
-                            enterTo="transform opacity-100 scale-100"
-                            leave="transition ease-in duration-75"
-                            leaveFrom="transform opacity-100 scale-100"
-                            leaveTo="transform opacity-0 scale-95"
-                          >
-                            <MenuItems className="absolute right-0 mt-2 w-28 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                              <div className="py-1 flex flex-col">
-                                <MenuItem>
-                                  {({ active }) => (
-                                    <button
-                                      onClick={() => openEditModal(painter)}
-                                      className={`${
-                                        active ? "bg-gray-100" : ""
-                                      } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
-                                    >
-                                      Edit <FaEdit className="ml-2" />
-                                    </button>
-                                  )}
-                                </MenuItem>
-                                <MenuItem>
-                                  {({ active }) => (
-                                    <button
-                                      onClick={() => openDeleteModal(painter)}
-                                      className={`${
-                                        active ? "bg-gray-100" : ""
-                                      } flex justify-between items-center w-full px-4 py-2 text-sm text-red-600`}
-                                    >
-                                      Delete <FaTrash className="ml-2" />
-                                    </button>
-                                  )}
-                                </MenuItem>
-                              </div>
-                            </MenuItems>
-                          </Transition>
-                        </Menu>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-
-            {/* Mobile Grid View */}
-            <div className="md:hidden space-y-4 mt-4">
-              {painters
-                .filter((p) =>
-                  p.name.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((painter) => (
-                  <div
+                {displayedPainters.map((painter) => (
+                  <tr
                     key={painter.id}
-                    className="border rounded-lg p-4 shadow-sm bg-white"
+                    className="bg-white border-b border-gray-100 hover:bg-gray-50"
                   >
-                    <div className="mb-1 text-base font-semibold text-[#1A1A27]">
-                      {painter.name}
-                    </div>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <p>
-                        <span className="font-medium">Phone:</span>{" "}
-                        {painter.phone}
-                      </p>
-                      <p>
-                        <span className="font-medium">Email:</span>{" "}
-                        {painter.email || "—"}
-                      </p>
-                      <p>
-                        <span className="font-medium">Address:</span>{" "}
-                        {painter.address || "—"}
-                      </p>
-                      <p>
-                        <span className="font-medium">Status:</span>{" "}
-                        <span
-                          className={`px-1 py-1 rounded-md text-xs font-medium ${
-                            painter.status === "ACTIVE"
-                              ? "text-white bg-green-500"
-                              : "text-white bg-red-500"
-                          }`}
-                        >
-                          {painter.status}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="flex justify-end gap-3 mt-3">
+                    <td className="px-3 py-4">{painter.serial_num}</td>
+                    <td className="px-3 py-4 capitalize">{painter.name}</td>
+                    <td className="px-3 py-4">{painter.phone}</td>
+                    <td className="px-3 py-4">{painter.address || "—"}</td>
+                    <td className="px-3 py-4">{painter.email || "—"}</td>
+                    <td className="px-3 py-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          painter.status === "ACTIVE"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {painter.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-4">
                       <button
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-blue-600"
                         onClick={() => openModal(painter)}
                       >
                         <FaEye />
                       </button>
-                      <button
-                        className="text-green-600 hover:text-green-800"
-                        onClick={() => openEditModal(painter)}
+                    </td>
+                    <td className="px-6 py-4 relative">
+                      <Menu
+                        as="div"
+                        className="relative inline-block text-left"
                       >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="text-red-600 hover:text-red-800"
-                        onClick={() => openDeleteModal(painter)}
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
+                        <MenuButton className="text-gray-600 hover:text-gray-800">
+                          <HiDotsVertical />
+                        </MenuButton>
+                        <Transition
+                          as={Fragment}
+                          enter="transition ease-out duration-100"
+                          enterFrom="transform opacity-0 scale-95"
+                          enterTo="transform opacity-100 scale-100"
+                          leave="transition ease-in duration-75"
+                          leaveFrom="transform opacity-100 scale-100"
+                          leaveTo="transform opacity-0 scale-95"
+                        >
+                          <MenuItems className="absolute right-3 bottom-0 mt-2 w-28 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                            <div className="py-1 flex flex-col">
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => openEditModal(painter)}
+                                    className={`${
+                                      active ? "bg-gray-100" : ""
+                                    } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                  >
+                                    Edit <FaEdit className="ml-2" />
+                                  </button>
+                                )}
+                              </MenuItem>
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => openDeleteModal(painter)}
+                                    className={`${
+                                      active ? "bg-gray-100" : ""
+                                    } flex justify-between items-center w-full px-4 py-2 text-sm text-red-600`}
+                                  >
+                                    Delete <FaTrash className="ml-2" />
+                                  </button>
+                                )}
+                              </MenuItem>
+                            </div>
+                          </MenuItems>
+                        </Transition>
+                      </Menu>
+                    </td>
+                  </tr>
                 ))}
-            </div>
+              </tbody>
+            </table>
           </div>
+
+          {/* Mobile Grid View */}
+          <div className="md:hidden space-y-4 mt-4">
+            {displayedPainters.map((painter) => (
+              <div
+                key={painter.id}
+                className="border rounded-lg p-4 shadow-sm bg-white"
+              >
+                <div className="mb-1 text-base font-semibold text-[#1A1A27]">
+                  {painter.name}
+                </div>
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <span className="font-medium">Phone:</span> {painter.phone}
+                  </p>
+                  <p>
+                    <span className="font-medium">Email:</span>{" "}
+                    {painter.email || "—"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Address:</span>{" "}
+                    {painter.address || "—"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Status:</span>{" "}
+                    <span
+                      className={`px-1 py-1 rounded-md text-xs font-medium ${
+                        painter.status === "ACTIVE"
+                          ? "text-white bg-green-500"
+                          : "text-white bg-red-500"
+                      }`}
+                    >
+                      {painter.status}
+                    </span>
+                  </p>
+                </div>
+                <div className="flex justify-end gap-3 mt-3">
+                  <button
+                    className="text-blue-600 hover:text-blue-800"
+                    onClick={() => openModal(painter)}
+                  >
+                    <FaEye />
+                  </button>
+                  <button
+                    className="text-green-600 hover:text-green-800"
+                    onClick={() => openEditModal(painter)}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => openDeleteModal(painter)}
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
           <Pagination
             currentPage={currentPage}
             totalPages={Math.ceil(total / perPage)}
@@ -425,6 +450,7 @@ const Painters = () => {
         </>
       )}
 
+      {/* Modals */}
       <PainterModal
         isOpen={isModalOpen}
         closePainterModal={closeAll}

@@ -24,6 +24,8 @@ import AssignRepModal from "../../adminComponents/modals/centerModal/AssignRepMo
 import UnassignRepModal from "../../adminComponents/modals/centerModal/UnassignRepModal";
 
 const Centers = () => {
+  const [allCenters, setAllCenters] = useState([]);
+  const [displayedCenters, setDisplayedCenters] = useState([]);
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [perPage, setPerPage] = useState(10);
@@ -42,46 +44,68 @@ const Centers = () => {
   const [isModalOpen7, setIsModalOpen7] = useState(false);
   const [isModalOpen8, setIsModalOpen8] = useState(false);
 
-  const fetchCenters = async () => {
-    try {
-      setLoading(true);
+ const fetchCenters = async () => {
+   try {
+     setLoading(true);
+     let url = `/shop?per_page=1000`;
 
-      let url = `/shop?page=${currentPage}&per_page=${perPage}`;
-      if (sortBy) {
-        url += `&sort_by=${sortBy}&sort_order=${sortOrder}`;
-      }
+     if (sortBy) {
+       url += `&sort_by=${sortBy}&sort_order=${sortOrder}`;
+     }
 
-      const res = await axios.get(url);
-      const rawData = res.data.data.data;
+     const res = await axios.get(url);
+     const rawData = res.data.data.data;
 
-      const formatted = rawData.map((p) => ({
-        id: p.id,
-        name: p.name,
-        shopCode: p.shopCode,
-        location: p.location,
-        choice: p.choice,
-        status: p.status,
-        status2: p.status2,
-        address: {
-          street: p.address?.street,
-          state: p.address?.state,
-          region: p.address?.region,
-          country: p.address?.country,
-        },
-      }));
+     const formatted = rawData.map((p) => ({
+       id: p.id,
+       name: p.name,
+       shopCode: p.shopCode,
+       location: p.location,
+       choice: p.choice,
+       status: p.status,
+       status2: p.status2,
+       address: {
+         street: p.address?.street,
+         state: p.address?.state,
+         region: p.address?.region,
+         country: p.address?.country,
+       },
+     }));
 
-      setCenters(formatted);
-      setTotal(res.data.data.total);
-    } catch (err) {
-      console.error("Failed to fetch centers", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+     setAllCenters(formatted);
+   } catch (err) {
+     console.error("Failed to fetch centers", err);
+   } finally {
+     setLoading(false);
+   }
+ };
 
-  useEffect(() => {
-    fetchCenters();
-  }, [currentPage, perPage, sortBy, sortOrder]);
+ useEffect(() => {
+   fetchCenters();
+ }, [currentPage, perPage, sortBy, sortOrder]);
+
+ useEffect(() => {
+   let filtered = allCenters;
+
+   if (searchTerm.trim() !== "") {
+     const lower = searchTerm.toLowerCase();
+     filtered = filtered.filter(
+       (center) =>
+         center.name.toLowerCase().includes(lower) ||
+         center.shopCode.toLowerCase().includes(lower)
+     );
+   }
+
+   const startIndex = (currentPage - 1) * perPage;
+   const paginated = filtered.slice(startIndex, startIndex + perPage);
+
+   setDisplayedCenters(paginated);
+   setTotal(filtered.length);
+ }, [allCenters, searchTerm, currentPage, perPage]);
+
+ useEffect(() => {
+   setCurrentPage(1);
+ }, [searchTerm]);
 
   const openModal = (center) => {
     setSelectedCenter(center);
@@ -278,190 +302,53 @@ const Centers = () => {
                 </tr>
               </thead>
               <tbody>
-                {centers
-                  .filter(
-                    (center) =>
-                      center.name
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase()) ||
-                      center.shopCode
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase())
-                  )
-                  .map((center) => (
-                    <tr
-                      key={center.id}
-                      className="bg-white border-b border-gray-100 hover:bg-gray-50"
-                    >
-                      <td className="px-3 py-4">{center.shopCode}</td>
-                      <td className="px-3 py-4 capitalize">{center.name}</td>
-                      <td className="px-3 py-4 capitalize">
-                        {center.address.state || "—"}
-                      </td>
-                      <td className="px-3 py-4 capitalize">
-                        {center.address.region || "—"}
-                      </td>
-                      <td className="px-3 py-4 capitalize">
-                        {center.choice || "—"}
-                      </td>
-                      <td className="px-3 py-4">
-                        <span
-                          className={`px-2 py-1 rounded-md text-xs font-medium  ${
-                            center.status === "ASSIGNED-TO-PARTNER"
-                              ? "text-white bg-green-500"
-                              : "text-white bg-red-500"
-                          }`}
-                        >
-                          {center.status}
-                        </span>
-                      </td>
-                      <td className="px-3 py-4">
-                        <span
-                          className={`px-2 py-1 rounded-md text-xs font-medium ${
-                            center.status2 === "ASSIGNED-TO-REP"
-                              ? "text-white bg-green-500"
-                              : "text-white bg-red-500"
-                          }`}
-                        >
-                          {center.status2}
-                        </span>
-                      </td>
-                      <td className="px-3 py-4">
-                        <button
-                          className="text-blue-600"
-                          onClick={() => openModal(center)}
-                        >
-                          <FaEye />
-                        </button>
-                      </td>
-                      <td className="px-6 py-4 relative">
-                        <Menu
-                          as="div"
-                          className="relative inline-block text-left"
-                        >
-                          <MenuButton className="text-gray-600 hover:text-gray-800">
-                            <HiDotsVertical />
-                          </MenuButton>
-                          <Transition
-                            as={Fragment}
-                            enter="transition ease-out duration-100"
-                            enterFrom="transform opacity-0 scale-95"
-                            enterTo="transform opacity-100 scale-100"
-                            leave="transition ease-in duration-75"
-                            leaveFrom="transform opacity-100 scale-100"
-                            leaveTo="transform opacity-0 scale-95"
-                          >
-                            <MenuItems className="absolute right-0 mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                              <div className="py-1 flex flex-col">
-                                <MenuItem>
-                                  {({ active }) => (
-                                    <button
-                                      onClick={() => openEditModal(center)}
-                                      className={`${
-                                        active ? "bg-gray-100" : ""
-                                      } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
-                                    >
-                                      Edit Center <FaEdit className="ml-2" />
-                                    </button>
-                                  )}
-                                </MenuItem>
-                                <MenuItem>
-                                  {({ active }) => (
-                                    <button
-                                      onClick={() => openAssignModal1(center)}
-                                      className={`${
-                                        active ? "bg-gray-100" : ""
-                                      } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
-                                    >
-                                      Assign Center to Partner{" "}
-                                      <MdAssignmentAdd className="ml-2" />
-                                    </button>
-                                  )}
-                                </MenuItem>
-                                <MenuItem>
-                                  {({ active }) => (
-                                    <button
-                                      onClick={() => openUnassignModal1(center)}
-                                      className={`${
-                                        active ? "bg-gray-100" : ""
-                                      } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
-                                    >
-                                      Unassign Center from Partner{" "}
-                                      <IoArrowUndoCircleSharp className="ml-2" />
-                                    </button>
-                                  )}
-                                </MenuItem>
-                                <MenuItem>
-                                  {({ active }) => (
-                                    <button
-                                      onClick={() => openAssignModal2(center)}
-                                      className={`${
-                                        active ? "bg-gray-100" : ""
-                                      } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
-                                    >
-                                      Assign Center to Rep{" "}
-                                      <MdAssignmentAdd className="ml-2" />
-                                    </button>
-                                  )}
-                                </MenuItem>
-                                <MenuItem>
-                                  {({ active }) => (
-                                    <button
-                                      onClick={() => openUnassignModal2(center)}
-                                      className={`${
-                                        active ? "bg-gray-100" : ""
-                                      } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
-                                    >
-                                      Unassign Center from Rep{" "}
-                                      <IoArrowUndoCircleSharp className="ml-2" />
-                                    </button>
-                                  )}
-                                </MenuItem>
-                                <MenuItem>
-                                  {({ active }) => (
-                                    <button
-                                      onClick={() => openDeleteModal(center)}
-                                      className={`${
-                                        active ? "bg-gray-100" : ""
-                                      } flex justify-between items-center w-full px-4 py-2 text-sm text-red-600`}
-                                    >
-                                      Delete Center <FaTrash className="ml-2" />
-                                    </button>
-                                  )}
-                                </MenuItem>
-                              </div>
-                            </MenuItems>
-                          </Transition>
-                        </Menu>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Grid View */}
-          <div className="md:hidden space-y-4 mt-4">
-            {centers
-              .filter(
-                (center) =>
-                  center.name
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase()) ||
-                  center.shopCode
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase())
-              )
-              .map((center) => (
-                <div
-                  key={center.id}
-                  className="border rounded-lg p-4 shadow-sm bg-white"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="mb-1 text-base font-semibold text-[#1A1A27]">
-                      {center.name}
-                    </div>
-                    <div>
+                {displayedCenters.map((center) => (
+                  <tr
+                    key={center.id}
+                    className="bg-white border-b border-gray-100 hover:bg-gray-50"
+                  >
+                    <td className="px-3 py-4">{center.shopCode}</td>
+                    <td className="px-3 py-4 capitalize">{center.name}</td>
+                    <td className="px-3 py-4 capitalize">
+                      {center.address.state || "—"}
+                    </td>
+                    <td className="px-3 py-4 capitalize">
+                      {center.address.region || "—"}
+                    </td>
+                    <td className="px-3 py-4 capitalize">
+                      {center.choice || "—"}
+                    </td>
+                    <td className="px-3 py-4">
+                      <span
+                        className={`px-2 py-1 rounded-md text-xs font-medium  ${
+                          center.status === "ASSIGNED-TO-PARTNER"
+                            ? "text-white bg-green-500"
+                            : "text-white bg-red-500"
+                        }`}
+                      >
+                        {center.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-4">
+                      <span
+                        className={`px-2 py-1 rounded-md text-xs font-medium ${
+                          center.status2 === "ASSIGNED-TO-REP"
+                            ? "text-white bg-green-500"
+                            : "text-white bg-red-500"
+                        }`}
+                      >
+                        {center.status2}
+                      </span>
+                    </td>
+                    <td className="px-3 py-4">
+                      <button
+                        className="text-blue-600"
+                        onClick={() => openModal(center)}
+                      >
+                        <FaEye />
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 relative">
                       <Menu
                         as="div"
                         className="relative inline-block text-left"
@@ -478,8 +365,20 @@ const Centers = () => {
                           leaveFrom="transform opacity-100 scale-100"
                           leaveTo="transform opacity-0 scale-95"
                         >
-                          <MenuItems className="absolute right-0 mt-2  w-[15rem] origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                          <MenuItems className="absolute right-0 mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                             <div className="py-1 flex flex-col">
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => openEditModal(center)}
+                                    className={`${
+                                      active ? "bg-gray-100" : ""
+                                    } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                  >
+                                    Edit Center <FaEdit className="ml-2" />
+                                  </button>
+                                )}
+                              </MenuItem>
                               <MenuItem>
                                 {({ active }) => (
                                   <button
@@ -532,78 +431,180 @@ const Centers = () => {
                                   </button>
                                 )}
                               </MenuItem>
+                              <MenuItem>
+                                {({ active }) => (
+                                  <button
+                                    onClick={() => openDeleteModal(center)}
+                                    className={`${
+                                      active ? "bg-gray-100" : ""
+                                    } flex justify-between items-center w-full px-4 py-2 text-sm text-red-600`}
+                                  >
+                                    Delete Center <FaTrash className="ml-2" />
+                                  </button>
+                                )}
+                              </MenuItem>
                             </div>
                           </MenuItems>
                         </Transition>
                       </Menu>
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p>
-                      <span className="font-medium">Shop Code:</span>{" "}
-                      {center.shopCode}
-                    </p>
-                    <p>
-                      <span className="font-medium">State:</span>{" "}
-                      {center.state || "—"}
-                    </p>
-                    <p>
-                      <span className="font-medium">Region:</span>{" "}
-                      {center.region || "—"}
-                    </p>
-                    <p className="capitalize">
-                      <span className="font-medium">Choice:</span>{" "}
-                      {center.choice || "—"}
-                    </p>
-                    <p>
-                      <span className="font-medium">Partner Status:</span>{" "}
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          center.status === "ASSIGNED-TO-PARTNER"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {center.status}
-                      </span>
-                    </p>
-                    <p>
-                      <span className="font-medium">Rep Status:</span>{" "}
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          center.status2 === "ASSIGNED-TO-REP"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {center.status2}
-                      </span>
-                    </p>
-                  </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-                  {/* Action buttons */}
-                  <div className="flex justify-end gap-3 mt-3">
-                    <button
-                      className="text-blue-600 hover:text-blue-800"
-                      onClick={() => openModal(center)}
-                    >
-                      <FaEye />
-                    </button>
-                    <button
-                      className="text-green-600 hover:text-green-800"
-                      onClick={() => openEditModal(center)}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      className="text-red-600 hover:text-red-800"
-                      onClick={() => openDeleteModal(center)}
-                    >
-                      <FaTrash />
-                    </button>
+          {/* Mobile Grid View */}
+          <div className="md:hidden space-y-4 mt-4">
+            {displayedCenters.map((center) => (
+              <div
+                key={center.id}
+                className="border rounded-lg p-4 shadow-sm bg-white"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="mb-1 text-base font-semibold text-[#1A1A27] capitalize">
+                    {center.name}
+                  </div>
+                  <div>
+                    <Menu as="div" className="relative inline-block text-left">
+                      <MenuButton className="text-gray-600 hover:text-gray-800">
+                        <HiDotsVertical />
+                      </MenuButton>
+                      <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-100"
+                        enterFrom="transform opacity-0 scale-95"
+                        enterTo="transform opacity-100 scale-100"
+                        leave="transition ease-in duration-75"
+                        leaveFrom="transform opacity-100 scale-100"
+                        leaveTo="transform opacity-0 scale-95"
+                      >
+                        <MenuItems className="absolute right-3 bottom-0 mt-2  w-[15rem] origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                          <div className="py-1 flex flex-col">
+                            <MenuItem>
+                              {({ active }) => (
+                                <button
+                                  onClick={() => openAssignModal1(center)}
+                                  className={`${
+                                    active ? "bg-gray-100" : ""
+                                  } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                >
+                                  Assign Center to Partner{" "}
+                                  <MdAssignmentAdd className="ml-2" />
+                                </button>
+                              )}
+                            </MenuItem>
+                            <MenuItem>
+                              {({ active }) => (
+                                <button
+                                  onClick={() => openUnassignModal1(center)}
+                                  className={`${
+                                    active ? "bg-gray-100" : ""
+                                  } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                >
+                                  Unassign Center from Partner{" "}
+                                  <IoArrowUndoCircleSharp className="ml-2" />
+                                </button>
+                              )}
+                            </MenuItem>
+                            <MenuItem>
+                              {({ active }) => (
+                                <button
+                                  onClick={() => openAssignModal2(center)}
+                                  className={`${
+                                    active ? "bg-gray-100" : ""
+                                  } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                >
+                                  Assign Center to Rep{" "}
+                                  <MdAssignmentAdd className="ml-2" />
+                                </button>
+                              )}
+                            </MenuItem>
+                            <MenuItem>
+                              {({ active }) => (
+                                <button
+                                  onClick={() => openUnassignModal2(center)}
+                                  className={`${
+                                    active ? "bg-gray-100" : ""
+                                  } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                >
+                                  Unassign Center from Rep{" "}
+                                  <IoArrowUndoCircleSharp className="ml-2" />
+                                </button>
+                              )}
+                            </MenuItem>
+                          </div>
+                        </MenuItems>
+                      </Transition>
+                    </Menu>
                   </div>
                 </div>
-              ))}
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <span className="font-medium">Shop Code:</span>{" "}
+                    {center.shopCode}
+                  </p>
+                  <p>
+                    <span className="font-medium">State:</span>{" "}
+                    {center.state || "—"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Region:</span>{" "}
+                    {center.region || "—"}
+                  </p>
+                  <p className="capitalize">
+                    <span className="font-medium">Choice:</span>{" "}
+                    {center.choice || "—"}
+                  </p>
+                  <p>
+                    <span className="font-medium">Partner Status:</span>{" "}
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        center.status === "ASSIGNED-TO-PARTNER"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {center.status}
+                    </span>
+                  </p>
+                  <p>
+                    <span className="font-medium">Rep Status:</span>{" "}
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        center.status2 === "ASSIGNED-TO-REP"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {center.status2}
+                    </span>
+                  </p>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex justify-end gap-3 mt-3">
+                  <button
+                    className="text-blue-600 hover:text-blue-800"
+                    onClick={() => openModal(center)}
+                  >
+                    <FaEye />
+                  </button>
+                  <button
+                    className="text-green-600 hover:text-green-800"
+                    onClick={() => openEditModal(center)}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => openDeleteModal(center)}
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Pagination */}
