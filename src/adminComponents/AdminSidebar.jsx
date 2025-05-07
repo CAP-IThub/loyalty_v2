@@ -7,6 +7,7 @@ import {
   FaBell,
   FaShippingFast,
   FaFileInvoice,
+  FaTools,
 } from "react-icons/fa";
 import {
   MdDashboard,
@@ -170,6 +171,16 @@ const AdminSidebar = () => {
         {/* Bottom Section - Fixed Settings/Logout */}
         <div className="px-4 py-2 border-t border-gray-700">
           <div className="flex flex-col gap-2 px-2">
+            <NavLink
+              to="/reconciliation-tool"
+              onClick={handleNavClick}
+              className={({ isActive }) =>
+                `${navItem} ${isActive ? activeStyle : ""}`
+              }
+            >
+              <FaTools /> <span>Reconciliation Tool</span>
+            </NavLink>
+
             <NavLink
               to="/settings"
               onClick={handleNavClick}

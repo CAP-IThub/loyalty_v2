@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogPanel,
@@ -8,9 +8,29 @@ import {
 } from "@headlessui/react";
 import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
+import axios from "../../../utils/axiosInstance";
 import userIcon from "../../../assets/images/userIcon.png";
 
 const CenterModal = ({ isOpen, closeCenterModal, center }) => {
+  const [centerDetails, setCenterDetails] = useState(null);
+
+  useEffect(() => {
+    const fetchCenterDetails = async () => {
+      if (!center?.id) return;
+      try {
+        const res = await axios.get(`/shop/${center.id}`);
+        setCenterDetails(res.data.data);
+      } catch (err) {
+        console.error("Failed to fetch center details", err);
+      }
+    };
+    fetchCenterDetails();
+  }, [center]);
+
+  const info = centerDetails?.info?.[0];
+  const partner = centerDetails?.assignedPartner?.[0];
+  const rep = centerDetails?.assignedRep?.[0];
+
   return (
     <div>
       <Transition appear show={isOpen} as={Fragment}>
@@ -42,7 +62,7 @@ const CenterModal = ({ isOpen, closeCenterModal, center }) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <DialogPanel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white px-6 py-8 text-left align-middle shadow-2xl transition-all">
+                <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white px-6 py-8 text-left align-middle shadow-2xl transition-all">
                   <div className="flex items-center justify-between mb-6">
                     <DialogTitle
                       as="h3"
@@ -68,80 +88,26 @@ const CenterModal = ({ isOpen, closeCenterModal, center }) => {
                       />
                     </div>
 
-                    <div className="w-full space-y-4 text-sm text-gray-700 pl-10">
-                      <div className="grid grid-cols-2 md:grid-cols-3  gap-4">
+                    <div className="w-full space-y-4 text-sm text-gray-700">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <div>
                           <p className="text-gray-400 text-xs uppercase">
                             Center Name
                           </p>
-                          <p className="font-medium">{center?.name || "-"}</p>
+                          <p className="font-medium">{info?.shopName || "-"}</p>
                         </div>
                         <div>
                           <p className="text-gray-400 text-xs uppercase">
                             Shop Code
                           </p>
-                          <p className="font-medium">
-                            {center?.shopCode || "-"}
-                          </p>
+                          <p className="font-medium">{info?.Code || "-"}</p>
                         </div>
                         <div>
                           <p className="text-gray-400 text-xs uppercase">
                             Choice
                           </p>
                           <p className="font-medium capitalize">
-                            {center?.choice || "-"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-3  gap-4">
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Location
-                          </p>
-                          <p className="font-medium">
-                            {center?.location || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Country
-                          </p>
-                          <p className="font-medium">
-                            {center?.address?.country || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Center ID
-                          </p>
-                          <p className="font-medium">{center?.id || "-"}</p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-3  gap-4">
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            State
-                          </p>
-                          <p className="font-medium">
-                            {center?.address?.state || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Region
-                          </p>
-                          <p className="font-medium">
-                            {center?.address?.region || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Street
-                          </p>
-                          <p className="font-medium">
-                            {center?.address?.street || "-"}
+                            {info?.type || "-"}
                           </p>
                         </div>
                       </div>
@@ -149,35 +115,75 @@ const CenterModal = ({ isOpen, closeCenterModal, center }) => {
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <div>
                           <p className="text-gray-400 text-xs uppercase">
-                            Partner Status
+                            Location
                           </p>
-                          <p className="font-medium mt-1">
-                            <span
-                              className={`px-2 py-1 rounded-md text-xs font-medium ${
-                                center?.status === "ASSIGNED-TO-PARTNER"
-                                  ? "text-white bg-green-500"
-                                  : "text-white bg-red-500"
-                              }`}
-                            >
-                              {center?.status || "-"}
-                            </span>
+                          <p className="font-medium">
+                            {info?.shopLocation || "-"}
                           </p>
                         </div>
                         <div>
                           <p className="text-gray-400 text-xs uppercase">
-                            Rep Status
+                            Center ID
                           </p>
-                          <p className="font-medium mt-1">
-                            <span
-                              className={`px-2 py-1 rounded-md text-xs font-medium ${
-                                center?.status2 === "ASSIGNED-TO-REP"
-                                  ? "text-white bg-green-500"
-                                  : "text-white bg-red-500"
-                              }`}
-                            >
-                              {center?.status2 || "-"}
-                            </span>
+                          <p className="font-medium">{info?.shopID || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Address
                           </p>
+                          <p className="font-medium">
+                            {info?.shopAddress || "-"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Partner Name
+                          </p>
+                          <p className="font-medium">
+                            {partner
+                              ? `${partner.firstName} ${partner.lastName}`
+                              : "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Phone
+                          </p>
+                          <p className="font-medium">
+                            {partner?.phoneNum || "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Email
+                          </p>
+                          <p className="font-medium">{partner?.email || "-"}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Rep Name
+                          </p>
+                          <p className="font-medium">
+                            {rep ? `${rep.firstName} ${rep.lastName}` : "-"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Phone
+                          </p>
+                          <p className="font-medium">{rep?.phoneNum || "-"}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-xs uppercase">
+                            Email
+                          </p>
+                          <p className="font-medium">{rep?.email || "-"}</p>
                         </div>
                       </div>
                     </div>

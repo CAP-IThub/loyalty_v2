@@ -27,6 +27,7 @@ const EditCampaignModal = ({
     store_type: "dulux",
   });
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     if (campaign) {
@@ -43,6 +44,19 @@ const EditCampaignModal = ({
     }
   }, [campaign]);
 
+   useEffect(() => {
+     const fetchCategories = async () => {
+       try {
+         const res = await axios.get("/v2/paintercategory");
+         const names = res.data.data.data.map((c) => c.name);
+         setCategories(names);
+       } catch (err) {
+         console.error("Failed to fetch categories", err);
+       }
+     };
+     fetchCategories();
+   }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -57,6 +71,13 @@ const EditCampaignModal = ({
       description:
         formData.description.trim() === "" ? null : formData.description,
     };
+
+    const today = new Date().toISOString().split("T")[0];
+    if (formData.start_date < today) {
+      toast.error("Start date cannot be in the past");
+      setLoading(false);
+      return;
+    }
 
     try {
       await axios.patch(`/v2/campaigns/${campaign.id}`, payload);
@@ -143,6 +164,7 @@ const EditCampaignModal = ({
                         value={formData.start_date}
                         onChange={handleChange}
                         required
+                        min={new Date().toISOString().split("T")[0]}
                         className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
                       />
                     </div>
@@ -228,14 +250,20 @@ const EditCampaignModal = ({
                     <label className="block text-sm font-medium">
                       Category
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="category"
                       value={formData.category}
                       onChange={handleChange}
                       required
                       className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
-                    />
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map((name) => (
+                        <option key={name} value={name}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="pt-4 text-right">

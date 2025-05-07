@@ -3,19 +3,19 @@ import { NavLink, Outlet } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
-const SettingsLayout = () => {
+const ReconciliationToolLayout = () => {
   const auth = useSelector((state) => state.auth);
   console.log(auth);
 
   return (
     <div className="py-6 px-2 space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-800">Settings</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Reconciliation Tool</h2>
         <p className="text-sm text-gray-500">Customize system configurations</p>
       </div>
 
       <div>
-        <div className="flex gap-6 border-b text-sm font-medium text-gray-600 mb-6">
+        <div className="flex gap-6 border-b text-sm font-medium text-gray-600 mb-3">
           <NavLink
             to="."
             end
@@ -25,27 +25,27 @@ const SettingsLayout = () => {
                 : "pb-2 hover:text-orange-500"
             }
           >
-            Loyalty Campaigns
+            Transactions
           </NavLink>
           <NavLink
-            to="loyalty-tier-levels"
+            to="claims"
             className={({ isActive }) =>
               isActive
                 ? "pb-2 border-b-2 border-orange-500 text-orange-600"
                 : "pb-2 hover:text-orange-500"
             }
           >
-            Loyalty Tier levels
+            Claims
           </NavLink>
           <NavLink
-            to="painter-category"
+            to="account"
             className={({ isActive }) =>
               isActive
                 ? "pb-2 border-b-2 border-orange-500 text-orange-600"
                 : "pb-2 hover:text-orange-500"
             }
           >
-            Painter category
+            Account
           </NavLink>
         </div>
 
@@ -57,4 +57,4 @@ const SettingsLayout = () => {
   );
 };
 
-export default SettingsLayout;
+export default ReconciliationToolLayout;

@@ -136,7 +136,7 @@ const StatisticsChartAndRecentActivity = () => {
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Recent Activities</h3>
           <Link
-            to="/admin/activities"
+            to="/auditlogs"
             className="text-sm text-[#0B0F28] font-medium hover:underline"
           >
             View All
