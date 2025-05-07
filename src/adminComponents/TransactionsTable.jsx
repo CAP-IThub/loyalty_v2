@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../utils/axiosInstance";
 
-const truncateAddress = (address, wordLimit = 2) => {
-  const words = address.split(" ");
-  return words.length > wordLimit
-    ? words.slice(0, wordLimit).join(" ") + "..."
-    : address;
-};
+// const truncateAddress = (address, wordLimit = 2) => {
+//   const words = address.split(" ");
+//   return words.length > wordLimit
+//     ? words.slice(0, wordLimit).join(" ") + "..."
+//     : address;
+// };
 
 const capitalizeName = (first, last) => {
   return `${first?.charAt(0).toUpperCase() + first?.slice(1).toLowerCase()} ${
@@ -24,9 +24,9 @@ const formatNumber = (val, isCurrency = false) => {
 const TransactionTable = ({ data, columns, title }) => {
   const getRoute = () => {
     if (title.toLowerCase().includes("awarded"))
-      return "/admin/awarded-transactions";
+      return "/reconciliation-tool/transactions";
     if (title.toLowerCase().includes("claimed"))
-      return "/admin/claimed-transactions";
+      return "/reconciliation-tool/claims";
     return "/";
   };
 
@@ -55,7 +55,7 @@ const TransactionTable = ({ data, columns, title }) => {
             </tr>
           </thead>
           <tbody>
-            {data.map((row, idx) => (
+            {data?.map((row, idx) => (
               <tr key={row.id} className={idx % 2 === 1 ? "bg-gray-100" : ""}>
                 {columns.map((col) => (
                   <td key={col.accessor} className="py-2 px-4 text-gray-700">
@@ -70,7 +70,7 @@ const TransactionTable = ({ data, columns, title }) => {
 
       {/* Mobile Grid View */}
       <div className="md:hidden space-y-4">
-        {data.map((row) => (
+        {data?.map((row) => (
           <div key={row.id} className="bg-[#f9fafc] rounded-md p-3 shadow-sm">
             {columns.map((col) => (
               <div key={col.accessor} className="text-sm text-gray-700 mb-1">
@@ -99,28 +99,33 @@ const TransactionsTable = () => {
           axios.get("/withdrawals"),
         ]);
 
-        const awardedData = awardedRes.data.data.slice(0, 5).map((item) => ({
-          id: item.id,
-          amount: formatNumber(item.amount, true), 
-          point: formatNumber(item.points),
-          painter: capitalizeName(
-            item.customerFirstName,
-            item.customerLastName
-          ),
-          shop: item.shop,
-          address: truncateAddress(item.address),
-        }));
+        const awardedData = awardedRes.data.data.data
+          ?.slice(0, 5)
+          .map((item) => ({
+            id: item.serial_num,
+            amount: formatNumber(item.amount, true),
+            point: formatNumber(item.points),
+            painter: capitalizeName(
+              item.customerFirstName,
+              item.customerLastName
+            ),
+            shop: item.center,
+            // address: truncateAddress(item.center_address),
+          }));
 
-        const claimedData = claimedRes.data.data.slice(0, 5).map((item) => ({
-          id: item.id,
-          point: formatNumber(item.pointsClaimed),
-          painter: capitalizeName(
-            item.customerFirstName,
-            item.customerLastName
-          ),
-          shop: item.shop,
-          address: truncateAddress(item.address),
-        }));
+        const claimedData = claimedRes.data.data.data
+          ?.slice(0, 5)
+          .map((item) => ({
+            id: item.serial_num,
+            point: formatNumber(item.pointsClaimed),
+            painter: capitalizeName(
+              item.customerFirstName,
+              item.customerLastName
+            ),
+            shop: item.shop,
+            // address: truncateAddress(item.center_address),
+          }));
+
 
         setAwarded(awardedData);
         setClaimed(claimedData);
@@ -130,6 +135,10 @@ const TransactionsTable = () => {
     };
 
     fetchData();
+
+    // console.log("awarded", awarded);
+    // console.log("claimed  ", claimed);
+    
   }, []);
 
   return (
@@ -147,7 +156,6 @@ const TransactionsTable = () => {
             { label: "Point", accessor: "point" },
             { label: "Painter", accessor: "painter" },
             { label: "Shop", accessor: "shop" },
-            { label: "Address", accessor: "address" },
           ]}
         />
         <TransactionTable
@@ -158,7 +166,6 @@ const TransactionsTable = () => {
             { label: "Point", accessor: "point" },
             { label: "Painter", accessor: "painter" },
             { label: "Shop", accessor: "shop" },
-            { label: "Address", accessor: "address" },
           ]}
         />
       </div>

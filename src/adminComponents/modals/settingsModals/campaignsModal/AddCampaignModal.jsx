@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import {
   Dialog,
   DialogPanel,
@@ -22,8 +22,36 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
     store_type: "dulux",
     tier: "",
   });
-
+  const [categories, setCategories] = useState([]);
+  const [tiers, setTiers] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get("/v2/paintercategory");
+        const names = res.data.data.data.map((c) => c.name);
+        setCategories(names);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+   useEffect(() => {
+     const fetchTiers = async () => {
+       try {
+         const res = await axios.get("/v2/loyaltytier");
+         const names = res.data.data.data.map((c) => c.name);
+         setTiers(names);
+       } catch (err) {
+         console.error("Failed to fetch Tiers", err);
+       }
+     };
+     fetchTiers();
+   }, []);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,6 +70,13 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
       description:
         formData.description.trim() === "" ? null : formData.description,
     };
+
+    const today = new Date().toISOString().split("T")[0];
+    if (formData.start_date < today) {
+      toast.error("Start date cannot be in the past");
+      setLoading(false);
+      return;
+    }
 
     try {
       await axios.post("/v2/campaigns", payload);
@@ -139,6 +174,7 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
                         value={formData.start_date}
                         onChange={handleChange}
                         required
+                        min={new Date().toISOString().split("T")[0]}
                         className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
                       />
                     </div>
@@ -190,14 +226,20 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
                       <label className="block text-sm font-medium">
                         Category
                       </label>
-                      <input
-                        type="text"
+                      <select
                         name="category"
                         value={formData.category}
                         onChange={handleChange}
                         required
                         className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
-                      />
+                      >
+                        <option value="">Select Category</option>
+                        {categories.map((name) => (
+                          <option key={name} value={name}>
+                            {name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>
@@ -221,14 +263,20 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium">Tier</label>
-                      <input
-                        type="text"
+                      <select
                         name="tier"
                         value={formData.tier}
                         onChange={handleChange}
                         required
                         className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
-                      />
+                      >
+                        <option value="">Select Tier</option>
+                        {tiers.map((name) => (
+                          <option key={name} value={name}>
+                            {name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>

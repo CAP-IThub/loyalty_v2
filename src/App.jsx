@@ -21,6 +21,8 @@ import Reps from "./pages/ADMIN/Reps";
 import Roles from "./pages/ADMIN/Roles";
 import Admins from "./pages/ADMIN/Admins";
 import Settings from "./pages/ADMIN/settings/Settings";
+import ReconciliationTool from "./pages/ADMIN/reconciliationTool/ReconciliationTool";
+import AuditTrail from "./pages/ADMIN/AuditTrail";
 
 function App() {
   return (
@@ -141,6 +143,22 @@ function App() {
           element={
             <AdminLayout>
               <Settings />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/reconciliation-tool/*"
+          element={
+            <AdminLayout>
+              <ReconciliationTool />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/auditlogs"
+          element={
+            <AdminLayout>
+              <AuditTrail />
             </AdminLayout>
           }
         />
