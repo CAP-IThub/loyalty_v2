@@ -22,6 +22,7 @@ const Reps = () => {
   const [reps, setReps] = useState([]);
   const [perPage, setPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [selectedRep, setSelectedRep] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,25 +33,26 @@ const Reps = () => {
   const fetchReps = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/reps");
-      const formatted = res.data.data.rep.map((rep) => ({
+      const res = await axios.get("/reps", {
+        params: {
+          page: currentPage,
+          per_page: perPage,
+          search: searchTerm.trim(),
+        },
+      });
+
+      const rawData = res.data.data.rep || [];
+      const formatted = rawData.map((rep) => ({
         id: rep.id,
-        name: `${
-          rep.firstName[0].toUpperCase() + rep.firstName.slice(1).toLowerCase()
-        } ${
-          rep.lastName[0].toUpperCase() + rep.lastName.slice(1).toLowerCase()
-        }`,
-        firstName: `${
-          rep.firstName[0].toUpperCase() + rep.firstName.slice(1).toLowerCase()
-        }`,
-        lastName: `${
-          rep.lastName[0].toUpperCase() + rep.lastName.slice(1).toLowerCase()
-        }`,
+        name: `${rep.firstName} ${rep.lastName}`,
+        firstName: rep.firstName,
+        lastName: rep.lastName,
         phone: rep.phoneNum,
         email: rep.email,
-        serial_num: rep.serial_num,
       }));
+
       setReps(formatted);
+      setTotal(res.data.data.total || formatted.length);
     } catch (err) {
       console.error("Failed to fetch reps", err);
     } finally {
@@ -60,17 +62,7 @@ const Reps = () => {
 
   useEffect(() => {
     fetchReps();
-  }, []);
-
-  const filtered = reps.filter((rep) =>
-    rep.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const paginated = filtered.slice(
-    (currentPage - 1) * perPage,
-    currentPage * perPage
-  );
-
+  }, [searchTerm, perPage, currentPage]);
   const openModal = (rep) => {
     setSelectedRep(rep);
     setIsModalOpen(true);
@@ -99,7 +91,10 @@ const Reps = () => {
               placeholder="Search table...."
               className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
             />
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
@@ -107,7 +102,10 @@ const Reps = () => {
             id="rows"
             className="border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none"
             value={perPage}
-            onChange={(e) => setPerPage(Number(e.target.value))}
+            onChange={(e) => {
+              setPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
           >
             {[5, 10, 20, 50].map((num) => (
               <option key={num} value={num}>
@@ -128,6 +126,10 @@ const Reps = () => {
         <div className="flex justify-center py-10">
           <ClipLoader size={30} color="#0B1C39" />
         </div>
+      ) : reps.length === 0 ? (
+        <p className="text-center text-gray-500 mt-10">
+          No reps found for your search.
+        </p>
       ) : (
         <>
           <div className="hidden md:block overflow-x-auto border border-gray-200 rounded-xl">
@@ -143,7 +145,7 @@ const Reps = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginated.map((rep) => (
+                {reps.map((rep) => (
                   <tr
                     key={rep.id}
                     className="bg-white border-b border-gray-100 hover:bg-gray-50"
@@ -216,7 +218,7 @@ const Reps = () => {
 
           {/* Mobile Grid */}
           <div className="md:hidden space-y-4">
-            {paginated.map((rep) => (
+            {reps.map((rep) => (
               <div
                 key={rep.id}
                 className="border border-gray-200 rounded-lg p-4 shadow-md bg-white"
@@ -258,9 +260,9 @@ const Reps = () => {
 
           <Pagination
             currentPage={currentPage}
-            totalPages={Math.ceil(filtered.length / perPage)}
+            totalPages={Math.ceil(total / perPage)}
             onPageChange={setCurrentPage}
-            totalEntries={filtered.length}
+            totalEntries={total}
             perPage={perPage}
           />
         </>

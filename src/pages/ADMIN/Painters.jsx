@@ -21,7 +21,7 @@ import { HiChevronDown, HiDotsVertical } from "react-icons/hi";
 const Painters = () => {
   const [searchStatus, setSearchStatus] = useState("ALL");
   const [sortBy, setSortBy] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortOrder, setSortOrder] = useState("default");
   const [searchGender, setSearchGender] = useState("ALL");
   const [perPage, setPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -32,82 +32,78 @@ const Painters = () => {
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [isModalOpen3, setIsModalOpen3] = useState(false);
   const [isModalOpen4, setIsModalOpen4] = useState(false);
-
-  const [allPainters, setAllPainters] = useState([]);
   const [displayedPainters, setDisplayedPainters] = useState([]);
   const [total, setTotal] = useState(0);
 
-  const fetchPainters = async () => {
-    try {
-      setLoading(true);
-      let url = `/customer?per_page=1000`;
+ const fetchPainters = async () => {
+   try {
+     setLoading(true);
 
-      if (sortBy) {
-        url += `&sort_by=${sortBy}&sort_order=${sortOrder}`;
-      }
+     const params = {
+       per_page: perPage,
+       page: currentPage,
+     };
 
-      if (searchStatus !== "ALL") {
-        url += `&search=${searchStatus}`;
-      }
-      if (searchGender !== "ALL") {
-        url += `&gender=${searchGender.toLowerCase()}`;
-      }
+     if (searchTerm.trim() !== "") {
+       params.search = searchTerm.trim();
+     }
 
-      const res = await axios.get(url);
-      const rawData = res.data.data.data;
+     if (searchStatus !== "ALL") {
+       params.status = searchStatus.toLowerCase();
+     }
 
-      const formatted = rawData.map((p) => ({
-        id: p.id,
-        name: `${
-          p.firstName[0].toUpperCase() + p.firstName.slice(1).toLowerCase()
-        } ${p.lastName[0].toUpperCase() + p.lastName.slice(1).toLowerCase()}`,
-        firstName: p.firstName,
-        lastName: p.lastName,
-        phone: p.phoneNum,
-        address: p.address,
-        email: p.email,
-        status: p.status,
-        image: p.image,
-        gender: p.gender,
-        serial_num: p.serial_num,
-      }));
+     if (searchGender !== "ALL") {
+       params.gender = searchGender.toLowerCase();
+     }
 
-      setAllPainters(formatted);
-    } catch (err) {
-      console.error("Failed to fetch painters", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+     if (sortBy) {
+       params.sort_by = sortBy;
+     }
+
+     if (sortOrder !== "default") {
+       params.sort_order = sortOrder;
+     }
+
+     const res = await axios.get("/customer", { params });
+     const rawData = res.data.data.data;
+
+     const formatted = rawData.map((p) => ({
+       id: p.id,
+       name: `${
+         p.firstName[0].toUpperCase() + p.firstName.slice(1).toLowerCase()
+       } ${p.lastName[0].toUpperCase() + p.lastName.slice(1).toLowerCase()}`,
+       firstName: p.firstName,
+       lastName: p.lastName,
+       phone: p.phoneNum,
+       address: p.address,
+       email: p.email,
+       status: p.status,
+       image: p.image,
+       gender: p.gender,
+       serial_num: p.serial_num,
+     }));
+
+     setDisplayedPainters(formatted);
+     setTotal(res.data.data.total || rawData.length);
+   } catch (err) {
+     console.error("Failed to fetch painters", err);
+   } finally {
+     setLoading(false);
+   }
+ };
+
 
   useEffect(() => {
     fetchPainters();
-  }, [searchStatus, searchGender, sortBy, sortOrder]);
-
-  useEffect(() => {
-    let filtered = allPainters;
-
-    if (searchTerm.trim() !== "") {
-      const lower = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(lower) ||
-          p.phone.toLowerCase().includes(lower) ||
-          (p.email && p.email.toLowerCase().includes(lower)) ||
-          (p.address && p.address.toLowerCase().includes(lower))
-      );
-    }
-
-    const startIndex = (currentPage - 1) * perPage;
-    const paginated = filtered.slice(startIndex, startIndex + perPage);
-
-    setDisplayedPainters(paginated);
-    setTotal(filtered.length);
-  }, [allPainters, searchTerm, currentPage, perPage]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
+  }, [
+    searchTerm,
+    searchStatus,
+    searchGender,
+    sortBy,
+    sortOrder,
+    currentPage,
+    perPage,
+  ]);
 
   const openModal = (p) => {
     setSelectedPainter(p);
@@ -141,16 +137,21 @@ const Painters = () => {
     { label: "Phone Number", value: "phoneNum" },
   ];
 
+  const handleSortChange = (newSort) => {
+    if (newSort === sortBy) {
+      setSortOrder((prev) =>
+        prev === "asc" ? "desc" : prev === "desc" ? "default" : "asc"
+      );
+    } else {
+      setSortBy(newSort);
+      setSortOrder("asc");
+    }
+    setCurrentPage(1);
+  };
 
   const sortByDisplay = (value) => {
     const found = sortOptions.find((opt) => opt.value === value);
     return found ? found.label : "Default";
-  };
-
-
-  const handleSortChange = (newSort) => {
-    setSortBy(newSort);
-    setCurrentPage(1);
   };
 
   return (
@@ -279,9 +280,12 @@ const Painters = () => {
         <div className="flex justify-center py-8">
           <ClipLoader size={30} color="#0B1C39" />
         </div>
+      ) : displayedPainters.length === 0 ? (
+        <p className="text-center text-gray-500 mt-10">
+          No painters found for your search.
+        </p>
       ) : (
         <>
-          {/* Desktop Table View */}
           <div className="hidden md:block overflow-x-auto border border-gray-200 rounded-xl">
             <table className="w-full text-sm whitespace-nowrap">
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
