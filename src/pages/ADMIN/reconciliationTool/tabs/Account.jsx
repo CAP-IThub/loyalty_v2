@@ -4,6 +4,9 @@ import { FaSearch } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import Pagination from "../../../../components/Pagination";
 import { MdFilterList } from "react-icons/md";
+import { RiResetLeftFill } from "react-icons/ri";
+import ResetBalanceModal from "../../../../adminComponents/modals/reconciliationModal/ResetBalanceModal";
+import toast from "react-hot-toast";
 
 const Account = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,6 +21,15 @@ const Account = () => {
     startDate: "",
     endDate: "",
   });
+  const [balanceFilter, setBalanceFilter] = useState({
+    balanceOperator: "",
+    balanceValue: "",
+  });
+
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [resetType, setResetType] = useState("all");
+  const [singleResetId, setSingleResetId] = useState(null);
 
   const fetchAccounts = async () => {
     try {
@@ -30,6 +42,11 @@ const Account = () => {
 
       if (filters.startDate) params.start_date = filters.startDate;
       if (filters.endDate) params.end_date = filters.endDate;
+      if (balanceFilter.value) {
+        params.filter_field = "balance";
+        params.filter_operator = balanceFilter.balanceOperator;
+        params.filter_value = balanceFilter.balanceValue;
+      }
       if (sortBy !== "default") params.sort_by = sortBy;
       if (sortOrder !== "default") params.sort_order = sortOrder;
 
@@ -44,6 +61,7 @@ const Account = () => {
         balance:
           typeof a.balance === "number" ? a.balance.toLocaleString() : "0",
         lastPurchase: a.last_purchase || "—",
+        date: a.created_at
       }));
 
       setAccounts(formatted);
@@ -64,11 +82,39 @@ const Account = () => {
     fetchAccounts();
   }, [sortBy, sortOrder]);
 
+  const handleReset = async () => {
+    try {
+      const payload =
+        resetType === "single"
+          ? { accountId: [singleResetId] }
+          : resetType === "selected"
+          ? { accountId: selectedIds }
+          : {};
+
+      const res = await axios.post("/v2/customer-balance/reset", payload);
+
+      toast.success(res.data.message || "Balance reset successful");
+      setIsModalOpen(false);
+      setSelectedIds([]);
+      fetchAccounts();
+    } catch (err) {
+      const errorMsg =
+        err?.response?.data?.message || "Failed to reset balances";
+      toast.error(errorMsg);
+      console.error("Failed to reset balances", err);
+    }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
   return (
     <div className="pb-6 px-2">
       <h2 className="md:text-lg font-semibold mb-4">Accounts</h2>
 
-      {/* Sort & Search Controls */}
       <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
         <div className="flex gap-3 items-center">
           <select
@@ -118,7 +164,6 @@ const Account = () => {
         </div>
       </div>
 
-      {/* Filter Section */}
       <div className="border border-gray-200 rounded-md p-4 mb-4">
         <div className="flex items-center gap-2 mb-4">
           <MdFilterList className="text-blue-500 font-bold text-xl" />
@@ -126,7 +171,6 @@ const Account = () => {
         </div>
 
         <div className="flex flex-wrap items-end gap-4">
-          {/* Start Date */}
           <div>
             <label className="block text-sm mb-1">Start Date</label>
             <input
@@ -139,7 +183,6 @@ const Account = () => {
             />
           </div>
 
-          {/* End Date */}
           <div>
             <label className="block text-sm mb-1">End Date</label>
             <input
@@ -152,7 +195,49 @@ const Account = () => {
             />
           </div>
 
-          {/* Filter Buttons */}
+          <div>
+            <label className="block text-sm mb-1">Condition</label>
+            <select
+              value={balanceFilter.operator}
+              onChange={(e) =>
+                setBalanceFilter((prev) => ({
+                  ...prev,
+                  balanceOperator: e.target.value,
+                }))
+              }
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm w-[13.9rem]"
+            >
+              <option value="">Select</option>
+              <option value="eq">Equal to</option>
+              <option value="neq">Not equal to</option>
+              <option value="lt">Less than</option>
+              <option value="lte">Less than or equal to</option>
+              <option value="gt">Greater than</option>
+              <option value="gte">Greater than or equal to</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm mb-1">Balance Points</label>
+            <select
+              value={balanceFilter.value}
+              onChange={(e) =>
+                setBalanceFilter((prev) => ({
+                  ...prev,
+                  balanceValue: e.target.value,
+                }))
+              }
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm w-[13.9rem]"
+            >
+              <option value="">Select</option>
+              <option value="0">0</option>
+              <option value="10000">10,000</option>
+              <option value="100000">100,000</option>
+              <option value="500000">500,000</option>
+              <option value="1000000">1,000,000</option>
+            </select>
+          </div>
+
           <div>
             <button
               className="bg-[#FC7B00] hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-md"
@@ -169,12 +254,31 @@ const Account = () => {
             <button
               className="bg-gray-200 hover:bg-gray-300 text-sm font-medium px-4 py-2 rounded-md"
               onClick={() => {
-                setFilters({ startDate: "", endDate: "" });
+                setFilters({
+                  startDate: "",
+                  endDate: "",
+                });
+                setBalanceFilter({
+                  balanceOperator: "",
+                  balanceValue: "",
+                });
                 setCurrentPage(1);
                 fetchAccounts();
               }}
             >
               Reset Filters
+            </button>
+          </div>
+
+          <div>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-sm text-white font-medium px-4 py-2 rounded-md"
+              onClick={() => {
+                setResetType(selectedIds.length > 0 ? "selected" : "all");
+                setIsModalOpen(true);
+              }}
+            >
+              Reset All Balance
             </button>
           </div>
         </div>
@@ -197,7 +301,10 @@ const Account = () => {
                   <th className="text-left px-3 py-4 border-b">Email</th>
                   <th className="text-left px-3 py-4 border-b">Balance</th>
                   <th className="text-left px-3 py-4 border-b">
-                    Last Purchase
+                    Last Activity
+                  </th>
+                  <th className="text-left px-3 py-4 border-b">
+                    Reset Balance
                   </th>
                 </tr>
               </thead>
@@ -211,8 +318,26 @@ const Account = () => {
                     <td className="px-3 py-4">{a.name}</td>
                     <td className="px-3 py-4">{a.phone}</td>
                     <td className="px-3 py-4">{a.email}</td>
-                    <td className="px-3 py-4">₦{a.balance}</td>
-                    <td className="px-3 py-4">{a.lastPurchase}</td>
+                    <td className="px-3 py-4">{a.balance}</td>
+                    <td className="px-3 py-4">{a.date}</td>
+                    <td className="px-12 py-4">
+                      <RiResetLeftFill
+                        className="text-blue-600 cursor-pointer text-lg"
+                        onClick={() => {
+                          setResetType("single");
+                          setSingleResetId(a.id);
+                          setIsModalOpen(true);
+                        }}
+                      />
+                    </td>
+                    <td className="px-3 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(a.id)}
+                        onChange={() => toggleSelect(a.id)}
+                        className="w-4 h-4"
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -231,6 +356,9 @@ const Account = () => {
                 <p className="text-sm">Email: {a.email}</p>
                 <p className="text-sm">Balance: ₦{a.balance}</p>
                 <p className="text-sm">Last Purchase: {a.lastPurchase}</p>
+                <div>
+                  <RiResetLeftFill />
+                </div>
               </div>
             ))}
           </div>
@@ -244,6 +372,13 @@ const Account = () => {
           />
         </>
       )}
+
+      <ResetBalanceModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleReset}
+        selectedIds={resetType === "single" ? [singleResetId] : selectedIds}
+      />
     </div>
   );
 };

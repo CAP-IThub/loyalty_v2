@@ -21,6 +21,7 @@ const Partners = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [partners, setPartners] = useState([]);
   const [perPage, setPerPage] = useState(10);
+   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState(null);
@@ -29,37 +30,43 @@ const Partners = () => {
   const [isModalOpen3, setIsModalOpen3] = useState(false);
   const [isModalOpen4, setIsModalOpen4] = useState(false);
 
-  const fetchPartners = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get("/partner");
-      const formatted = res.data.data.partner.map((p) => ({
-        id: p.id,
-        name: `${
-          p.firstName[0].toUpperCase() + p.firstName.slice(1).toLowerCase()
-        } ${p.lastName[0].toUpperCase() + p.lastName.slice(1).toLowerCase()}`,
-        firstName: `${
-          p.firstName[0].toUpperCase() + p.firstName.slice(1).toLowerCase()
-        }`,
-        lastName: `${
-          p.lastName[0].toUpperCase() + p.lastName.slice(1).toLowerCase()
-        }`,
-        phone: p.phoneNum,
-        address: p.address,
-        email: p.email,
-        serial_num: p.serial_num,
-      }));
-      setPartners(formatted);
-    } catch (err) {
-      console.error("Failed to fetch partners", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+ const fetchPartners = async () => {
+   try {
+     setLoading(true);
+     const params = {
+       page: currentPage,
+       per_page: perPage,
+       search: searchTerm.trim(),
+     };
+     const res = await axios.get("/partner", { params });
+     const rawData = res.data.data.data;
+
+     const formatted = rawData.map((p) => ({
+       id: p.id,
+       name: `${
+         p.firstName[0].toUpperCase() + p.firstName.slice(1).toLowerCase()
+       } ${p.lastName[0].toUpperCase() + p.lastName.slice(1).toLowerCase()}`,
+       firstName: p.firstName,
+       lastName: p.lastName,
+       phone: p.phoneNum,
+       address: p.address,
+       email: p.email,
+       serial_num: p.serial_num || index + 1,
+     }));
+
+     setPartners(formatted);
+     setTotal(res.data.data.total);
+   } catch (err) {
+     console.error("Failed to fetch partners", err);
+   } finally {
+     setLoading(false);
+   }
+ };
+
 
   useEffect(() => {
     fetchPartners();
-  }, []);
+  }, [currentPage, perPage, searchTerm]);
 
   const truncateAddress = (address, wordLimit = 3) => {
     const words = address.split(" ");
@@ -68,14 +75,14 @@ const Partners = () => {
       : address;
   };
 
-  const filtered = partners.filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filtered = partners.filter((p) =>
+  //   p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
-  const paginated = filtered.slice(
-    (currentPage - 1) * perPage,
-    currentPage * perPage
-  );
+  // const paginated = filtered.slice(
+  //   (currentPage - 1) * perPage,
+  //   currentPage * perPage
+  // );
 
   const openModal = (partner) => {
     setSelectedPartner(partner);
@@ -105,7 +112,10 @@ const Partners = () => {
               placeholder="Search table...."
               className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
             />
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
@@ -113,7 +123,10 @@ const Partners = () => {
             id="rows"
             className="border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none"
             value={perPage}
-            onChange={(e) => setPerPage(Number(e.target.value))}
+            onChange={(e) => {
+              setPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
           >
             {[5, 10, 20, 50].map((num) => (
               <option key={num} value={num}>
@@ -134,6 +147,10 @@ const Partners = () => {
         <div className="flex justify-center py-10">
           <ClipLoader size={30} color="#0B1C39" />
         </div>
+      ) : partners.length === 0 ? (
+        <p className="text-center text-gray-500 mt-10">
+          No partners found for your search.
+        </p>
       ) : (
         <>
           <div className="hidden md:block overflow-x-auto border border-gray-200 rounded-xl">
@@ -150,7 +167,7 @@ const Partners = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginated.map((partner) => (
+                {partners.map((partner) => (
                   <tr
                     key={partner.id}
                     className="bg-white border-b border-gray-100 hover:bg-gray-50"
@@ -226,7 +243,7 @@ const Partners = () => {
 
           {/* Mobile Grid */}
           <div className="md:hidden space-y-4">
-            {paginated.map((partner) => (
+            {partners.map((partner) => (
               <div
                 key={partner.id}
                 className="border border-gray-200 rounded-lg p-4 shadow-md bg-white"
@@ -273,9 +290,9 @@ const Partners = () => {
           </div>
           <Pagination
             currentPage={currentPage}
-            totalPages={Math.ceil(filtered.length / perPage)}
+            totalPages={Math.ceil(total / perPage)}
             onPageChange={setCurrentPage}
-            totalEntries={filtered.length}
+            totalEntries={total}
             perPage={perPage}
           />
         </>

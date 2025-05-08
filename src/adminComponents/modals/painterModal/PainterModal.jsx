@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogPanel,
@@ -9,8 +9,34 @@ import {
 import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
 import userIcon from "../../../assets/images/userIcon.png";
+import axios from "../../../utils/axiosInstance";
 
 const PainterModal = ({ isOpen, closePainterModal, painter }) => {
+  const [painterData, setPainterData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchPainter = async () => {
+      if (!painter?.id) return;
+      try {
+        setLoading(true);
+        const res = await axios.get(`/customer/${painter.id}`);
+        setPainterData(res.data.data);
+      } catch (err) {
+        console.error("Failed to fetch painter details", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isOpen) fetchPainter();
+  }, [isOpen, painter]);
+
+  const data = painterData?.customerDetails || painter;
+  const balance = painterData?.balance;
+  const history = painterData?.history || [];
+  const claimsHistory = painterData?.claimsHistory || [];
+
   return (
     <div>
       <Transition appear show={isOpen} as={Fragment}>
@@ -42,7 +68,7 @@ const PainterModal = ({ isOpen, closePainterModal, painter }) => {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <DialogPanel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white px-6 py-8 text-left align-middle shadow-2xl transition-all">
+                <DialogPanel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white px-6 py-8 text-left align-middle shadow-2xl transition-all">
                   <div className="flex items-center justify-between mb-6">
                     <DialogTitle
                       as="h3"
@@ -59,109 +85,148 @@ const PainterModal = ({ isOpen, closePainterModal, painter }) => {
                     </button>
                   </div>
 
-                  <div className="flex flex-col items-center justify-center gap-4">
-                    <div className="w-[120px] h-[120px] rounded-full overflow-hidden border-4 border-[#FC7B00] shadow-md">
-                      {painter?.image == !"default.png" ? (
-                        <div>
-                          <img
-                            src={painter.image}
-                            alt="avatar"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div>
+                  {loading ? (
+                    <p className="text-center text-gray-500">Loading...</p>
+                  ) : (
+                    <div className="space-y-8">
+                      <div className="flex flex-col items-center justify-center gap-4">
+                        <div className="w-[120px] h-[120px] rounded-full overflow-hidden border-4 border-[#FC7B00] shadow-md">
                           <img
                             src={userIcon}
                             alt="avatar"
                             className="w-full h-full object-cover"
                           />
                         </div>
-                      )}
+
+                        <div className="w-full space-y-4 text-sm text-gray-700 pl-10">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-gray-400 text-xs uppercase">
+                                First Name
+                              </p>
+                              <p className="font-medium">
+                                {data?.firstName || "-"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400 text-xs uppercase">
+                                Last Name
+                              </p>
+                              <p className="font-medium">
+                                {data?.lastName || "-"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-gray-400 text-xs uppercase">
+                                Phone
+                              </p>
+                              <p className="font-medium">
+                                {data?.phoneNum || "-"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400 text-xs uppercase">
+                                Email
+                              </p>
+                              <p className="font-medium break-all">
+                                {data?.email || "-"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-gray-400 text-xs uppercase">
+                                Painter ID
+                              </p>
+                              <p className="font-medium">{data?.id || "-"}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400 text-xs uppercase">
+                                Address
+                              </p>
+                              <p className="font-medium">
+                                {data?.address || "-"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-gray-400 text-xs uppercase">
+                                Gender
+                              </p>
+                              <p className="font-medium">
+                                {data?.gender || "-"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-gray-400 text-xs uppercase">
+                                Status
+                              </p>
+                              <p className="font-medium mt-1">
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    data?.status === "ACTIVE"
+                                      ? "bg-green-100 text-green-700"
+                                      : "bg-red-100 text-red-700"
+                                  }`}
+                                >
+                                  {data?.status || "-"}
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <div>
+                            <p className="text-gray-400 text-xs uppercase">
+                              Balance
+                            </p>
+                            <p className="font-medium">
+                              ₦{balance?.toLocaleString() || 0}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pl-10">
+                        <h4 className="text-sm font-semibold mb-2">
+                          Claim History
+                        </h4>
+                        {claimsHistory.length > 0 ? (
+                          <ul className="list-disc ml-6 text-sm text-gray-700 space-y-1">
+                            {claimsHistory.map((claim, index) => (
+                              <li key={index}>{JSON.stringify(claim)}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-gray-500 text-sm italic">
+                            No claims history available.
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="pl-10">
+                        <h4 className="text-sm font-semibold mb-2">
+                          Point History
+                        </h4>
+                        {history.length > 0 ? (
+                          <ul className="list-disc ml-6 text-sm text-gray-700 space-y-1">
+                            {history.map((item, index) => (
+                              <li key={index}>{JSON.stringify(item)}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-gray-500 text-sm italic">
+                            No point history available.
+                          </p>
+                        )}
+                      </div>
                     </div>
-
-                    <div className="w-full space-y-4 text-sm text-gray-700 pl-10">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            First Name
-                          </p>
-                          <p className="font-medium">
-                            {painter?.firstName || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Last Name
-                          </p>
-                          <p className="font-medium">
-                            {painter?.lastName || "-"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Phone
-                          </p>
-                          <p className="font-medium">{painter?.phone || "-"}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Email
-                          </p>
-                          <p className="font-medium break-all">
-                            {painter?.email || "-"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            painter ID
-                          </p>
-                          <p className="font-medium">{painter?.id || "-"}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Address
-                          </p>
-                          <p className="font-medium">
-                            {painter?.address || "-"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Gender
-                          </p>
-                          <p className="font-medium">
-                            {painter?.gender || "-"}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-400 text-xs uppercase">
-                            Status
-                          </p>
-                          <p className="font-medium mt-1">
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                painter?.status === "ACTIVE"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {painter?.status || "-"}
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </DialogPanel>
               </TransitionChild>
             </div>

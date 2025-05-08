@@ -27,7 +27,7 @@ const Centers = () => {
   const [allCenters, setAllCenters] = useState([]);
   const [displayedCenters, setDisplayedCenters] = useState([]);
   const [sortBy, setSortBy] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortOrder, setSortOrder] = useState("default");
   const [perPage, setPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [centers, setCenters] = useState([]);
@@ -44,68 +44,48 @@ const Centers = () => {
   const [isModalOpen7, setIsModalOpen7] = useState(false);
   const [isModalOpen8, setIsModalOpen8] = useState(false);
 
- const fetchCenters = async () => {
-   try {
-     setLoading(true);
-     let url = `/shop?per_page=1000`;
+  const fetchCenters = async () => {
+    setLoading(true);
+    try {
+      const params = {
+        per_page: perPage,
+        page: currentPage,
+        search: searchTerm,
+        ...(sortBy && { sort_by: sortBy }),
+        ...(sortOrder !== "default" && { sort_order: sortOrder }),
+      };
+      const res = await axios.get("/shop", { params });
+      setCenters(res.data.data.data);
+      setTotal(res.data.data.total || 0);
+    } catch (err) {
+      console.error("Failed to fetch centers", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-     if (sortBy) {
-       url += `&sort_by=${sortBy}&sort_order=${sortOrder}`;
-     }
+  useEffect(() => {
+    fetchCenters();
+  }, [searchTerm, sortBy, sortOrder, currentPage, perPage]);
 
-     const res = await axios.get(url);
-     const rawData = res.data.data.data;
+  const handleSortChange = (value) => {
+    if (value === sortBy) {
+      setSortOrder((prev) =>
+        prev === "asc" ? "desc" : prev === "desc" ? "default" : "asc"
+      );
+    } else {
+      setSortBy(value);
+      setSortOrder("asc");
+    }
+    setCurrentPage(1);
+  };
 
-     const formatted = rawData.map((p) => ({
-       id: p.id,
-       name: p.name,
-       shopCode: p.shopCode,
-       location: p.location,
-       choice: p.choice,
-       status: p.status,
-       status2: p.status2,
-       address: {
-         street: p.address?.street,
-         state: p.address?.state,
-         region: p.address?.region,
-         country: p.address?.country,
-       },
-     }));
-
-     setAllCenters(formatted);
-   } catch (err) {
-     console.error("Failed to fetch centers", err);
-   } finally {
-     setLoading(false);
-   }
- };
-
- useEffect(() => {
-   fetchCenters();
- }, [currentPage, perPage, sortBy, sortOrder]);
-
- useEffect(() => {
-   let filtered = allCenters;
-
-   if (searchTerm.trim() !== "") {
-     const lower = searchTerm.toLowerCase();
-     filtered = filtered.filter(
-       (center) =>
-         center.name.toLowerCase().includes(lower) ||
-         center.shopCode.toLowerCase().includes(lower)
-     );
-   }
-
-   const startIndex = (currentPage - 1) * perPage;
-   const paginated = filtered.slice(startIndex, startIndex + perPage);
-
-   setDisplayedCenters(paginated);
-   setTotal(filtered.length);
- }, [allCenters, searchTerm, currentPage, perPage]);
-
- useEffect(() => {
-   setCurrentPage(1);
- }, [searchTerm]);
+  const sortOptions = [
+    { label: "Default", value: "" },
+    { label: "Name", value: "name" },
+    { label: "Shop Code", value: "shopCode" },
+    { label: "Region", value: "region" },
+  ];
 
   const openModal = (center) => {
     setSelectedCenter(center);
@@ -151,27 +131,9 @@ const Centers = () => {
   const onUpdate = () => fetchCenters();
   const onDelete = () => fetchCenters();
 
-  const sortOptions = [
-    { label: "Default", value: "" },
-    { label: "Name", value: "name" },
-    { label: "Shop Code", value: "shopCode" },
-    { label: "Region", value: "region" },
-  ];
-
   const sortByDisplay = (value) => {
     const found = sortOptions.find((opt) => opt.value === value);
     return found ? found.label : "Default";
-  };
-
-  const handleSortChange = (newSort) => {
-    if (newSort === sortBy) {
-      // Toggle between ascending and descending
-      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-    } else {
-      setSortBy(newSort);
-      setSortOrder("asc"); // reset to ascending for new field
-    }
-    setCurrentPage(1);
   };
 
   return (
@@ -190,14 +152,14 @@ const Centers = () => {
           </button>
         </div>
 
-        {/* Filters */}
         <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
           <div className="flex gap-2">
-            {/* Sort Dropdown */}
             <Menu as="div" className="relative">
               <MenuButton className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg text-sm shadow-sm bg-white">
                 <span className="text-gray-700 font-medium">
-                  Sort by: {sortByDisplay(sortBy)}
+                  Sort by:{" "}
+                  {sortOptions.find((opt) => opt.value === sortBy)?.label ||
+                    "Default"}
                 </span>
                 <HiChevronDown className="w-4 h-4" />
               </MenuButton>
@@ -212,31 +174,16 @@ const Centers = () => {
                 leaveTo="transform opacity-0 scale-95"
               >
                 <MenuItems className="absolute left-0 mt-2 w-48 origin-top-left bg-white border border-gray-200 rounded-md shadow-lg focus:outline-none z-50">
-                  {sortOptions.map((option) => (
-                    <MenuItem key={option.value}>
+                  {sortOptions.map((opt) => (
+                    <MenuItem key={opt.value}>
                       {({ active }) => (
                         <button
-                          onClick={() => handleSortChange(option.value)}
-                          className={`flex justify-between items-center w-full px-4 py-2 text-sm ${
+                          onClick={() => handleSortChange(opt.value)}
+                          className={`w-full px-4 py-2 text-left text-sm ${
                             active ? "bg-gray-100" : ""
                           }`}
                         >
-                          <span>{option.label}</span>
-                          {sortBy === option.value && (
-                            <svg
-                              className="w-4 h-4 text-green-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                          )}
+                          {opt.label}
                         </button>
                       )}
                     </MenuItem>
@@ -245,7 +192,6 @@ const Centers = () => {
               </Transition>
             </Menu>
 
-            {/* Rows per page */}
             <select
               id="rows"
               className="border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none"
@@ -270,7 +216,10 @@ const Centers = () => {
               placeholder="Search by name or shop code..."
               className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
             />
             <FaSearch className="absolute left-3 top-3 text-gray-400" />
           </div>
@@ -282,6 +231,10 @@ const Centers = () => {
         <div className="flex justify-center py-8">
           <ClipLoader size={30} color="#0B1C39" />
         </div>
+      ) : centers.length === 0 ? (
+        <p className="text-center text-gray-500 mt-10">
+          No centers found for your search.
+        </p>
       ) : (
         <>
           <div className="hidden md:block overflow-x-auto border border-gray-200 rounded-xl">
@@ -302,7 +255,7 @@ const Centers = () => {
                 </tr>
               </thead>
               <tbody>
-                {displayedCenters.map((center) => (
+                {centers.map((center) => (
                   <tr
                     key={center.id}
                     className="bg-white border-b border-gray-100 hover:bg-gray-50"
@@ -310,10 +263,10 @@ const Centers = () => {
                     <td className="px-3 py-4">{center.shopCode}</td>
                     <td className="px-3 py-4 capitalize">{center.name}</td>
                     <td className="px-3 py-4 capitalize">
-                      {center.address.state || "—"}
+                      {center.address?.state || "—"}
                     </td>
                     <td className="px-3 py-4 capitalize">
-                      {center.address.region || "—"}
+                      {center.address?.region || "—"}
                     </td>
                     <td className="px-3 py-4 capitalize">
                       {center.choice || "—"}
@@ -456,7 +409,7 @@ const Centers = () => {
 
           {/* Mobile Grid View */}
           <div className="md:hidden space-y-4 mt-4">
-            {displayedCenters.map((center) => (
+            {centers.map((center) => (
               <div
                 key={center.id}
                 className="border rounded-lg p-4 shadow-sm bg-white"
