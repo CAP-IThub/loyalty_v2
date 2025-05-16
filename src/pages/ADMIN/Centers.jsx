@@ -141,9 +141,9 @@ const handleExport = async () => {
   try {
     const res = await axios.get("/shop", {
       params: {
-        per_page: 10000, // fetch all, assuming backend allows it
+        per_page: 10000,
         page: 1,
-        search: searchTerm, // optional: include active filters
+        search: searchTerm,
         ...(sortBy && { sort_by: sortBy }),
         ...(sortOrder !== "default" && { sort_order: sortOrder }),
       },

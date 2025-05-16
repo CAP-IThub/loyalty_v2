@@ -31,6 +31,7 @@ import { BiSupport } from "react-icons/bi";
 
 const PainterSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -44,6 +45,11 @@ const PainterSidebar = () => {
   const handleNavClick = () => {
     handleClose();
   };
+
+  const handleHistoryClick = () => {
+    setShowHistoryDropdown((prev) => !prev);
+  };
+
 
   return (
     <>
@@ -103,16 +109,7 @@ const PainterSidebar = () => {
               >
                 <MdDashboard /> <span>Dashboard</span>
               </NavLink>
-              <NavLink
-                to="/redeem-points"
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `${navItem} ${isActive ? activeStyle : ""}`
-                }
-              >
-                <MdRedeem /> <span>Redeem Points</span>
-              </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/invoices"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
@@ -120,25 +117,45 @@ const PainterSidebar = () => {
                 }
               >
                 <LiaFileInvoiceSolid /> <span>Invoices</span>
-              </NavLink>
-              <NavLink
-                to="/purchases"
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `${navItem} ${isActive ? activeStyle : ""}`
-                }
-              >
-                <FaGift /> <span>Purchases</span>
-              </NavLink>
-              <NavLink
-                to="/claims"
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `${navItem} ${isActive ? activeStyle : ""}`
-                }
-              >
-                <LuBaggageClaim /> <span>Claims</span>
-              </NavLink>
+              </NavLink> */}
+              <div className="relative">
+                <button
+                  onClick={handleHistoryClick}
+                  className={`${navItem} w-full flex justify-between items-center`}
+                >
+                  <span className="flex items-center space-x-3">
+                    <FaGift /> <span>History</span>
+                  </span>
+                  <span className="text-lg">
+                    {showHistoryDropdown ? "−" : "+"}
+                  </span>
+                </button>
+                {showHistoryDropdown && (
+                  <div className="ml-6 mt-1 flex flex-col gap-1">
+                    <NavLink
+                      to="/purchases"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${navItem} ${isActive ? activeStyle : ""}`
+                      }
+                    >
+                      <FaGift />
+                      <span className="ml-6">Awards</span>
+                    </NavLink>
+                    <NavLink
+                      to="/claims"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${navItem} ${isActive ? activeStyle : ""}`
+                      }
+                    >
+                      <LuBaggageClaim />
+                      <span className="ml-6">Claims</span>
+                    </NavLink>
+                  </div>
+                )}
+              </div>
+
               <NavLink
                 to="/bank-details"
                 onClick={handleNavClick}
