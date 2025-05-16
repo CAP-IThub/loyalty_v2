@@ -142,7 +142,8 @@ const Admins = () => {
                 {paginated.map((admin) => (
                   <tr
                     key={admin.id}
-                    className="bg-white border-b border-gray-100 hover:bg-gray-50"
+                    onClick={() => openModal(admin)}
+                    className="bg-white border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                   >
                     <td className="px-3 py-4 capitalize">{admin.serial_num}</td>
                     <td className="px-3 py-4 capitalize">{admin.name}</td>

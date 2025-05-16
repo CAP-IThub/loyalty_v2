@@ -304,7 +304,8 @@ const Painters = () => {
                 {displayedPainters.map((painter) => (
                   <tr
                     key={painter.id}
-                    className="bg-white border-b border-gray-100 hover:bg-gray-50"
+                    onClick={() => openModal(painter)}
+                    className="bg-white border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                   >
                     <td className="px-3 py-4">{painter.serial_num}</td>
                     <td className="px-3 py-4 capitalize">{painter.name}</td>

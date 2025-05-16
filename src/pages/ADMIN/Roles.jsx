@@ -138,8 +138,9 @@ const Roles = () => {
               <tbody>
                 {paginated.map((role) => (
                   <tr
-                    key={role.id}
-                    className="bg-white border-b border-gray-100 hover:bg-gray-50"
+                    onClick={() => openModal(role)}
+                    key={role.id}x
+                    className="bg-white border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                   >
                     <td className="px-3 py-4">{role.id}</td>
                     <td className="px-3 py-4 capitalize">{role.name}</td>

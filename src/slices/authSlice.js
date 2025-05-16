@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../utils/axiosInstance"; // use axios instance with interceptor
+import axios from "../utils/axiosInstance";
 import { toast } from "react-hot-toast";
 import { baseUrl } from "../utils/baseUrl";
 
@@ -10,7 +10,7 @@ const initialState = {
   email: localStorage.getItem("email"),
   phone: localStorage.getItem("phone"),
   user_type: localStorage.getItem("user_type"),
-  _id: "",
+  id: localStorage.getItem("id"),
   registerStatus: "",
   registerError: "",
   loginStatus: "",
@@ -24,14 +24,28 @@ export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (user, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${baseUrl}/register/`, user);
-      if (response.status === 200) {
+      const { referral_code, ...body } = user;
+
+      const endpoint = referral_code
+        ? `${baseUrl}/v2/register?referral_code=${referral_code}`
+        : `${baseUrl}/v2/register`;
+
+      const response = await axios.post(endpoint, body);
+
+      if (response.status === 200 || response.status === 201) {
         toast.success("Registration successful");
+        return response.data;
       }
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.email || "Registration failed"
-      );
+      const res = err.response?.data;
+
+      const backendError =
+        res?.message?.error ||
+        (res?.errors && Object.values(res.errors).flat().join(" ")) ||
+        res?.error ||
+        "Registration failed.";
+
+      return rejectWithValue(backendError);
     }
   }
 );
@@ -49,10 +63,16 @@ export const loginUser = createAsyncThunk(
       localStorage.setItem("email", userInfo.email);
       localStorage.setItem("phone", userInfo.phoneNum);
       localStorage.setItem("user_type", user.user_type);
+      localStorage.setItem("_id", userInfo.id);
 
       return { token: access_token, user: userInfo, user_type: user.user_type };
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Login failed");
+      const res = err.response?.data;
+
+      const backendError =
+        res?.errors?.failed?.[0] || res?.message || "Login failed.";
+
+      return rejectWithValue(backendError);
     }
   }
 );
@@ -68,13 +88,43 @@ export const loginAdmin = createAsyncThunk(
       localStorage.setItem("first_name", adminInfo.firstName);
       localStorage.setItem("last_name", adminInfo.lastName);
       localStorage.setItem("email", adminInfo.email);
+      localStorage.setItem("id", adminInfo.id);
       localStorage.setItem("user_type", "admin");
 
       return { token: access_token, user: adminInfo, user_type: "admin" };
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Admin login failed"
-      );
+      const res = err.response?.data;
+
+      const backendError =
+        res?.errors?.failed?.[0] || res?.message || "Login failed.";
+
+      return rejectWithValue(backendError);
+    }
+  }
+);
+
+export const loginPainter = createAsyncThunk(
+  "auth/loginPainter",
+  async (painter, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${baseUrl}/v2/login`, painter);
+      const { access_token, user: painterInfo } = response.data;
+
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("first_name", painterInfo.firstName);
+      localStorage.setItem("last_name", painterInfo.lastName);
+      localStorage.setItem("email", painterInfo.email);
+      localStorage.setItem("id", painterInfo.id);
+      localStorage.setItem("user_type", "admin");
+
+      return { token: access_token, user: painterInfo, user_type: "painter" };
+    } catch (err) {
+      const res = err.response?.data;
+
+      const backendError =
+        res?.errors?.failed?.[0] || res?.message || "Login failed.";
+
+      return rejectWithValue(backendError);
     }
   }
 );
@@ -179,6 +229,28 @@ const authSlice = createSlice({
         state.success = true;
       })
       .addCase(loginAdmin.rejected, (state, action) => {
+        state.loading = false;
+        state.loginStatus = "rejected";
+        state.loginError = action.payload;
+      })
+      .addCase(loginPainter.pending, (state) => {
+        state.loading = true;
+        state.loginStatus = "pending";
+      })
+      .addCase(loginPainter.fulfilled, (state, action) => {
+        const { token, user, user_type } = action.payload;
+        state.token = token;
+        state.first_name = user.firstName;
+        state.last_name = user.lastName;
+        state.phone = user.phoneNum;
+        state.email = user.email;
+        state._id = user.id;
+        state.user_type = user_type;
+        state.loginStatus = "success";
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(loginPainter.rejected, (state, action) => {
         state.loading = false;
         state.loginStatus = "rejected";
         state.loginError = action.payload;

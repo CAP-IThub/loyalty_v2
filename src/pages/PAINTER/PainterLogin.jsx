@@ -5,13 +5,13 @@ import loginImage from "../../assets/images/loginImage.png";
 import { AiOutlineMail, AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginAdmin } from "../../slices/authSlice";
+import { loginPainter } from "../../slices/authSlice";
 import { ClipLoader } from "react-spinners";
 import { toast } from "react-hot-toast";
 
 const PainterLogin = () => {
   const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState("");
+  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
@@ -22,8 +22,8 @@ const PainterLogin = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(
-      loginAdmin({
-        email,
+      loginPainter({
+        login,
         password,
       })
     );
@@ -31,13 +31,14 @@ const PainterLogin = () => {
 
   useEffect(() => {
     if (auth.loginStatus === "rejected") {
-      toast.error(`${auth.loginError}`);
+      toast.error(auth.loginError);
     }
   }, [auth.loginStatus, auth.loginError]);
 
+
   useEffect(() => {
-    if (auth.first_name && auth.user_type === "admin" && auth.token) {
-      navigate(`/admin`);
+    if (auth.first_name && auth.user_type === "painter" && auth.token) {
+      navigate(`/painter-dashboard`);
       toast.success(`Welcome, ${auth.first_name}`);
     }
   }, [auth.first_name, auth.user_type, auth.token, navigate]);
@@ -76,7 +77,6 @@ const PainterLogin = () => {
             />
           </div>
 
-          {/* Left Image/Graphic Section */}
           <div className="hidden md:flex w-[50%] h-[100vh]">
             <div className="text-center">
               <img
@@ -91,7 +91,7 @@ const PainterLogin = () => {
           <div className="w-full md:w-1/2 flex items-center justify-center">
             <div className="w-full max-w-md md:border border-gray-400 rounded-md px-8 py-8 md:px-14 md:py-16 md:shadow-sm">
               <h2 className="text-2xl font-semibold text-center">
-                Log in to your account
+                Painter Login
               </h2>
               <p className="text-sm text-gray-500 mt-2 text-center">
                 Welcome! Please enter your details
@@ -100,23 +100,23 @@ const PainterLogin = () => {
               <form className="space-y-6 mt-6" onSubmit={handleSubmit}>
                 <div className="relative">
                   <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="login"
+                    type="text"
+                    value={login}
+                    onChange={(e) => setLogin(e.target.value)}
                     required
                     className={`peer w-full border-b-2 border-gray-300 bg-transparent pt-6 pb-2 placeholder-transparent text-black text-sm focus:outline-none focus:border-[#FC7B00]`}
-                    placeholder="Email"
+                    placeholder="Email or Phone number"
                   />
                   <label
-                    htmlFor="email"
+                    htmlFor="login"
                     className={`absolute left-0 ${
-                      email
+                      login
                         ? "top-0 text-sm text-black font-semibold"
                         : "top-7 text-sm text-gray-500"
                     } transition-all peer-focus:top-0 peer-focus:text-sm peer-focus:text-black peer-focus:font-semibold`}
                   >
-                    Email Address
+                    Email or Phone Number
                   </label>
                   <div className="absolute right-0 bottom-2 text-gray-500 hover:text-gray-700">
                     <AiOutlineMail />
@@ -175,6 +175,12 @@ const PainterLogin = () => {
                   )}
                 </button>
               </form>
+              <p className="my-4 text-sm text-center">
+                Don't have an account?{" "}
+                <Link className="text-[#FC7B00]" to="/painter-register">
+                  Create Account
+                </Link>
+              </p>
             </div>
           </div>
         </div>

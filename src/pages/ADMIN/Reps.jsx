@@ -148,7 +148,8 @@ const Reps = () => {
                 {reps.map((rep) => (
                   <tr
                     key={rep.id}
-                    className="bg-white border-b border-gray-100 hover:bg-gray-50"
+                    className="bg-white border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                    onClick={() => openModal(rep)}
                   >
                     <td className="px-3 py-4">{rep.id}</td>
                     <td className="px-3 py-4 capitalize">{rep.name}</td>

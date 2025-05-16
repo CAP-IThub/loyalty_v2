@@ -22,6 +22,7 @@ import AssignPartnerModal from "../../adminComponents/modals/centerModal/AssignP
 import UnassignPartnerModal from "../../adminComponents/modals/centerModal/UnassignPartnerModal";
 import AssignRepModal from "../../adminComponents/modals/centerModal/AssignRepModal";
 import UnassignRepModal from "../../adminComponents/modals/centerModal/UnassignRepModal";
+import { RiUploadCloud2Fill } from "react-icons/ri";
 
 const Centers = () => {
   const [allCenters, setAllCenters] = useState([]);
@@ -136,6 +137,58 @@ const Centers = () => {
     return found ? found.label : "Default";
   };
 
+const handleExport = async () => {
+  try {
+    const res = await axios.get("/shop", {
+      params: {
+        per_page: 10000, // fetch all, assuming backend allows it
+        page: 1,
+        search: searchTerm, // optional: include active filters
+        ...(sortBy && { sort_by: sortBy }),
+        ...(sortOrder !== "default" && { sort_order: sortOrder }),
+      },
+    });
+
+    const allData = res.data.data.data;
+
+    const csvHeader = [
+      "Shop Code",
+      "Name",
+      "State",
+      "Region",
+      "Choice",
+      "Partner Status",
+      "Rep Status",
+    ];
+    const rows = allData.map((center) => [
+      center.shopCode,
+      center.name,
+      center.address?.state || "—",
+      center.address?.region || "—",
+      center.choice || "—",
+      center.status || "—",
+      center.status2 || "—",
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [csvHeader, ...rows].map((e) => e.join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "centers_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("Export failed:", error);
+    alert("Failed to export data. Please try again.");
+  }
+};
+
+
+
   return (
     <div className="py-6 px-2 space-y-6">
       {/* Header */}
@@ -144,12 +197,20 @@ const Centers = () => {
           <div>
             <h2 className="md:text-lg font-semibold">Centers</h2>
           </div>
-          <button
-            className="flex items-center gap-2 bg-[#FC7B00] text-white rounded-md px-4 py-2 text-sm hover:opacity-90"
-            onClick={() => setIsModalOpen4(true)}
-          >
-            <IoIosPersonAdd size={16} /> Add Center
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              className="flex items-center gap-2 bg-gray-400 text-white rounded-md px-4 py-2 text-sm hover:opacity-90"
+              onClick={handleExport}
+            >
+              <RiUploadCloud2Fill size={16} />
+            </button>
+            <button
+              className="flex items-center gap-2 bg-[#FC7B00] text-white rounded-md px-4 py-2 text-sm hover:opacity-90"
+              onClick={() => setIsModalOpen4(true)}
+            >
+              <IoIosPersonAdd size={16} /> Add Center
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
@@ -258,7 +319,8 @@ const Centers = () => {
                 {centers.map((center) => (
                   <tr
                     key={center.id}
-                    className="bg-white border-b border-gray-100 hover:bg-gray-50"
+                    onClick={() => openModal(center)}
+                    className="bg-white border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                   >
                     <td className="px-3 py-4">{center.shopCode}</td>
                     <td className="px-3 py-4 capitalize">{center.name}</td>

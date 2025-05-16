@@ -23,6 +23,18 @@ import Admins from "./pages/ADMIN/Admins";
 import Settings from "./pages/ADMIN/settings/Settings";
 import ReconciliationTool from "./pages/ADMIN/reconciliationTool/ReconciliationTool";
 import AuditTrail from "./pages/ADMIN/AuditTrail";
+import ChangePassword from "./pages/ADMIN/SetNewPassword";
+import SetNewPassword from "./pages/ADMIN/SetNewPassword";
+import PainterRegister from "./pages/PAINTER/PainterRegister";
+import PainterLogin from "./pages/PAINTER/PainterLogin";
+import PainterLayout from "./layouts/PainterLayout";
+import PainterDashboard from "./pages/PAINTER/PainterDashboard";
+import Invoices from "./pages/PAINTER/Invoices";
+import Purchases from "./pages/PAINTER/Purchases";
+import Claims from "./pages/PAINTER/Claims";
+import BankDetails from "./pages/PAINTER/BankDetails";
+import Support from "./pages/PAINTER/Support";
+import RedeemPoints from "./pages/PAINTER/RedeemPoints";
 
 function App() {
   return (
@@ -47,8 +59,12 @@ function App() {
         }}
       />
       <Routes>
-        <Route path="/" element={<WelcomePage />} />
+        <Route path="/rep-login" element={<WelcomePage />} />
+        <Route path="/partner-login" element={<WelcomePage />} />
         <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/painter-register" element={<PainterRegister />} />
+        <Route path="/" element={<PainterLogin />} />
+
         {/* Admin Dashboard Routes */}
         <Route
           path="/admin"
@@ -160,6 +176,71 @@ function App() {
             <AdminLayout>
               <AuditTrail />
             </AdminLayout>
+          }
+        />
+        <Route path="/admin/set-new-password" element={<SetNewPassword />} />
+
+        {/* Painter Dashboard Routes */}
+        <Route
+          path="/painter-dashboard"
+          element={
+            <PainterLayout>
+              <PainterDashboard />
+            </PainterLayout>
+          }
+        />
+
+        <Route
+          path="/redeem-points"
+          element={
+            <PainterLayout>
+              <RedeemPoints />
+            </PainterLayout>
+          }
+        />
+
+        <Route
+          path="/invoices"
+          element={
+            <PainterLayout>
+              <Invoices />
+            </PainterLayout>
+          }
+        />
+
+        <Route
+          path="/purchases"
+          element={
+            <PainterLayout>
+              <Purchases />
+            </PainterLayout>
+          }
+        />
+
+        <Route
+          path="/claims"
+          element={
+            <PainterLayout>
+              <Claims />
+            </PainterLayout>
+          }
+        />
+
+        <Route
+          path="/bank-details"
+          element={
+            <PainterLayout>
+              <BankDetails />
+            </PainterLayout>
+          }
+        />
+
+        <Route
+          path="/support"
+          element={
+            <PainterLayout>
+              <Support />
+            </PainterLayout>
           }
         />
 

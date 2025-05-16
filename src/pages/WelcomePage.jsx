@@ -45,7 +45,6 @@ const WelcomePage = () => {
     }
   }, [auth._id, auth.first_name, auth.user_type, navigate]);
 
-
   const renderForm = () => {
     return (
       <form className="space-y-6 mt-6" onSubmit={handleSubmit}>
@@ -185,7 +184,7 @@ const WelcomePage = () => {
               </p>
 
               <div className="flex mt-6 border-b border-gray-200">
-                {["Partner", "Rep", "Painter"].map((type) => (
+                {["Partner", "Rep"].map((type) => (
                   <button
                     key={type}
                     onClick={() => setActiveTab(type)}
