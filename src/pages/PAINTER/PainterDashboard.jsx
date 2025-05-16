@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import StatCard from "../../painterComponents/StatCard";
 import axios from "../../utils/axiosInstance";
 import TableComponent from "../../painterComponents/TableComponent";
+import { MdRedeem } from "react-icons/md";
 
 const PainterDashboard = () => {
   const [data, setData] = useState({});
@@ -58,7 +59,7 @@ const PainterDashboard = () => {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const invoicesRes = await axios.get("/v2/customer/invoices/history");  
+        const invoicesRes = await axios.get("/v2/customer/invoices/history");
 
         const invoiceList = invoicesRes.data.data.data
           .slice(0, 4)
@@ -80,7 +81,7 @@ const PainterDashboard = () => {
             entryType: item.entry_type,
             points: item.value,
             created_at: item.created_at,
-          }))
+          }));
 
         setInvoices(invoiceList);
         setHistory(historyList);
@@ -94,15 +95,24 @@ const PainterDashboard = () => {
 
   return (
     <div className="space-y-4 md:space-y-6 px-2">
-      <div className="space-y-3 mt-4">
-        <div className="mb-2">
-          <h1 className="text-xl md:text-2xl font-bold mb-1">
-            Welcome back, {auth.first_name}!{" "}
-            <span className="inline-block">👋</span>
-          </h1>
-          <p className="text-sm text-gray-600">
-            Here's an overview of your rewards and activities
-          </p>
+      <div className="space-y-3 mt-4 mb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold mb-1">
+              Welcome back, {auth.first_name}!{" "}
+              <span className="inline-block">👋</span>
+            </h1>
+            <p className="text-sm text-gray-600">
+              Here's an overview of your rewards and activities
+            </p>
+          </div>
+          <div>
+            <button
+              className="flex items-center gap-2 bg-[#FC7B00] text-white rounded-md px-4 py-2 text-sm hover:opacity-90"
+            >
+              <MdRedeem size={16} />Redeem Points
+            </button>
+          </div>
         </div>
       </div>
 
