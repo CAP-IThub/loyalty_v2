@@ -18,45 +18,41 @@ import { HiChevronDown } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import AdminInfoModal from "../adminComponents/modals/AdminInfoModal/AdminInfoModal";
 import ChangePasswordModal from "../adminComponents/modals/changePasswordModal/ChangePasswordModal";
+import PainterSidebar from "../painterComponents/PainterSidebar";
 // import axios from "../../utils/axiosInstance";
 // import { ClipLoader } from "react-spinners";
 
-const AdminLayout = ({ children }) => {
+const PainterLayout = ({ children }) => {
   const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
 
-   const openModal = () => {
-     setIsModalOpen(true);
-   };
+//   const openModal = () => {
+//     setIsModalOpen(true);
+//   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+//   const closeModal = () => {
+//     setIsModalOpen(false);
+//   };
 
-   const openPasswordModal = () => {
-     setIsModalOpen2(true);
-   };
+//   const openPasswordModal = () => {
+//     setIsModalOpen2(true);
+//   };
 
-   const closePasswordModal = () => {
-     setIsModalOpen2(false);
-   };
-  
+//   const closePasswordModal = () => {
+//     setIsModalOpen2(false);
+//   };
+
   return (
     <div className="w-full flex h-screen">
-      <AdminSidebar />
+      <PainterSidebar />
       <main className="flex-1 pt-20 px-4 pb-4 md:pt-0 md:px-3 overflow-y-auto h-screen">
         <div className="hidden md:flex justify-between items-center bg-white p-4 w-full rounded-xl shadow-md sticky top-0 z-20">
           <img src={capLogo} alt="/" width={120} />
 
           <div className="flex items-center">
-            {/* <div className="flex items-center gap-2">
-              <FaBell className="text-xl text-[#0B0F28]" />
-              <span className="text-xs">Notifications</span>
-            </div> */}
-
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <img
@@ -97,7 +93,7 @@ const AdminLayout = ({ children }) => {
                         <MenuItem>
                           {({ active }) => (
                             <button
-                              onClick={openModal}
+                            //   onClick={openModal}
                               className={`$${
                                 active
                                   ? "bg-gray-100 text-gray-900"
@@ -112,7 +108,7 @@ const AdminLayout = ({ children }) => {
                         <MenuItem>
                           {({ active }) => (
                             <button
-                              onClick={openPasswordModal}
+                            //   onClick={openPasswordModal}
                               className={`$${
                                 active
                                   ? "bg-gray-100 text-gray-900"
@@ -152,13 +148,13 @@ const AdminLayout = ({ children }) => {
         {children}
       </main>
 
-      <AdminInfoModal isOpen={isModalOpen} closeAdminModal={closeModal} />
+      {/* <AdminInfoModal isOpen={isModalOpen} closeAdminModal={closeModal} />
       <ChangePasswordModal
         isOpen={isModalOpen2}
         closePasswordModal={closePasswordModal}
-      />
+      /> */}
     </div>
   );
 };
 
-export default AdminLayout;
+export default PainterLayout;

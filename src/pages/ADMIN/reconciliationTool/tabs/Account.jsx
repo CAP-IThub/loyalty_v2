@@ -171,7 +171,7 @@ const Account = () => {
         </div>
 
         <div className="flex flex-wrap items-end gap-4">
-          <div>
+          {/* <div>
             <label className="block text-sm mb-1">Start Date</label>
             <input
               type="date"
@@ -193,7 +193,7 @@ const Account = () => {
                 setFilters((prev) => ({ ...prev, endDate: e.target.value }))
               }
             />
-          </div>
+          </div> */}
 
           <div>
             <label className="block text-sm mb-1">Condition</label>
