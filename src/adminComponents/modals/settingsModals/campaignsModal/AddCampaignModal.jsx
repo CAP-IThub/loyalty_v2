@@ -19,7 +19,7 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
     discount: "",
     description: "",
     category: "",
-    store_type: "dulux",
+    store_type: "",
     tier: "",
   });
   const [categories, setCategories] = useState([]);
@@ -67,9 +67,12 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
 
     const payload = {
       ...formData,
+      category: formData.category === "" ? null : formData.category,
+      store_type: formData.store_type === "" ? null : formData.store_type,
+      tier: formData.tier === "" ? null : formData.tier,
       description:
         formData.description.trim() === "" ? null : formData.description,
-    };
+    };    
 
     const today = new Date().toISOString().split("T")[0];
     if (formData.start_date < today) {
@@ -77,6 +80,11 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
       setLoading(false);
       return;
     }
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minEndDate = tomorrow.toISOString().split("T")[0];
+
 
     try {
       await axios.post("/v2/campaigns", payload);
@@ -187,6 +195,7 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
                         name="end_date"
                         value={formData.end_date}
                         onChange={handleChange}
+                        min={new Date().toISOString().split("T")[0]}
                         required
                         className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
                       />
@@ -230,10 +239,9 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
                         name="category"
                         value={formData.category}
                         onChange={handleChange}
-                        required
                         className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
                       >
-                        <option value="">Select Category</option>
+                        <option value="">All Categories</option>
                         {categories.map((name) => (
                           <option key={name} value={name}>
                             {name}
@@ -250,9 +258,9 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
                         name="store_type"
                         value={formData.store_type}
                         onChange={handleChange}
-                        required
                         className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
                       >
+                        <option value="">All Store Types</option>
                         <option value="dulux">Dulux</option>
                         <option value="sandtex">Sandtex</option>
                         <option value="combo">Combo</option>
@@ -267,10 +275,9 @@ const AddCampaignModal = ({ isOpen, closeCampaignModal, onUpdate }) => {
                         name="tier"
                         value={formData.tier}
                         onChange={handleChange}
-                        required
                         className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
                       >
-                        <option value="">Select Tier</option>
+                        <option value="">All Tiers</option>
                         {tiers.map((name) => (
                           <option key={name} value={name}>
                             {name}

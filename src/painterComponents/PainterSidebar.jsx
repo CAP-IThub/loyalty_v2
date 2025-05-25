@@ -165,7 +165,7 @@ const PainterSidebar = () => {
               >
                 <FaCreditCard /> <span>Bank Details</span>
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/support"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
@@ -173,7 +173,7 @@ const PainterSidebar = () => {
                 }
               >
                 <BiSupport /> <span>Support</span>
-              </NavLink>
+              </NavLink> */}
             </nav>
           </div>
         </div>

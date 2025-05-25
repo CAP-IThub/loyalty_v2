@@ -38,9 +38,9 @@ const StatCard = ({
             <p className="text-lg font-bold tracking-wide">
               {currentPoints.toLocaleString()}
             </p>
-            <p className="text-sm text-[#868FA0]">
+            {/* <p className="text-sm text-[#868FA0]">
               Worth ₦{(currentPoints * 10).toLocaleString()}
-            </p>
+            </p> */}
           </>
         )}
       </div>

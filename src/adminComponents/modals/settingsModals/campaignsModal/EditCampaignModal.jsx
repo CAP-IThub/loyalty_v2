@@ -29,33 +29,55 @@ const EditCampaignModal = ({
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
 
+  const formatDateToInput = (dateStr) => {
+    if (!dateStr) return "";
+    const [day, monthStr, year] = dateStr.split("-");
+    const monthMap = {
+      Jan: "01",
+      Feb: "02",
+      Mar: "03",
+      Apr: "04",
+      May: "05",
+      Jun: "06",
+      Jul: "07",
+      Aug: "08",
+      Sep: "09",
+      Oct: "10",
+      Nov: "11",
+      Dec: "12",
+    };
+    const month = monthMap[monthStr];
+    return `${year}-${month}-${day.padStart(2, "0")}`;
+  };
+  
+
   useEffect(() => {
     if (campaign) {
       setFormData({
         name: campaign.name || "",
-        start_date: campaign.start_date || "",
-        end_date: campaign.end_date || "",
+        start_date: formatDateToInput(campaign.start_date),
+        end_date: formatDateToInput(campaign.end_date),
         status: campaign.status || "active",
         discount: campaign.discount || "",
         description: campaign.description || "",
         category: campaign.category || "",
-        store_type: campaign.store_type || "dulux",
+        store_type: campaign.store_type || "",
       });
     }
   }, [campaign]);
 
-   useEffect(() => {
-     const fetchCategories = async () => {
-       try {
-         const res = await axios.get("/v2/paintercategory");
-         const names = res.data.data.data.map((c) => c.name);
-         setCategories(names);
-       } catch (err) {
-         console.error("Failed to fetch categories", err);
-       }
-     };
-     fetchCategories();
-   }, []);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get("/v2/paintercategory");
+        const names = res.data.data.data.map((c) => c.name);
+        setCategories(names);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -178,6 +200,7 @@ const EditCampaignModal = ({
                         value={formData.end_date}
                         onChange={handleChange}
                         required
+                        min={new Date().toISOString().split("T")[0]}
                         className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
                       />
                     </div>
@@ -236,9 +259,9 @@ const EditCampaignModal = ({
                         name="store_type"
                         value={formData.store_type}
                         onChange={handleChange}
-                        required
                         className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
                       >
+                        <option value="">All Store Types</option>
                         <option value="dulux">Dulux</option>
                         <option value="sandtex">Sandtex</option>
                         <option value="combo">Combo</option>
@@ -254,10 +277,9 @@ const EditCampaignModal = ({
                       name="category"
                       value={formData.category}
                       onChange={handleChange}
-                      required
                       className="mt-1 w-full border border-gray-300 px-4 py-2 rounded text-sm"
                     >
-                      <option value="">Select Category</option>
+                      <option value="">All Categories</option>
                       {categories.map((name) => (
                         <option key={name} value={name}>
                           {name}

@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import logo from "../../assets/images/sideLogo.png";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "../../utils/axiosInstance";
 import { ClipLoader } from "react-spinners";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { logoutUser } from "../../slices/authSlice";
 
 const SetNewPassword = () => {
   const auth = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const adminId = auth?.id;
 
   const [form, setForm] = useState({
@@ -97,6 +99,8 @@ const SetNewPassword = () => {
       await axios.patch(`/admin/${adminId}`, {
         password: form.newPassword,
       });
+      dispatch(logoutUser());
+      navigate("/admin-login")
       toast.success("Password updated successfully");
     } catch (err) {
       console.error("Failed to update password", err);

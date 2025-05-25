@@ -193,7 +193,10 @@ const Partners = () => {
                         as="div"
                         className="relative inline-block text-left"
                       >
-                        <MenuButton className="text-gray-600 hover:text-gray-800">
+                        <MenuButton
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-gray-600 hover:text-gray-800"
+                        >
                           <HiDotsVertical />
                         </MenuButton>
                         <Transition
@@ -210,7 +213,10 @@ const Partners = () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openEditModal(partner)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openEditModal(partner);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
@@ -222,7 +228,10 @@ const Partners = () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openDeleteModal(partner)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openDeleteModal(partner);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-red-600`}

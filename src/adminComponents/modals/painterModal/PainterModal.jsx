@@ -10,6 +10,7 @@ import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
 import userIcon from "../../../assets/images/userIcon.png";
 import axios from "../../../utils/axiosInstance";
+import { Link } from "react-router-dom";
 
 const PainterModal = ({ isOpen, closePainterModal, painter }) => {
   const [painterData, setPainterData] = useState(null);
@@ -186,45 +187,19 @@ const PainterModal = ({ isOpen, closePainterModal, painter }) => {
                               Balance
                             </p>
                             <p className="font-medium">
-                              ₦{balance?.toLocaleString() || 0}
+                              {balance?.point?.toLocaleString() || 0}
                             </p>
                           </div>
                         </div>
                       </div>
-
-                      <div className="pl-10">
-                        <h4 className="text-sm font-semibold mb-2">
-                          Claim History
-                        </h4>
-                        {claimsHistory.length > 0 ? (
-                          <ul className="list-disc ml-6 text-sm text-gray-700 space-y-1">
-                            {claimsHistory.map((claim, index) => (
-                              <li key={index}>{JSON.stringify(claim)}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-gray-500 text-sm italic">
-                            No claims history available.
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="pl-10">
-                        <h4 className="text-sm font-semibold mb-2">
-                          Point History
-                        </h4>
-                        {history.length > 0 ? (
-                          <ul className="list-disc ml-6 text-sm text-gray-700 space-y-1">
-                            {history.map((item, index) => (
-                              <li key={index}>{JSON.stringify(item)}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-gray-500 text-sm italic">
-                            No point history available.
-                          </p>
-                        )}
-                      </div>
+                      <Link
+                        to={`/painters/${data?.id}`}
+                        className="flex items-center justify-center"
+                      >
+                        <button className="text-center gap-2 bg-[#FC7B00] text-white rounded-full px-4 py-2 text-sm hover:opacity-90 ">
+                          View full profile
+                        </button>
+                      </Link>
                     </div>
                   )}
                 </DialogPanel>

@@ -25,11 +25,11 @@ const Account = () => {
     balanceOperator: "",
     balanceValue: "",
   });
-
   const [selectedIds, setSelectedIds] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resetType, setResetType] = useState("all");
   const [singleResetId, setSingleResetId] = useState(null);
+  const [resetLoading, setResetLoading] = useState(false);
 
   const fetchAccounts = async () => {
     try {
@@ -42,11 +42,11 @@ const Account = () => {
 
       if (filters.startDate) params.start_date = filters.startDate;
       if (filters.endDate) params.end_date = filters.endDate;
-      if (balanceFilter.value) {
+      if (balanceFilter.balanceValue) {
         params.filter_field = "balance";
         params.filter_operator = balanceFilter.balanceOperator;
         params.filter_value = balanceFilter.balanceValue;
-      }
+      }      
       if (sortBy !== "default") params.sort_by = sortBy;
       if (sortOrder !== "default") params.sort_order = sortOrder;
 
@@ -84,6 +84,8 @@ const Account = () => {
 
   const handleReset = async () => {
     try {
+      setResetLoading(true);
+
       const payload =
         resetType === "single"
           ? { accountId: [singleResetId] }
@@ -102,6 +104,8 @@ const Account = () => {
         err?.response?.data?.message || "Failed to reset balances";
       toast.error(errorMsg);
       console.error("Failed to reset balances", err);
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -171,30 +175,6 @@ const Account = () => {
         </div>
 
         <div className="flex flex-wrap items-end gap-4">
-          {/* <div>
-            <label className="block text-sm mb-1">Start Date</label>
-            <input
-              type="date"
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm w-[13.9rem]"
-              value={filters.startDate}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, startDate: e.target.value }))
-              }
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm mb-1">End Date</label>
-            <input
-              type="date"
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm w-[13.9rem]"
-              value={filters.endDate}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, endDate: e.target.value }))
-              }
-            />
-          </div> */}
-
           <div>
             <label className="block text-sm mb-1">Condition</label>
             <select
@@ -378,6 +358,7 @@ const Account = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleReset}
         selectedIds={resetType === "single" ? [singleResetId] : selectedIds}
+        loading={resetLoading}
       />
     </div>
   );

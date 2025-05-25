@@ -95,7 +95,7 @@ const AdminLogin = () => {
           <div className="w-full md:w-1/2 flex items-center justify-center">
             <div className="w-full max-w-md md:border border-gray-400 rounded-md px-8 py-8 md:px-14 md:py-16 md:shadow-sm">
               <h2 className="text-2xl font-semibold text-center">
-                Log in to your account
+                Admin Login
               </h2>
               <p className="text-sm text-gray-500 mt-2 text-center">
                 Welcome! Please enter your details

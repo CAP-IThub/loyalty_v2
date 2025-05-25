@@ -35,6 +35,7 @@ import Claims from "./pages/PAINTER/Claims";
 import BankDetails from "./pages/PAINTER/BankDetails";
 import Support from "./pages/PAINTER/Support";
 import RedeemPoints from "./pages/PAINTER/RedeemPoints";
+import PainterProfile from "./pages/ADMIN/PainterProfile";
 
 function App() {
   return (
@@ -175,6 +176,14 @@ function App() {
           element={
             <AdminLayout>
               <AuditTrail />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/painters/:id"
+          element={
+            <AdminLayout>
+              <PainterProfile />
             </AdminLayout>
           }
         />

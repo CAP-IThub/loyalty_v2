@@ -31,6 +31,13 @@ const CenterModal = ({ isOpen, closeCenterModal, center }) => {
   const partner = centerDetails?.assignedPartner?.[0];
   const rep = centerDetails?.assignedRep?.[0];
 
+  const parsedAddress =
+    info?.shopAddress && typeof info.shopAddress === "string"
+      ? JSON.parse(info.shopAddress)
+      : info?.shopAddress;
+
+
+
   return (
     <div>
       <Transition appear show={isOpen} as={Fragment}>
@@ -132,7 +139,16 @@ const CenterModal = ({ isOpen, closeCenterModal, center }) => {
                             Address
                           </p>
                           <p className="font-medium">
-                            {info?.shopAddress || "-"}
+                            {parsedAddress
+                              ? [
+                                  parsedAddress.street,
+                                  parsedAddress.region,
+                                  parsedAddress.state,
+                                  parsedAddress.country,
+                                ]
+                                  .filter(Boolean)
+                                  .join(", ")
+                              : "-"}
                           </p>
                         </div>
                       </div>

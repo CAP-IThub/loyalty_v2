@@ -30,7 +30,9 @@ const AssignPartnerModal = ({ isOpen, closeCenterModal, onUpdate, center }) => {
     const fetchPartners = async () => {
       try {
         const res = await axios.get("/partner");
-        setPartners(res.data.data.partner);
+        setPartners(res.data.data.data);
+        // console.log(res.data.data.data);
+        
       } catch (error) {
         console.error("Failed to fetch partners", error);
         toast.error("Could not load partners");
@@ -132,7 +134,7 @@ const AssignPartnerModal = ({ isOpen, closeCenterModal, onUpdate, center }) => {
                       required
                     >
                       <option value="">Select a partner</option>
-                      {partners.map((partner) => (
+                      {partners?.map((partner) => (
                         <option key={partner.id} value={partner.id}>
                           {partner.firstName} {partner.lastName}
                         </option>
