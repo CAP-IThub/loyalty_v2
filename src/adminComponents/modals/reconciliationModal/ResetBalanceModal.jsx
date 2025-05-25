@@ -8,8 +8,9 @@ import {
 } from "@headlessui/react";
 import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
+import { ClipLoader } from "react-spinners";
 
-const ResetBalanceModal = ({ isOpen, onClose, onConfirm, selectedIds }) => {
+const ResetBalanceModal = ({ isOpen, onClose, onConfirm, selectedIds, loading }) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-[999]" onClose={onClose}>
@@ -76,9 +77,20 @@ const ResetBalanceModal = ({ isOpen, onClose, onConfirm, selectedIds }) => {
                   </button>
                   <button
                     onClick={onConfirm}
-                    className="px-4 py-2 text-sm font-medium text-white bg-[#FC7B00] rounded hover:bg-orange-600"
+                    disabled={loading}
+                    className={`px-4 py-2 text-sm font-medium text-white rounded flex items-center justify-center gap-2 ${
+                      loading
+                        ? "bg-orange-300 cursor-not-allowed"
+                        : "bg-[#FC7B00] hover:bg-orange-600"
+                    }`}
                   >
-                    Reset
+                    {loading ? (
+                      <>
+                        <ClipLoader size={16} color="#fff" />
+                      </>
+                    ) : (
+                      "Reset"
+                    )}
                   </button>
                 </div>
               </DialogPanel>

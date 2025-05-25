@@ -63,6 +63,7 @@ const Reps = () => {
   useEffect(() => {
     fetchReps();
   }, [searchTerm, perPage, currentPage]);
+  
   const openModal = (rep) => {
     setSelectedRep(rep);
     setIsModalOpen(true);
@@ -168,7 +169,10 @@ const Reps = () => {
                         as="div"
                         className="relative inline-block text-left"
                       >
-                        <MenuButton className="text-gray-600 hover:text-gray-800">
+                        <MenuButton
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-gray-600 hover:text-gray-800"
+                        >
                           <HiDotsVertical />
                         </MenuButton>
                         <Transition
@@ -185,7 +189,10 @@ const Reps = () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openEditModal(rep)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openEditModal(rep);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
@@ -197,7 +204,10 @@ const Reps = () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openDeleteModal(rep)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openDeleteModal(rep);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-red-600`}

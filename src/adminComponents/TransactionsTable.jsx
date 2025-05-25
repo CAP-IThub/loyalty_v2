@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../utils/axiosInstance";
+import { FaUser, FaMoneyBillAlt, FaStore } from "react-icons/fa";
+import { MdPointOfSale } from "react-icons/md";
+
+
 
 // const truncateAddress = (address, wordLimit = 2) => {
 //   const words = address.split(" ");
@@ -31,7 +35,7 @@ const TransactionTable = ({ data, columns, title }) => {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-xl p-4 w-full">
+    <div className="bg-gradient-to-b from-white to-[#f9fafc] shadow-lg rounded-2xl p-6 w-full border border-gray-100">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-[#0B0F28]">{title}</h3>
         <Link
@@ -45,7 +49,7 @@ const TransactionTable = ({ data, columns, title }) => {
       {/* Desktop Table */}
       <div className="hidden md:block">
         <table className="w-full text-sm text-left">
-          <thead className="bg-[#f3f6fb] text-gray-600 font-semibold">
+          <thead className="bg-gray-50 text-gray-700 text-xs uppercase tracking-wider">
             <tr>
               {columns.map((col) => (
                 <th key={col.accessor} className="py-3 px-2">
@@ -56,9 +60,17 @@ const TransactionTable = ({ data, columns, title }) => {
           </thead>
           <tbody>
             {data?.map((row, idx) => (
-              <tr key={row.id} className={idx % 2 === 1 ? "bg-gray-100" : ""}>
+              <tr
+                key={row.id}
+                className={`hover:bg-blue-50 transition-all duration-200 ${
+                  idx % 2 === 1 ? "bg-[#f9fafc]" : "bg-white"
+                }`}
+              >
                 {columns.map((col) => (
-                  <td key={col.accessor} className="py-2 px-4 text-gray-700">
+                  <td
+                    key={col.accessor}
+                    className="py-3 px-4 text-sm text-gray-800 whitespace-nowrap"
+                  >
                     {row[col.accessor]}
                   </td>
                 ))}
@@ -71,10 +83,13 @@ const TransactionTable = ({ data, columns, title }) => {
       {/* Mobile Grid View */}
       <div className="md:hidden space-y-4">
         {data?.map((row) => (
-          <div key={row.id} className="bg-[#f9fafc] rounded-md p-3 shadow-sm">
+          <div
+            key={row.id}
+            className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm space-y-2"
+          >
             {columns.map((col) => (
-              <div key={col.accessor} className="text-sm text-gray-700 mb-1">
-                <span className="font-semibold text-gray-500">
+              <div key={col.accessor} className="text-sm text-gray-800">
+                <span className="block text-[0.75rem] text-gray-500 font-medium uppercase tracking-wide mb-1">
                   {col.label}:{" "}
                 </span>
                 {row[col.accessor]}
@@ -146,6 +161,7 @@ const TransactionsTable = () => {
       <div className="flex justify-between items-center">
         <h3 className="md:text-xl font-semibold">Transactions</h3>
       </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
         <TransactionTable
           title="Recent Awarded"

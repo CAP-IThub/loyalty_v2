@@ -137,57 +137,55 @@ const Centers = () => {
     return found ? found.label : "Default";
   };
 
-const handleExport = async () => {
-  try {
-    const res = await axios.get("/shop", {
-      params: {
-        per_page: 10000,
-        page: 1,
-        search: searchTerm,
-        ...(sortBy && { sort_by: sortBy }),
-        ...(sortOrder !== "default" && { sort_order: sortOrder }),
-      },
-    });
+  const handleExport = async () => {
+    try {
+      const res = await axios.get("/shop", {
+        params: {
+          per_page: 10000,
+          page: 1,
+          search: searchTerm,
+          ...(sortBy && { sort_by: sortBy }),
+          ...(sortOrder !== "default" && { sort_order: sortOrder }),
+        },
+      });
 
-    const allData = res.data.data.data;
+      const allData = res.data.data.data;
 
-    const csvHeader = [
-      "Shop Code",
-      "Name",
-      "State",
-      "Region",
-      "Choice",
-      "Partner Status",
-      "Rep Status",
-    ];
-    const rows = allData.map((center) => [
-      center.shopCode,
-      center.name,
-      center.address?.state || "—",
-      center.address?.region || "—",
-      center.choice || "—",
-      center.status || "—",
-      center.status2 || "—",
-    ]);
+      const csvHeader = [
+        "Shop Code",
+        "Name",
+        "State",
+        "Region",
+        "Choice",
+        "Partner Status",
+        "Rep Status",
+      ];
+      const rows = allData.map((center) => [
+        center.shopCode,
+        center.name,
+        center.address?.state || "—",
+        center.address?.region || "—",
+        center.choice || "—",
+        center.status || "—",
+        center.status2 || "—",
+      ]);
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [csvHeader, ...rows].map((e) => e.join(",")).join("\n");
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        [csvHeader, ...rows].map((e) => e.join(",")).join("\n");
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "centers_export.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } catch (error) {
-    console.error("Export failed:", error);
-    alert("Failed to export data. Please try again.");
-  }
-};
-
-
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "centers_export.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export data. Please try again.");
+    }
+  };
 
   return (
     <div className="py-6 px-2 space-y-6">
@@ -252,37 +250,40 @@ const handleExport = async () => {
                 </MenuItems>
               </Transition>
             </Menu>
-
-            <select
-              id="rows"
-              className="border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none"
-              value={perPage}
-              onChange={(e) => {
-                setPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              {[5, 10, 20, 50].map((num) => (
-                <option key={num} value={num}>
-                  {num}
-                </option>
-              ))}
-            </select>
           </div>
 
           {/* Search */}
-          <div className="relative w-full md:w-[450px]">
-            <input
-              type="text"
-              placeholder="Search by name or shop code..."
-              className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
-            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+          <div className="flex items-center gap-2">
+            <div>
+              <select
+                id="rows"
+                className="border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none"
+                value={perPage}
+                onChange={(e) => {
+                  setPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+              >
+                {[5, 10, 20, 50].map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="relative w-full md:w-[450px]">
+              <input
+                type="text"
+                placeholder="Search by name or shop code..."
+                className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-[#FC7B00]"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+              <FaSearch className="absolute left-3 top-3 text-gray-400" />
+            </div>
           </div>
         </div>
       </div>
@@ -368,7 +369,10 @@ const handleExport = async () => {
                         as="div"
                         className="relative inline-block text-left"
                       >
-                        <MenuButton className="text-gray-600 hover:text-gray-800">
+                        <MenuButton
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-gray-600 hover:text-gray-800"
+                        >
                           <HiDotsVertical />
                         </MenuButton>
                         <Transition
@@ -385,7 +389,10 @@ const handleExport = async () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openEditModal(center)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openEditModal(center);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
@@ -397,7 +404,10 @@ const handleExport = async () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openAssignModal1(center)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openAssignModal1(center);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
@@ -410,7 +420,10 @@ const handleExport = async () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openUnassignModal1(center)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openUnassignModal1(center);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
@@ -423,7 +436,10 @@ const handleExport = async () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openAssignModal2(center)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openAssignModal2(center);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
@@ -436,7 +452,10 @@ const handleExport = async () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openUnassignModal2(center)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openUnassignModal2(center);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
@@ -449,7 +468,10 @@ const handleExport = async () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openDeleteModal(center)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openDeleteModal(center);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-red-600`}

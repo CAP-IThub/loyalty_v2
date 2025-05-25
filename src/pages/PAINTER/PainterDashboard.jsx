@@ -4,6 +4,7 @@ import StatCard from "../../painterComponents/StatCard";
 import axios from "../../utils/axiosInstance";
 import TableComponent from "../../painterComponents/TableComponent";
 import { MdRedeem } from "react-icons/md";
+import RedeemPointsModal from "../../painterComponents/modals/RedeemPointsModal";
 
 const PainterDashboard = () => {
   const [data, setData] = useState({});
@@ -12,6 +13,7 @@ const PainterDashboard = () => {
   const [statData, setStatData] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [history, setHistory] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -109,8 +111,10 @@ const PainterDashboard = () => {
           <div>
             <button
               className="flex items-center gap-2 bg-[#FC7B00] text-white rounded-md px-4 py-2 text-sm hover:opacity-90"
+              onClick={() => setIsModalOpen(true)}
             >
-              <MdRedeem size={16} />Redeem Points
+              <MdRedeem size={16} />
+              Cash Withdrawals
             </button>
           </div>
         </div>
@@ -120,6 +124,12 @@ const PainterDashboard = () => {
         <StatCard {...statData} loading={loading} />
         <TableComponent invoices={invoices} history={history} />
       </div>
+
+      <RedeemPointsModal
+        isOpen={isModalOpen}
+        closeModal={() => setIsModalOpen(false)}
+        statData={statData}
+      />
     </div>
   );
 };

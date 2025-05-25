@@ -51,7 +51,6 @@ const Roles = () => {
     }
   };
 
-
   useEffect(() => {
     fetchRoles();
   }, []);
@@ -139,7 +138,8 @@ const Roles = () => {
                 {paginated.map((role) => (
                   <tr
                     onClick={() => openModal(role)}
-                    key={role.id}x
+                    key={role.id}
+                    x
                     className="bg-white border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                   >
                     <td className="px-3 py-4">{role.id}</td>
@@ -154,16 +154,33 @@ const Roles = () => {
                     </td>
                     <td className="px-3 py-4">
                       <button
-                        className="text-green-600"
-                        onClick={() => openEditModal(role)}
+                        disabled={role.name === "Super Admin"}
+                        className={`${
+                          role.name === "Super Admin"
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-green-600 hover:text-green-800"
+                        }`}
+                        onClick={(e) => {
+                          role.name !== "Super Admin" && openEditModal(role);
+                          e.stopPropagation();
+                        }}
                       >
                         <FaEdit />
                       </button>
                     </td>
+
                     <td className="px-3 py-4">
                       <button
-                        className="text-red-600"
-                        onClick={() => openDeleteModal(role)}
+                        disabled={role.name === "Super Admin"}
+                        className={`${
+                          role.name === "Super Admin"
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-red-600 hover:text-red-800"
+                        }`}
+                        onClick={(e) => {
+                          role.name !== "Super Admin" && openDeleteModal(role);
+                          e.stopPropagation();
+                        }}
                       >
                         <FaTrash />
                       </button>

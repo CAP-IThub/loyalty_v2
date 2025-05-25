@@ -43,7 +43,7 @@ const Admins = () => {
         lastName: p.lastName,
         dept: p.dept,
         email: p.email,
-        serial_num: p.serial_num
+        serial_num: p.serial_num,
       }));
 
       setAdmins(formatted);
@@ -162,7 +162,10 @@ const Admins = () => {
                         as="div"
                         className="relative inline-block text-left"
                       >
-                        <MenuButton className="text-gray-600 hover:text-gray-800">
+                        <MenuButton
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-gray-600 hover:text-gray-800"
+                        >
                           <HiDotsVertical />
                         </MenuButton>
                         <Transition
@@ -179,7 +182,10 @@ const Admins = () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openEditModal(admin)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openEditModal(admin);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-gray-700`}
@@ -191,7 +197,10 @@ const Admins = () => {
                               <MenuItem>
                                 {({ active }) => (
                                   <button
-                                    onClick={() => openDeleteModal(admin)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openDeleteModal(admin);
+                                    }}
                                     className={`${
                                       active ? "bg-gray-100" : ""
                                     } flex justify-between items-center w-full px-4 py-2 text-sm text-red-600`}

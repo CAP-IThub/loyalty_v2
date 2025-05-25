@@ -32,7 +32,7 @@ const CustomBarChart = ({ title, data, color }) => (
     </h4>
     <ResponsiveContainer width="100%" height={250}>
       <BarChart layout="vertical" data={data} margin={{ right: 0, left: 20 }}>
-        <CartesianGrid strokeDasharray="3 3" />
+        {/* <CartesianGrid strokeDasharray="3 3" /> */}
         <XAxis type="number" hide />
         <YAxis
           type="category"
