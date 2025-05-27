@@ -10,18 +10,16 @@ import { IoClose } from "react-icons/io5";
 import axios from "../../utils/axiosInstance";
 import toast from "react-hot-toast";
 
-const RedeemPointsModal = ({ isOpen, closeModal, statData }) => {
+const RedeemPointsModal = ({ isOpen, closeModal, statData, onSuccess }) => {
   const [formData, setFormData] = useState({ amount: "" });
   const [loading, setLoading] = useState(false);
 
   const availablePoints = statData?.currentPoints || 0;
-//   console.log(statData);
-  
-const nairaEquivalent = (availablePoints * 10).toLocaleString("en-NG", {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-  
+
+  const nairaEquivalent = availablePoints.toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,22 +28,32 @@ const nairaEquivalent = (availablePoints * 10).toLocaleString("en-NG", {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.amount) return toast.error("Please enter an amount");
     if (Number(formData.amount) > availablePoints)
       return toast.error("Insufficient points");
 
+    if (!statData?.accountNumber || !statData?.sortCode) {
+      return toast.error("Bank details are incomplete.");
+    }
+
     try {
       setLoading(true);
-      await axios.post("/v2/customer/withdraw", {
+      const res = await axios.post("/v2/customer/withdraw", {
         amount: formData.amount,
-        account_num: statData?.account_num,
-        bank_code: statData?.bank_code,
+        account_num: statData?.accountNumber,
+        bank_code: statData?.sortCode,
       });
-      toast.success("Withdrawal request submitted!");
+
+      const message = res.data?.message || "Withdrawal request submitted!";
+      toast.success(message);
       closeModal();
+      onSuccess?.();
     } catch (err) {
-      console.error(err);
-      toast.error("Failed to redeem points");
+      const errorMessage =
+        err?.response?.data?.message || "Failed to redeem points";
+      toast.error(errorMessage);
+      console.error("Withdrawal error:", err);
     } finally {
       setLoading(false);
     }
@@ -121,7 +129,7 @@ const nairaEquivalent = (availablePoints * 10).toLocaleString("en-NG", {
                       Amount to Redeem (₦)
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="amount"
                       value={formData.amount}
                       onChange={handleChange}

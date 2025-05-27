@@ -193,7 +193,7 @@ const AdminSidebar = () => {
             <button
               onClick={() => {
                 dispatch(logoutUser());
-                navigate("/");
+                navigate("/admin-login");
               }}
               className="flex items-center space-x-3 py-2 px-4 text-sm text-[#FF3C3C] w-full text-left"
             >

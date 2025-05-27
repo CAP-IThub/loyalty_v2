@@ -188,6 +188,7 @@ function App() {
           }
         />
         <Route path="/admin/set-new-password" element={<SetNewPassword />} />
+        <Route path="/painter/set-new-password" element={<SetNewPassword />} />
 
         {/* Painter Dashboard Routes */}
         <Route

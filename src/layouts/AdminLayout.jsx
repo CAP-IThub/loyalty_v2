@@ -129,7 +129,7 @@ const AdminLayout = ({ children }) => {
                             <button
                               onClick={() => {
                                 dispatch(logoutUser());
-                                navigate("/");
+                                navigate("/admin-login");
                               }}
                               className={`$${
                                 active

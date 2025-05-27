@@ -5,17 +5,18 @@ import axios from "../../utils/axiosInstance";
 import TableComponent from "../../painterComponents/TableComponent";
 import { MdRedeem } from "react-icons/md";
 import RedeemPointsModal from "../../painterComponents/modals/RedeemPointsModal";
+import BankDetailsCard from "../../painterComponents/BankDetailsCard";
 
 const PainterDashboard = () => {
   const [data, setData] = useState({});
   const auth = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(true);
+  const [loadingTables, setLoadingTables] = useState(true);
   const [statData, setStatData] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [history, setHistory] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axios.get("/v2/customer/details");
@@ -40,6 +41,9 @@ const PainterDashboard = () => {
             )
           : 100;
 
+        const { bank_name, account_num, sort_code } =
+          data.customerDetails.details || {};
+
         setStatData({
           currentPoints,
           lifetimePoints,
@@ -48,6 +52,9 @@ const PainterDashboard = () => {
           pointsToNextTier,
           progress,
           joinedDate,
+          bankName: bank_name,
+          accountNumber: account_num,
+          sortCode: sort_code,
         });
       } catch (err) {
         console.error("Failed to load dashboard data", err);
@@ -55,12 +62,10 @@ const PainterDashboard = () => {
         setLoading(false);
       }
     };
-    fetchData();
-  }, []);
 
-  useEffect(() => {
     const fetchTables = async () => {
       try {
+        setLoadingTables(true);
         const invoicesRes = await axios.get("/v2/customer/invoices/history");
 
         const invoiceList = invoicesRes.data.data.data
@@ -89,11 +94,22 @@ const PainterDashboard = () => {
         setHistory(historyList);
       } catch (err) {
         console.error("Failed to load tables", err);
-      }
+      } finally {
+        setLoadingTables(false);
+      }  
     };
 
-    fetchTables();
-  }, []);
+    useEffect(() => {
+      fetchData();
+      fetchTables();
+    }, []);
+
+    const refreshDashboardData = () => {
+      fetchData();
+      fetchTables();
+    };
+    
+    
 
   return (
     <div className="space-y-4 md:space-y-6 px-2">
@@ -122,13 +138,22 @@ const PainterDashboard = () => {
 
       <div>
         <StatCard {...statData} loading={loading} />
-        <TableComponent invoices={invoices} history={history} />
+        <TableComponent
+          invoices={invoices}
+          history={history}
+          loading={loadingTables}
+        />
+        <BankDetailsCard
+          bankName={statData?.bankName}
+          accountNumber={statData?.accountNumber}
+        />
       </div>
 
       <RedeemPointsModal
         isOpen={isModalOpen}
         closeModal={() => setIsModalOpen(false)}
         statData={statData}
+        onSuccess={refreshDashboardData}
       />
     </div>
   );

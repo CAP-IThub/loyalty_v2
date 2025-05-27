@@ -181,7 +181,7 @@ const PainterSidebar = () => {
         {/* Bottom Section - Fixed */}
         <div className="px-4 py-2 border-t border-gray-700">
           <div className="flex flex-col gap-2 px-2">
-            <NavLink
+            {/* <NavLink
               to="/settings"
               onClick={handleNavClick}
               className={({ isActive }) =>
@@ -189,7 +189,7 @@ const PainterSidebar = () => {
               }
             >
               <FaCog /> <span>Settings</span>
-            </NavLink>
+            </NavLink> */}
             <button
               onClick={() => {
                 dispatch(logoutUser());
