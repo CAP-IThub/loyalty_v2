@@ -115,6 +115,15 @@ const Account = () => {
     );
   };
 
+  const hasBalanceFilters =
+    balanceFilter.balanceOperator && balanceFilter.balanceValue;
+  const hasFiltersToReset =
+    balanceFilter.balanceOperator ||
+    balanceFilter.balanceValue ||
+    filters.startDate ||
+    filters.endDate;
+
+
   return (
     <div className="pb-6 px-2">
       <h2 className="md:text-lg font-semibold mb-4">Accounts</h2>
@@ -220,11 +229,16 @@ const Account = () => {
 
           <div>
             <button
-              className="bg-[#FC7B00] hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-md"
+              className={`${
+                hasBalanceFilters
+                  ? "bg-[#FC7B00] hover:bg-orange-600"
+                  : "bg-orange-300 cursor-not-allowed"
+              } text-white text-sm font-medium px-4 py-2 rounded-md`}
               onClick={() => {
                 setCurrentPage(1);
                 fetchAccounts();
               }}
+              disabled={!hasBalanceFilters}
             >
               Apply Filters
             </button>
@@ -232,7 +246,11 @@ const Account = () => {
 
           <div>
             <button
-              className="bg-gray-200 hover:bg-gray-300 text-sm font-medium px-4 py-2 rounded-md"
+              className={`${
+                hasFiltersToReset
+                  ? "bg-gray-200 hover:bg-gray-300"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              } text-sm font-medium px-4 py-2 rounded-md`}
               onClick={() => {
                 setFilters({
                   startDate: "",
@@ -245,6 +263,7 @@ const Account = () => {
                 setCurrentPage(1);
                 fetchAccounts();
               }}
+              disabled={!hasFiltersToReset}
             >
               Reset Filters
             </button>
@@ -278,7 +297,7 @@ const Account = () => {
                   <th className="text-left px-3 py-4 border-b">S/N</th>
                   <th className="text-left px-3 py-4 border-b">Name</th>
                   <th className="text-left px-3 py-4 border-b">Phone</th>
-                  <th className="text-left px-3 py-4 border-b">Email</th>
+                  {/* <th className="text-left px-3 py-4 border-b">Email</th> */}
                   <th className="text-left px-3 py-4 border-b">Balance</th>
                   <th className="text-left px-3 py-4 border-b">
                     Last Activity
@@ -297,7 +316,7 @@ const Account = () => {
                     <td className="px-3 py-4">{a.serial}</td>
                     <td className="px-3 py-4">{a.name}</td>
                     <td className="px-3 py-4">{a.phone}</td>
-                    <td className="px-3 py-4">{a.email}</td>
+                    {/* <td className="px-3 py-4">{a.email}</td> */}
                     <td className="px-3 py-4">{a.balance}</td>
                     <td className="px-3 py-4">{a.date}</td>
                     <td className="px-12 py-4">

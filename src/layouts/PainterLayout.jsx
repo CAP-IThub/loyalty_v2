@@ -19,6 +19,8 @@ import { Link, useNavigate } from "react-router-dom";
 import AdminInfoModal from "../adminComponents/modals/AdminInfoModal/AdminInfoModal";
 import ChangePasswordModal from "../adminComponents/modals/changePasswordModal/ChangePasswordModal";
 import PainterSidebar from "../painterComponents/PainterSidebar";
+import PainterInfoModal from "../painterComponents/modals/PainterInfoModal";
+import ChangePainterPasswordModal from "../painterComponents/modals/ChangePainterPasswordModal";
 // import axios from "../../utils/axiosInstance";
 // import { ClipLoader } from "react-spinners";
 
@@ -26,24 +28,32 @@ const PainterLayout = ({ children }) => {
   const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [painterModalOpen, setPainterModalOpen] = useState(false);
+  const [passwordModal, setPasswordModal] = useState(false);
 
-//   const openModal = () => {
-//     setIsModalOpen(true);
-//   };
+  useEffect(() => {
+    if (document.getElementById("zsiqscript")) return;
 
-//   const closeModal = () => {
-//     setIsModalOpen(false);
-//   };
+    window.$zoho = window.$zoho || {};
+    window.$zoho.salesiq = {
+      widgetcode:
+        "siqf3f0ab8d8af41a162f9dc9755f982de1821aec335d8e9c6b8aaea4475e1761b0",
+      values: {},
+      ready: function () {},
+    };
 
-//   const openPasswordModal = () => {
-//     setIsModalOpen2(true);
-//   };
+    const script = document.createElement("script");
+    script.id = "zsiqscript";
+    script.src = "https://salesiq.zohopublic.com/widget";
+    script.defer = true;
+    document.body.appendChild(script);
 
-//   const closePasswordModal = () => {
-//     setIsModalOpen2(false);
-//   };
+    return () => {
+      const existing = document.getElementById("zsiqscript");
+      if (existing) existing.remove();
+      delete window.$zoho?.salesiq;
+    };
+  }, []);
 
   return (
     <div className="w-full flex h-screen">
@@ -93,7 +103,7 @@ const PainterLayout = ({ children }) => {
                         <MenuItem>
                           {({ active }) => (
                             <button
-                            //   onClick={openModal}
+                              onClick={() => setPainterModalOpen(true)}
                               className={`$${
                                 active
                                   ? "bg-gray-100 text-gray-900"
@@ -108,7 +118,7 @@ const PainterLayout = ({ children }) => {
                         <MenuItem>
                           {({ active }) => (
                             <button
-                            //   onClick={openPasswordModal}
+                              onClick={() => setPasswordModal(true)}
                               className={`$${
                                 active
                                   ? "bg-gray-100 text-gray-900"
@@ -148,11 +158,14 @@ const PainterLayout = ({ children }) => {
         {children}
       </main>
 
-      {/* <AdminInfoModal isOpen={isModalOpen} closeAdminModal={closeModal} />
-      <ChangePasswordModal
-        isOpen={isModalOpen2}
-        closePasswordModal={closePasswordModal}
-      /> */}
+      <PainterInfoModal
+        isOpen={painterModalOpen}
+        closePainterModal={() => setPainterModalOpen(false)}
+      />
+      <ChangePainterPasswordModal
+        isOpen={passwordModal}
+        closePasswordModal={() => setPasswordModal(false)}
+      />
     </div>
   );
 };

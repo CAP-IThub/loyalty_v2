@@ -10,7 +10,9 @@ const ReconciliationToolLayout = () => {
   return (
     <div className="py-6 px-2 space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-800">Reconciliation Tool</h2>
+        <h2 className="text-xl font-semibold text-gray-800">
+          Reconciliation Tool
+        </h2>
         <p className="text-sm text-gray-500">Customize system configurations</p>
       </div>
 
@@ -46,6 +48,16 @@ const ReconciliationToolLayout = () => {
             }
           >
             Account
+          </NavLink>
+          <NavLink
+            to="payouts"
+            className={({ isActive }) =>
+              isActive
+                ? "pb-2 border-b-2 border-orange-500 text-orange-600"
+                : "pb-2 hover:text-orange-500"
+            }
+          >
+            Payout
           </NavLink>
         </div>
 

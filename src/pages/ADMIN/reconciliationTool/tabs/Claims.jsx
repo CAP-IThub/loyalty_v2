@@ -77,6 +77,12 @@ const Claims = () => {
     fetchClaims();
   }, [sortBy, sortOrder]);
 
+  const hasDateFilters = filters.startDate && filters.endDate;
+  const hasOtherFilters = filters.centerType || filters.mode;
+  const canApplyFilters = hasDateFilters || hasOtherFilters;
+  const hasFiltersToReset =
+    filters.startDate || filters.endDate || filters.centerType || filters.mode;
+
   return (
     <div className="pb-6 px-2">
       <h2 className="md:text-lg font-semibold mb-4">Claims</h2>
@@ -147,6 +153,7 @@ const Claims = () => {
               type="date"
               className="border border-gray-300 rounded-md px-3 py-2 text-sm w-[13.9rem]"
               value={filters.startDate}
+              max={new Date().toISOString().split("T")[0]}
               onChange={(e) =>
                 setFilters((prev) => ({ ...prev, startDate: e.target.value }))
               }
@@ -202,11 +209,16 @@ const Claims = () => {
           {/* Buttons */}
           <div>
             <button
-              className="bg-[#FC7B00] hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-md"
+              className={`${
+                canApplyFilters
+                  ? "bg-[#FC7B00] hover:bg-orange-600"
+                  : "bg-orange-300 cursor-not-allowed"
+              } text-white text-sm font-medium px-4 py-2 rounded-md`}
               onClick={() => {
                 setCurrentPage(1);
                 fetchClaims();
               }}
+              disabled={!canApplyFilters}
             >
               Apply Filters
             </button>
@@ -214,7 +226,11 @@ const Claims = () => {
 
           <div>
             <button
-              className="bg-gray-200 hover:bg-gray-300 text-sm font-medium px-4 py-2 rounded-md"
+              className={`${
+                hasFiltersToReset
+                  ? "bg-gray-200 hover:bg-gray-300"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              } text-sm font-medium px-4 py-2 rounded-md`}
               onClick={() => {
                 setFilters({
                   mode: "",
@@ -225,6 +241,7 @@ const Claims = () => {
                 setCurrentPage(1);
                 fetchClaims();
               }}
+              disabled={!hasFiltersToReset}
             >
               Reset Filters
             </button>

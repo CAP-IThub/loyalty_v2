@@ -38,7 +38,7 @@ const Transactions = () => {
       if (sortOrder !== "default") params.sort_order = sortOrder;
 
       const res = await axios.get("/transactions", { params });
-    //   console.log("Fetched transactions:", res.data); 
+      //   console.log("Fetched transactions:", res.data);
 
       const formatted = res.data.data.data.map((t, index) => ({
         id: t.transaction_id,
@@ -62,7 +62,7 @@ const Transactions = () => {
         customerEmail: t.customerEmail,
         centerType: t.centerType,
       }));
-//   console.log("Formatted transactions:", formatted); 
+      //   console.log("Formatted transactions:", formatted);
 
       setTransactions(formatted);
       setTotalEntries(res.data.data.total || res.data.data.totalEntries || 0);
@@ -83,6 +83,11 @@ const Transactions = () => {
   }, [sortBy, sortOrder]);
 
   const paginated = transactions;
+  const hasDateFilters = filters.startDate && filters.endDate;
+  const hasOtherFilters = filters.centerType || filters.type;
+  const canApplyFilters = hasDateFilters || hasOtherFilters;
+  const hasFiltersToReset =
+    filters.startDate || filters.endDate || filters.centerType || filters.type;
 
   return (
     <div className="pb-6 px-2">
@@ -209,11 +214,16 @@ const Transactions = () => {
         <div className="flex items-center gap-4 mt-4">
           <div>
             <button
-              className="bg-[#FC7B00] hover:bg-orange-600 text-white text-sm font-medium px-4 py-2 rounded-md"
+              className={`${
+                canApplyFilters
+                  ? "bg-[#FC7B00] hover:bg-orange-600"
+                  : "bg-orange-300 cursor-not-allowed"
+              } text-white text-sm font-medium px-4 py-2 rounded-md`}
               onClick={() => {
                 setCurrentPage(1);
                 fetchTransactions();
               }}
+              disabled={!canApplyFilters}
             >
               Apply Filters
             </button>
@@ -221,7 +231,11 @@ const Transactions = () => {
 
           <div>
             <button
-              className="bg-gray-200 hover:bg-gray-300 text-sm font-medium px-4 py-2 rounded-md"
+              className={`${
+                hasFiltersToReset
+                  ? "bg-gray-200 hover:bg-gray-300"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+              } text-sm font-medium px-4 py-2 rounded-md`}
               onClick={() => {
                 setFilters({
                   type: "",
@@ -232,6 +246,7 @@ const Transactions = () => {
                 setCurrentPage(1);
                 fetchTransactions();
               }}
+              disabled={!hasFiltersToReset}
             >
               Reset Filters
             </button>
