@@ -15,7 +15,7 @@ const ReconciliationTool = () => {
         <Route path="transactions" element={<Transactions />} />
         <Route path="claims" element={<Claims />} />
         <Route path="account" element={<Account />} />
-        <Route path="payouts" element={<Payouts />} />
+        <Route path="payouts-request" element={<Payouts />} />
       </Route>
     </Routes>
   );
