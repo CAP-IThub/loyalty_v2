@@ -50,14 +50,14 @@ const ReconciliationToolLayout = () => {
             Account
           </NavLink>
           <NavLink
-            to="payouts"
+            to="payouts-request"
             className={({ isActive }) =>
               isActive
                 ? "pb-2 border-b-2 border-orange-500 text-orange-600"
                 : "pb-2 hover:text-orange-500"
             }
           >
-            Payout
+            Payout Requests
           </NavLink>
         </div>
 

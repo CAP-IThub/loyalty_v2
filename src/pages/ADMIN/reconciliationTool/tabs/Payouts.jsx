@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../../../utils/axiosInstance";
-import { FaSearch } from "react-icons/fa";
+import { FaEye, FaSearch } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import Pagination from "../../../../components/Pagination";
 import { MdFilterList } from "react-icons/md";
@@ -8,6 +8,7 @@ import { RiResetLeftFill } from "react-icons/ri";
 import ResetBalanceModal from "../../../../adminComponents/modals/reconciliationModal/ResetBalanceModal";
 import toast from "react-hot-toast";
 import PayoutModal from "../../../../adminComponents/modals/reconciliationModal/PayoutModal";
+import PayoutRequestModal from "../../../../adminComponents/modals/reconciliationModal/PayoutRequestModal";
 
 const Payouts = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,20 +20,21 @@ const Payouts = () => {
   const [sortBy, setSortBy] = useState("default");
   const [sortOrder, setSortOrder] = useState("default");
   const [filters, setFilters] = useState({
-    startDate: "",
-    endDate: "",
-    status: "",
+    status: "pending",
   });
-  const [balanceFilter, setBalanceFilter] = useState({
-    balanceOperator: "",
-    balanceValue: "",
+  const [appliedFilters, setAppliedFilters] = useState({
+    status: "pending",
   });
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
-  const [payoutActionType, setPayoutActionType] = useState("approve"); 
+  const [payoutActionType, setPayoutActionType] = useState("approve");
   const [targetedIds, setTargetedIds] = useState([]);
   const [payoutLoading, setPayoutLoading] = useState(false);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [currentPayoutId, setCurrentPayoutId] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [currentPayout, setCurrentPayout] = useState(null);
 
   const fetchPayouts = async () => {
     try {
@@ -43,35 +45,30 @@ const Payouts = () => {
         page: currentPage,
       };
 
-      if (filters.startDate) params.start_date = filters.startDate;
-      if (filters.endDate) params.end_date = filters.endDate;
-      if (filters.status) params.status = filters.status;
-      if (balanceFilter.balanceValue) {
-        params.filter_field = "balance";
-        params.filter_operator = balanceFilter.balanceOperator;
-        params.filter_value = balanceFilter.balanceValue;
-      }
-      if (sortBy !== "default") params.sort_by = sortBy;
-      if (sortOrder !== "default") params.sort_order = sortOrder;
+      if (appliedFilters.status) params.status = appliedFilters.status;
 
       const res = await axios.get("/v2/payout/requests", { params });
 
-      const formatted = res.data.data.data.map((p, index) => ({
-        id: p.id,
-        approvalId: p.approval_id,
-        serial: p.serial_num || index + 1,
-        initiator: `${capitalize(p.initiator_firstName)} ${capitalize(
-          p.initiator_lastName
-        )}`,
-        approver: `${p.approver_firstName || "—"} ${p.approver_lastName || ""}`,
-        amount: p.amount.toLocaleString(),
-        status: p.status,
-        date: new Date(p.created_at).toLocaleDateString("en-NG", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }),
-      }));
+      const formatted = res.data.data.data.map((p, index) => {
+        return {
+          ...p,
+          id: p.id,
+          approvalId: p.approval_id,
+          serial: p.serial_num || index + 1,
+          initiator: `${capitalize(p.initiator_firstName)} ${capitalize(
+            p.initiator_lastName
+          )}`,
+          approver: `${p.approver_firstName || "—"} ${
+            p.approver_lastName || ""
+          }`,
+          amountFormatted: p.amount.toLocaleString(),
+          date: new Date(p.created_at).toLocaleDateString("en-NG", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          }),
+        };
+      });
 
       setPayouts(formatted);
       setTotalEntries(res.data.data.total || res.data.data.totalEntries || 0);
@@ -84,14 +81,14 @@ const Payouts = () => {
 
   useEffect(() => {
     fetchPayouts();
-  }, [searchTerm, currentPage, perPage]);
+  }, [searchTerm, currentPage, perPage, appliedFilters]);
 
   useEffect(() => {
     setCurrentPage(1);
     fetchPayouts();
   }, [sortBy, sortOrder]);
 
-  const handlePayoutAction = async () => {
+  const handlePayoutAction = async (comment = "") => {
     try {
       setPayoutLoading(true);
       const endpoint =
@@ -99,33 +96,36 @@ const Payouts = () => {
           ? "/v2/payout/authorize"
           : "/v2/payout/decline";
 
-          const payload = {
-            approval_id:
-              targetedIds.length === 1 ? targetedIds[0] : targetedIds,
-          };
+      const payload =
+        payoutActionType === "approve"
+          ? { approval_id: targetedIds }
+          : {
+              approval_id: targetedIds,
+              comments: comment || "Declined by admin",
+            };
 
-          await axios.post(endpoint, payload);
-          
+      await axios.post(endpoint, payload);
+
       toast.success(
         `Payout${
           targetedIds.length > 1 ? "s" : ""
         } ${payoutActionType}d successfully`
       );
+
       fetchPayouts();
       setSelectedIds([]);
       setIsPayoutModalOpen(false);
     } catch (err) {
-        const errorMsg =
-          err?.response?.data?.message ||
-          err?.response?.data?.errors?.approval_id?.[0] ||
-          `Failed to ${payoutActionType} payout`;
-      
-        toast.error(errorMsg);      
+      const errorMsg =
+        err?.response?.data?.message ||
+        err?.response?.data?.errors?.approval_id?.[0] ||
+        `Failed to ${payoutActionType} payout`;
+
+      toast.error(errorMsg);
     } finally {
       setPayoutLoading(false);
     }
   };
-  
 
   const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
@@ -152,74 +152,25 @@ const Payouts = () => {
     );
   }, [selectedIds, payouts]);
 
-//   const handleSingleApprove = async (id) => {
-//     try {
-//       await axios.post("/v2/payout/authorize", {
-//         approval_id: [id],
-//       });
-//       toast.success("Payout approved");
-//       fetchPayouts();
-//     } catch (err) {
-//       toast.error("Failed to approve payout");
-//     }
-//   };
-
-//   const handleApprove = async () => {
-//     try {
-//       await axios.post("/v2/payout/authorize", {
-//         approval_id: selectedIds,
-//       });
-//       toast.success("Payout(s) approved successfully");
-//       fetchPayouts();
-//       setSelectedIds([]);
-//       setSelectAll(false);
-//     } catch (err) {
-//       toast.error("Failed to approve payouts");
-//     }
-//   };
-
-  const handleSingleDecline = async (id) => {
-    try {
-      await axios.post("/v2/payout/decline", {
-        approval_id: [id],
-      });
-      toast.success("Payout declined");
-      fetchPayouts();
-    } catch (err) {
-      toast.error("Failed to decline payout");
-    }
-  };
-
-  const handleDecline = async () => {
-    try {
-      await axios.post("/v2/payout/decline", {
-        approval_id: selectedIds,
-      });
-      toast.success("Payout(s) declined successfully");
-      fetchPayouts();
-      setSelectedIds([]);
-      setSelectAll(false);
-    } catch (err) {
-      toast.error("Failed to decline payouts");
-    }
-  };
-
   const openPayoutModal = (type, ids) => {
     setPayoutActionType(type);
     setTargetedIds(ids);
     setIsPayoutModalOpen(true);
   };
-  
-  const hasActiveFilters = !!filters.status;
-  const hasFiltersToReset =
-    filters.status ||
-    balanceFilter.balanceOperator ||
-    balanceFilter.balanceValue;
-  
+
+  const hasActiveFilters = filters.status !== appliedFilters.status;
+
+  const hasFiltersToReset = filters.status !== "pending";
+
+  const handleViewPayout = (payout) => {
+    setCurrentPayout(payout);
+    setIsViewModalOpen(true);
+  };
+
   return (
     <div className="pb-6 px-2">
       <div className="flex flex-wrap justify-between items-center">
-        <h2 className="md:text-lg font-semibold mb-4">Payouts</h2>
+        <h2 className="md:text-lg font-semibold mb-4">Payout Requests</h2>
 
         <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
           {/* <div className="flex gap-3 items-center">
@@ -283,8 +234,8 @@ const Payouts = () => {
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
             className="border border-gray-300 rounded-md px-4 py-2 text-sm"
           >
-            <option value="">All Status</option>
             <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
           </select>
@@ -297,8 +248,8 @@ const Payouts = () => {
                   : "bg-orange-300 cursor-not-allowed"
               } text-white text-sm font-medium px-4 py-2 rounded-md`}
               onClick={() => {
+                setAppliedFilters({ ...filters });
                 setCurrentPage(1);
-                fetchPayouts();
               }}
               disabled={!hasActiveFilters}
             >
@@ -314,7 +265,8 @@ const Payouts = () => {
                   : "bg-gray-100 text-gray-400 cursor-not-allowed"
               } text-sm font-medium px-4 py-2 rounded-md`}
               onClick={() => {
-                setFilters({ status: "" });
+                setFilters({ status: "pending" });
+                setAppliedFilters({ status: "pending" });
                 setCurrentPage(1);
                 fetchPayouts();
               }}
@@ -331,12 +283,12 @@ const Payouts = () => {
               >
                 Approve Selected
               </button>
-              {/* <button
+              <button
                 onClick={() => openPayoutModal("decline", selectedIds)}
                 className="bg-red-600 text-white px-4 py-2 rounded-md text-sm"
               >
                 Decline Selected
-              </button> */}
+              </button>
             </div>
           )}
         </div>
@@ -348,7 +300,7 @@ const Payouts = () => {
         </div>
       ) : payouts.length === 0 ? (
         <div className="text-center text-gray-500 py-10">
-          No payout is available
+          No payout requests is available
         </div>
       ) : (
         <>
@@ -362,8 +314,14 @@ const Payouts = () => {
                   <th className="text-left px-3 py-4 border-b">Amount</th>
                   <th className="text-left px-3 py-4 border-b">Status</th>
                   <th className="text-left px-3 py-4 border-b">Approver</th>
+                  <th className="text-left px-3 py-4 border-b">
+                    Payout Status
+                  </th>
                   <th className="text-left px-3 py-4 border-b">Date</th>
-                  <th className="text-left px-3 py-4 border-b">Action</th>
+                  <th className="text-left px-3 py-4 border-b">View</th>
+                  {payouts.some((p) => p.status === "pending") && (
+                    <th className="text-left px-3 py-4 border-b">Action</th>
+                  )}
                   <th className="px-3 py-4 border-b text-left">
                     <input
                       type="checkbox"
@@ -383,28 +341,47 @@ const Payouts = () => {
                   >
                     <td className="px-3 py-4">{a.serial}</td>
                     <td className="px-3 py-4 capitalize">{a.initiator}</td>
-                    <td className="px-3 py-4">₦{a.amount}</td>
+                    <td className="px-3 py-4">₦{a.amountFormatted}</td>
                     <td className="px-3 py-4 capitalize">{a.status}</td>
                     <td className="px-3 py-4">{a.approver}</td>
-                    <td className="px-3 py-4">{a.date}</td>
-                    <td className="px-3 py-4 space-x-2">
-                      <button
-                        className="text-sm text-green-600 hover:underline"
-                        onClick={() =>
-                          openPayoutModal("approve", [a.approvalId])
-                        }
-                      >
-                        Approve
-                      </button>
-                      {/* <button
-                        className="text-sm text-red-600 hover:underline"
-                        onClick={() =>
-                          openPayoutModal("decline", [a.approvalId])
-                        }
-                      >
-                        Decline
-                      </button> */}
+                    <td
+                      className={`px-3 py-4 capitalize font-medium text-sm ${
+                        a.payoutStatus === "paid"
+                          ? "text-green-600"
+                          : "text-orange-500"
+                      }`}
+                    >
+                      {a.payoutStatus === "paid" ? "paid" : "pending"}
                     </td>
+                    <td className="px-3 py-4">{a.date}</td>
+                    <td className="px-3 py-4 text-center">
+                      <button
+                        className="text-blue-600"
+                        onClick={() => handleViewPayout(a)}
+                      >
+                        <FaEye />
+                      </button>
+                    </td>
+                    {a.status === "pending" && (
+                      <td className="px-3 py-4 space-x-2">
+                        <button
+                          className="text-sm text-green-600 hover:underline"
+                          onClick={() =>
+                            openPayoutModal("approve", [a.approvalId])
+                          }
+                        >
+                          Approve
+                        </button>
+                        <button
+                          className="text-sm text-red-600 hover:underline"
+                          onClick={() =>
+                            openPayoutModal("decline", [a.approvalId])
+                          }
+                        >
+                          Decline
+                        </button>
+                      </td>
+                    )}
                     <td className="px-3 py-4">
                       <input
                         type="checkbox"
@@ -430,27 +407,39 @@ const Payouts = () => {
                 <p className="text-sm">Amount: ₦{a.amount}</p>
                 <p className="text-sm capitalize">Status: {a.status}</p>
                 <p className="text-sm">Approver: {a.approver}</p>
+                <p className="text-sm">Ref: {a.ref}</p>
+                <p
+                  className={`text-sm capitalize font-medium ${
+                    a.payoutStatus === "paid"
+                      ? "text-green-600"
+                      : "text-orange-500"
+                  }`}
+                >
+                  Payout Status: {a.payoutStatus}
+                </p>
                 <p className="text-sm">Date: {a.date}</p>
-                <div className="flex justify-between items-center mt-2">
-                  <button
-                    className="text-blue-600 text-xs underline"
-                    onClick={() => openPayoutModal("approve", [a.approvalId])}
-                  >
-                    Approve
-                  </button>
-                  <button
-                    className="text-sm text-red-600 hover:underline"
-                    onClick={() => openPayoutModal("decline", [a.approvalId])}
-                  >
-                    Decline
-                  </button>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(a.approvalId)}
-                    onChange={() => toggleSelect(a.approvalId)}
-                    className="w-4 h-4"
-                  />
-                </div>
+                {a.status === "pending" && (
+                  <div className="flex justify-between items-center mt-2">
+                    <button
+                      className="text-blue-600 text-xs underline"
+                      onClick={() => openPayoutModal("approve", [a.approvalId])}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      className="text-sm text-red-600 hover:underline"
+                      onClick={() => openPayoutModal("decline", [a.approvalId])}
+                    >
+                      Decline
+                    </button>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(a.approvalId)}
+                      onChange={() => toggleSelect(a.approvalId)}
+                      className="w-4 h-4"
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -472,6 +461,13 @@ const Payouts = () => {
         selectedIds={targetedIds}
         loading={payoutLoading}
         actionType={payoutActionType}
+      />
+
+      <PayoutRequestModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        payout={currentPayout}
+        onConfirm={handlePayoutAction}
       />
     </div>
   );

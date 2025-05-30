@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogPanel,
@@ -16,9 +16,16 @@ const PayoutModal = ({
   onConfirm,
   selectedIds,
   loading,
-  actionType = "approve", // default to approve
+  actionType = "approve", 
 }) => {
   const isApprove = actionType === "approve";
+  const [comment, setComment] = useState("");
+
+  const handleClose = () => {
+    setComment("");
+    onClose();
+  };
+  
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -59,6 +66,7 @@ const PayoutModal = ({
                   <button onClick={onClose}>
                     <IoClose
                       size={22}
+                      onClick={handleClose}
                       className="text-gray-600 hover:text-gray-900"
                     />
                   </button>
@@ -85,28 +93,46 @@ const PayoutModal = ({
                   )}
                 </div>
 
-                <div className="mt-6 flex justify-end gap-3">
-                  <button
-                    onClick={onClose}
-                    className="px-4 py-2 text-sm font-medium bg-gray-200 rounded hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={onConfirm}
-                    disabled={loading}
-                    className={`px-4 py-2 text-sm font-medium text-white rounded flex items-center justify-center gap-2 ${
-                      isApprove
-                        ? "bg-green-600 hover:bg-green-700"
-                        : "bg-red-600 hover:bg-red-700"
-                    } ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
-                  >
-                    {loading
-                      ? "Processing..."
-                      : isApprove
-                      ? "Approve"
-                      : "Decline"}
-                  </button>
+                <div>
+                  {!isApprove && (
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Reason for Decline
+                      </label>
+                      <textarea
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                        rows={3}
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        required
+                        placeholder="Enter reason for declining payout request..."
+                      />
+                    </div>
+                  )}
+
+                  <div className="mt-6 flex justify-end gap-3">
+                    <button
+                      onClick={handleClose}
+                      className="px-4 py-2 text-sm font-medium bg-gray-200 rounded hover:bg-gray-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => onConfirm(comment)}
+                      disabled={loading}
+                      className={`px-4 py-2 text-sm font-medium text-white rounded flex items-center justify-center gap-2 ${
+                        isApprove
+                          ? "bg-green-600 hover:bg-green-700"
+                          : "bg-red-600 hover:bg-red-700"
+                      } ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+                    >
+                      {loading
+                        ? "Processing..."
+                        : isApprove
+                        ? "Approve"
+                        : "Decline"}
+                    </button>
+                  </div>
                 </div>
               </DialogPanel>
             </TransitionChild>
