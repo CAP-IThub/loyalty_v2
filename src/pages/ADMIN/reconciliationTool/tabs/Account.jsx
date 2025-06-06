@@ -94,7 +94,10 @@ const Account = () => {
           ? { accountId: selectedIds }
           : {};
 
-      const res = await axios.post("/v2/customer-balance/reset", payload);
+      const res = await axios.post(
+        "/v2/total-balance/payout",
+        payload
+      );
 
       toast.success(res.data.message || "Balance reset successful");
       setIsModalOpen(false);
