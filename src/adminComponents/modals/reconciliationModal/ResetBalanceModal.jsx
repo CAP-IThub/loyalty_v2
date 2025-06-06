@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogPanel,
@@ -10,7 +10,15 @@ import { Fragment } from "react";
 import { IoClose } from "react-icons/io5";
 import { ClipLoader } from "react-spinners";
 
-const ResetBalanceModal = ({ isOpen, onClose, onConfirm, selectedIds, loading }) => {
+const ResetBalanceModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  selectedIds,
+  loading,
+  payoutType,
+  setPayoutType,
+}) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-[999]" onClose={onClose}>
@@ -43,7 +51,7 @@ const ResetBalanceModal = ({ isOpen, onClose, onConfirm, selectedIds, loading })
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900"
                   >
-                    Confirm Balance Reset
+                    Confirm Payout
                   </DialogTitle>
                   <button onClick={onClose}>
                     <IoClose
@@ -56,16 +64,30 @@ const ResetBalanceModal = ({ isOpen, onClose, onConfirm, selectedIds, loading })
                 <div className="mt-2 text-sm text-gray-600">
                   {selectedIds.length > 0 ? (
                     <p>
-                      Are you sure you want to reset the balance for{" "}
+                      Are you sure you want to pay the balance for{" "}
                       <strong>{selectedIds.length}</strong> selected account
                       {selectedIds.length > 1 && "s"}?
                     </p>
                   ) : (
                     <p>
-                      Are you sure you want to reset{" "}
+                      Are you sure you want to pay{" "}
                       <strong>all account balances</strong>?
                     </p>
                   )}
+                </div>
+
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Payout Type
+                  </label>
+                  <select
+                    value={payoutType}
+                    onChange={(e) => setPayoutType(e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                  >
+                    <option value="gateway_payout">Gateway Payout</option>
+                    <option value="manual_payout">Manual Payout</option>
+                  </select>
                 </div>
 
                 <div className="mt-6 flex justify-end gap-3">
@@ -89,7 +111,7 @@ const ResetBalanceModal = ({ isOpen, onClose, onConfirm, selectedIds, loading })
                         <ClipLoader size={16} color="#fff" />
                       </>
                     ) : (
-                      "Reset"
+                      "Pay"
                     )}
                   </button>
                 </div>
