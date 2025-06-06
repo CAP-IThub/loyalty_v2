@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { FaCog, FaPowerOff, FaTimes, FaBell, FaAward } from "react-icons/fa";
+import { FaCog, FaPowerOff, FaTimes, FaBell, FaAward, FaGift } from "react-icons/fa";
 import { MdDashboard, MdOutlineRedeem } from "react-icons/md";
 import logo from "../assets/images/sideLogo.png";
 import navLogo from "../assets/images/nav-logo.png";
-import { HiMenuAlt2, HiOutlineDocumentReport } from "react-icons/hi";
+import { HiDocumentReport, HiMenuAlt2, HiOutlineDocumentReport } from "react-icons/hi";
 import userIcon from "../assets/images/userIcon.png";
 import axios from "../utils/axiosInstance";
 import ProfileModal from "../partnerComponents/modals/ProfileModal";
 import { baseUrl } from "../utils/baseUrl";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../slices/authSlice";
-import { GrCatalog } from "react-icons/gr";
+import { GrCatalog, GrScorecard } from "react-icons/gr";
 import { GoStack } from "react-icons/go";
 import { RiFolderHistoryFill } from "react-icons/ri";
+import { LuBaggageClaim } from "react-icons/lu";
 
 const PartnerSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
   const [partnerInfo, setPartnerInfo] = useState(null);
   const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
@@ -53,6 +55,10 @@ const PartnerSidebar = () => {
 
   const handleNavClick = () => {
     handleClose();
+  };
+
+  const handleHistoryClick = () => {
+    setShowHistoryDropdown((prev) => !prev);
   };
 
   return (
@@ -139,68 +145,59 @@ const PartnerSidebar = () => {
               >
                 <MdDashboard /> <span>Dashboard</span>
               </NavLink>
-              <NavLink
-                to="/award-points"
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `${navItem} ${isActive ? activeStyle : ""}`
-                }
-              >
-                <GrCatalog /> <span>Catalogue</span>
-              </NavLink>
-              <NavLink
-                to="/redeem-points"
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `${navItem} ${isActive ? activeStyle : ""}`
-                }
-              >
-                <GoStack /> <span>Orders</span>
-              </NavLink>
-              <NavLink
-                to="/redeem-points"
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `${navItem} ${isActive ? activeStyle : ""}`
-                }
-              >
-                <RiFolderHistoryFill /> <span>History</span>
-              </NavLink>
-              <NavLink
-                to="/redeem-points"
-                onClick={handleNavClick}
-                className={({ isActive }) =>
-                  `${navItem} ${isActive ? activeStyle : ""}`
-                }
-              >
-                <HiOutlineDocumentReport /> <span>Report</span>
-              </NavLink>
+              <div className="relative">
+                <button
+                  onClick={handleHistoryClick}
+                  className={`${navItem} w-full flex justify-between items-center`}
+                >
+                  <span className="flex items-center space-x-3">
+                    <HiDocumentReport /> <span>Reports</span>
+                  </span>
+                  <span className="text-lg">
+                    {showHistoryDropdown ? "−" : "+"}
+                  </span>
+                </button>
+                {showHistoryDropdown && (
+                  <div className="ml-6 mt-1 flex flex-col gap-1">
+                    <NavLink
+                      to="/claims-report"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${navItem} ${isActive ? activeStyle : ""}`
+                      }
+                    >
+                      <LuBaggageClaim />
+                      <span className="ml-6">Claims</span>
+                    </NavLink>
+                    <NavLink
+                      to="/points"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        `${navItem} ${isActive ? activeStyle : ""}`
+                      }
+                    >
+                      <GrScorecard />
+                      <span className="ml-6">Points</span>
+                    </NavLink>
+                  </div>
+                )}
+              </div>
             </nav>
           </div>
         </div>
 
-        {/* Bottom Section - Fixed Settings/Logout */}
-        <div className="px-4 py-3 border-t border-gray-700">
+        {/* Bottom Section - Fixed */}
+        <div className="px-4 py-2 border-t border-gray-700">
           <div className="flex flex-col gap-2 px-2">
-            <NavLink
-              to="/settings"
-              onClick={handleNavClick}
-              className={({ isActive }) =>
-                `${navItem} ${isActive ? activeStyle : ""}`
-              }
-            >
-              <FaCog /> <span>Settings</span>
-            </NavLink>
-
-            <NavLink
+            <button
               onClick={() => {
                 dispatch(logoutUser());
                 navigate("/");
               }}
-              className="flex items-center space-x-3 py-2 px-4 text-sm text-[#FF3C3C]"
+              className="flex items-center space-x-3 py-2 px-4 text-sm text-[#FF3C3C] w-full text-left"
             >
               <FaPowerOff /> <span>Logout</span>
-            </NavLink>
+            </button>
           </div>
         </div>
       </aside>

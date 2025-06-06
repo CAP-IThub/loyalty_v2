@@ -30,6 +30,7 @@ const Account = () => {
   const [resetType, setResetType] = useState("all");
   const [singleResetId, setSingleResetId] = useState(null);
   const [resetLoading, setResetLoading] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
 
   const fetchAccounts = async () => {
     try {
@@ -93,7 +94,10 @@ const Account = () => {
           ? { accountId: selectedIds }
           : {};
 
-      const res = await axios.post("/v2/customer-balance/reset", payload);
+      const res = await axios.post(
+        "/v2/total-balance/payout",
+        payload
+      );
 
       toast.success(res.data.message || "Balance reset successful");
       setIsModalOpen(false);
@@ -110,10 +114,25 @@ const Account = () => {
   };
 
   const toggleSelect = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    const updated = selectedIds.includes(id)
+      ? selectedIds.filter((item) => item !== id)
+      : [...selectedIds, id];
+
+    setSelectedIds(updated);
+    setSelectAll(updated.length === accounts.length);
   };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedIds([]);
+    } else {
+      const allIds = accounts.map((a) => a.id);
+      setSelectedIds(allIds);
+    }
+    setSelectAll(!selectAll);
+  };
+  
+  
 
   const hasBalanceFilters =
     balanceFilter.balanceOperator && balanceFilter.balanceValue;
@@ -269,17 +288,19 @@ const Account = () => {
             </button>
           </div>
 
-          <div>
-            <button
-              className="bg-blue-500 hover:bg-blue-600 text-sm text-white font-medium px-4 py-2 rounded-md"
-              onClick={() => {
-                setResetType(selectedIds.length > 0 ? "selected" : "all");
-                setIsModalOpen(true);
-              }}
-            >
-              Reset All Balance
-            </button>
-          </div>
+          {selectedIds.length > 0 && (
+            <div>
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-sm text-white font-medium px-4 py-2 rounded-md"
+                onClick={() => {
+                  setResetType("selected");
+                  setIsModalOpen(true);
+                }}
+              >
+                Pay All Balance
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -302,8 +323,16 @@ const Account = () => {
                   <th className="text-left px-3 py-4 border-b">
                     Last Activity
                   </th>
-                  <th className="text-left px-3 py-4 border-b">
+                  {/* <th className="text-left px-3 py-4 border-b">
                     Reset Balance
+                  </th> */}
+                  <th className="px-3 py-4 border-b text-left">
+                    <input
+                      type="checkbox"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 align-middle"
+                    />
                   </th>
                 </tr>
               </thead>
@@ -319,7 +348,7 @@ const Account = () => {
                     {/* <td className="px-3 py-4">{a.email}</td> */}
                     <td className="px-3 py-4">{a.balance}</td>
                     <td className="px-3 py-4">{a.date}</td>
-                    <td className="px-12 py-4">
+                    {/* <td className="px-12 py-4">
                       <RiResetLeftFill
                         className="text-blue-600 cursor-pointer text-lg"
                         onClick={() => {
@@ -328,13 +357,13 @@ const Account = () => {
                           setIsModalOpen(true);
                         }}
                       />
-                    </td>
+                    </td> */}
                     <td className="px-3 py-4">
                       <input
                         type="checkbox"
                         checked={selectedIds.includes(a.id)}
                         onChange={() => toggleSelect(a.id)}
-                        className="w-4 h-4"
+                        className="w-4 h-4 align-middle"
                       />
                     </td>
                   </tr>
