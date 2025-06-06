@@ -167,6 +167,156 @@ const Payouts = () => {
     setIsViewModalOpen(true);
   };
 
+  const payoutStatusIcons = {
+    PENDING_AUTHORIZATION: (
+      <div className="flex items-center gap-1">
+        <span className=" text-gray-800">Pending</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="20"
+          viewBox="0 0 24 24"
+          width="20"
+          fill="#42A5F5"
+        >
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 
+               10-4.48 10-10S17.52 2 12 2zm0 
+               18c-4.42 0-8-3.58-8-8s3.58-8 
+               8-8 8 3.58 8 8-3.58 8-8 
+               8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 
+               0-.84.79-1.43 2.1-1.43 
+               1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 
+               1.3-2.72 2.81 0 1.79 1.49 2.69 
+               3.66 3.21 1.95.46 2.34 1.15 2.34 
+               1.87 0 .53-.39 1.39-2.1 
+               1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 
+               1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 
+               2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"
+          />
+        </svg>
+      </div>
+    ),
+    PROCESSING: (
+      <div className="flex items-center gap-1">
+        <span className=" text-gray-800">Processing</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="20"
+          viewBox="0 0 24 24"
+          width="20"
+          fill="#FFA726"
+        >
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 
+               8 0 1.57.46 3.03 1.24 4.26L6.7 
+               14.8c-.45-.83-.7-1.79-.7-2.8 
+               0-3.31 2.69-6 6-6zm6.76 
+               1.74L17.3 9.2c.44.84.7 
+               1.79.7 2.8 0 3.31-2.69 6-6 
+               6v-3l-4 4 4 4v-3c4.42 0 
+               8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"
+          />
+          <style>
+            {`svg { animation: spin 1s linear infinite; } 
+          @keyframes spin { 100% { transform: rotate(360deg); } }`}
+          </style>
+        </svg>
+      </div>
+    ),
+    PAYOUT_FAILED: (
+      <div className="flex items-center gap-1">
+        <span className=" text-gray-800">Failed</span>
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="20"
+          viewBox="0 0 24 24"
+          width="20"
+          fill="#EF5350"
+        >
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 
+               10 10-4.47 10-10S17.53 2 12 
+               2zm5 13.59L15.59 17 12 13.41 
+               8.41 17 7 15.59 10.59 12 
+               7 8.41 8.41 7 12 10.59 
+               15.59 7 17 8.41 13.41 12 
+               17 15.59z"
+          />
+        </svg>
+      </div>
+    ),
+    PAYOUT_REJECTED: (
+      <div className="flex items-center gap-1">
+        <span className=" text-gray-800">Rejected</span>
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="20"
+          viewBox="0 0 24 24"
+          width="20"
+          fill="#D32F2F"
+        >
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 
+               10 10-4.48 10-10S17.52 2 12 
+               2zm0 18c-4.42 0-8-3.58-8-8 
+               0-1.85.63-3.55 1.69-4.9L16.9 
+               18.31C15.55 19.37 13.85 20 
+               12 20zm6.31-3.1L7.1 5.69C8.45 
+               4.63 10.15 4 12 4c4.42 0 
+               8 3.58 8 8 0 1.85-.63 
+               3.55-1.69 4.9z"
+          />
+        </svg>
+      </div>
+    ),
+    PAYOUT_PAID: (
+      <div className="flex items-center gap-1">
+        <span className=" text-gray-800">Paid</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="20"
+          viewBox="0 0 24 24"
+          width="20"
+          fill="#4CAF50"
+        >
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 
+               10 10 10 10-4.48 10-10S17.52 
+               2 12 2zm-2 15l-5-5 1.41-1.41L10 
+               14.17l7.59-7.59L19 8l-9 9z"
+          />
+        </svg>
+      </div>
+    ),
+    NOT_PAID: (
+      <div className="flex items-center gap-1">
+        <span className="text-gray-800">Not Paid</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="20"
+          viewBox="0 0 24 24"
+          width="20"
+          fill="#9E9E9E"
+        >
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 
+               10 10 10 10-4.48 10-10S17.52 
+               2 12 2zm-2 15l-5-5 1.41-1.41L10 
+               14.17l7.59-7.59L19 8l-9 9z"
+          />
+        </svg>
+      </div>
+    ),
+  };
+
   return (
     <div className="pb-6 px-2">
       <div className="flex flex-wrap justify-between items-center">
@@ -344,14 +494,12 @@ const Payouts = () => {
                     <td className="px-3 py-4">₦{a.amountFormatted}</td>
                     <td className="px-3 py-4 capitalize">{a.status}</td>
                     <td className="px-3 py-4">{a.approver}</td>
-                    <td
-                      className={`px-3 py-4 capitalize font-medium text-sm ${
-                        a.payoutStatus === "paid"
-                          ? "text-green-600"
-                          : "text-orange-500"
-                      }`}
-                    >
-                      {a.payoutStatus === "paid" ? "paid" : "pending"}
+                    <td className="px-3 py-4">
+                      {payoutStatusIcons[a.payout_status] || (
+                        <span className="text-gray-500 capitalize">
+                          unknown
+                        </span>
+                      )}
                     </td>
                     <td className="px-3 py-4">{a.date}</td>
                     <td className="px-3 py-4 text-center">
@@ -408,15 +556,9 @@ const Payouts = () => {
                 <p className="text-sm capitalize">Status: {a.status}</p>
                 <p className="text-sm">Approver: {a.approver}</p>
                 <p className="text-sm">Ref: {a.ref}</p>
-                <p
-                  className={`text-sm capitalize font-medium ${
-                    a.payoutStatus === "paid"
-                      ? "text-green-600"
-                      : "text-orange-500"
-                  }`}
-                >
-                  Payout Status: {a.payoutStatus}
-                </p>
+                <div className="text-sm mt-1">
+                  Payout Status: {payoutStatusIcons[a.payout_status]}
+                </div>
                 <p className="text-sm">Date: {a.date}</p>
                 {a.status === "pending" && (
                   <div className="flex justify-between items-center mt-2">

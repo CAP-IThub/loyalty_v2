@@ -36,6 +36,10 @@ import BankDetails from "./pages/PAINTER/BankDetails";
 import Support from "./pages/PAINTER/Support";
 import RedeemPoints from "./pages/PAINTER/RedeemPoints";
 import PainterProfile from "./pages/ADMIN/PainterProfile";
+import NotFoundPage from "./pages/NotFoundPage";
+import PartnerCenterDetails from "./pages/PARTNER/PartnerCenterDetails";
+import Points from "./pages/PARTNER/Points";
+import ClaimsReport from "./pages/PARTNER/Claims";
 
 function App() {
   return (
@@ -276,7 +280,40 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/" />} />
+
+        <Route
+          path="/partner/center/:id"
+          element={
+            <ProtectedRoute allowedTypes={["partner"]}>
+              <PartnerLayout>
+                <PartnerCenterDetails />
+              </PartnerLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/points"
+          element={
+            <ProtectedRoute allowedTypes={["partner"]}>
+              <PartnerLayout>
+                <Points />
+              </PartnerLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/claims-report"
+          element={
+            <ProtectedRoute allowedTypes={["partner"]}>
+              <PartnerLayout>
+                <ClaimsReport />
+              </PartnerLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>
   );
