@@ -20,9 +20,11 @@ const PayoutModal = ({
 }) => {
   const isApprove = actionType === "approve";
   const [comment, setComment] = useState("");
+  const [selectedType, setSelectedType] = useState("gateway_payout");
 
   const handleClose = () => {
     setComment("");
+    setSelectedType("gateway_payout");
     onClose();
   };
   
@@ -94,7 +96,7 @@ const PayoutModal = ({
                 </div>
 
                 <div>
-                  {!isApprove && (
+                  {!isApprove ? (
                     <div className="mt-4">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Reason for Decline
@@ -108,6 +110,20 @@ const PayoutModal = ({
                         placeholder="Enter reason for declining payout request..."
                       />
                     </div>
+                  ) : (
+                    <div className="mt-6">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Payout Type
+                      </label>
+                      <select
+                        value={selectedType}
+                        onChange={(e) => setSelectedType(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-4 py-2 text-sm"
+                      >
+                        <option value="gateway_payout">Gateway Payout</option>
+                        <option value="manual_payout">Manual Payout</option>
+                      </select>
+                    </div>
                   )}
 
                   <div className="mt-6 flex justify-end gap-3">
@@ -118,7 +134,7 @@ const PayoutModal = ({
                       Cancel
                     </button>
                     <button
-                      onClick={() => onConfirm(comment)}
+                      onClick={() => onConfirm(comment, selectedType)}
                       disabled={loading}
                       className={`px-4 py-2 text-sm font-medium text-white rounded flex items-center justify-center gap-2 ${
                         isApprove

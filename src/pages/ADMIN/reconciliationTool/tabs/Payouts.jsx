@@ -88,7 +88,7 @@ const Payouts = () => {
     fetchPayouts();
   }, [sortBy, sortOrder]);
 
-  const handlePayoutAction = async (comment = "") => {
+  const handlePayoutAction = async (comment = "", type = "gateway_payout") => {
     try {
       setPayoutLoading(true);
       const endpoint =
@@ -98,7 +98,7 @@ const Payouts = () => {
 
       const payload =
         payoutActionType === "approve"
-          ? { approval_id: targetedIds }
+          ? { approval_id: targetedIds, type }
           : {
               approval_id: targetedIds,
               comments: comment || "Declined by admin",

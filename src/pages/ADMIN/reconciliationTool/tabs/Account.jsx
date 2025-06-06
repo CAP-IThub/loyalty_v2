@@ -31,6 +31,8 @@ const Account = () => {
   const [singleResetId, setSingleResetId] = useState(null);
   const [resetLoading, setResetLoading] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
+  const [resetPayoutType, setResetPayoutType] = useState("gateway_payout");
+
 
   const fetchAccounts = async () => {
     try {
@@ -89,10 +91,10 @@ const Account = () => {
 
       const payload =
         resetType === "single"
-          ? { accountId: [singleResetId] }
+          ? { accountId: [singleResetId], type: resetPayoutType }
           : resetType === "selected"
-          ? { accountId: selectedIds }
-          : {};
+          ? { accountId: selectedIds, type: resetPayoutType }
+          : { type: resetPayoutType };
 
       const res = await axios.post(
         "/v2/total-balance/payout",
@@ -131,8 +133,6 @@ const Account = () => {
     }
     setSelectAll(!selectAll);
   };
-  
-  
 
   const hasBalanceFilters =
     balanceFilter.balanceOperator && balanceFilter.balanceValue;
@@ -407,6 +407,8 @@ const Account = () => {
         onConfirm={handleReset}
         selectedIds={resetType === "single" ? [singleResetId] : selectedIds}
         loading={resetLoading}
+        payoutType={resetPayoutType}
+        setPayoutType={setResetPayoutType}
       />
     </div>
   );
