@@ -91,9 +91,9 @@ const Account = () => {
 
       const payload =
         resetType === "single"
-          ? { accountId: [singleResetId], type: resetPayoutType }
+          ? { account_id: [singleResetId], type: resetPayoutType }
           : resetType === "selected"
-          ? { accountId: selectedIds, type: resetPayoutType }
+          ? { account_id: selectedIds, type: resetPayoutType }
           : { type: resetPayoutType };
 
       const res = await axios.post(
