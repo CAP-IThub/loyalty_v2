@@ -275,7 +275,7 @@ const Payouts = () => {
         </svg>
       </div>
     ),
-    PAYOUT_PAID: (
+    PAID: (
       <div className="flex items-center gap-1">
         <span className=" text-gray-800">Paid</span>
         <svg
