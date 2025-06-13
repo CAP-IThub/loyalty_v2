@@ -7,8 +7,9 @@ import { MdFilterList } from "react-icons/md";
 import { RiResetLeftFill } from "react-icons/ri";
 import ResetBalanceModal from "../../../../adminComponents/modals/reconciliationModal/ResetBalanceModal";
 import toast from "react-hot-toast";
+import ResetCenterModal from "../../../../adminComponents/modals/reconciliationModal/ResetCenterModal";
 
-const Account = () => {
+const Centers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [totalEntries, setTotalEntries] = useState(0);
   const [accounts, setAccounts] = useState([]);
@@ -31,8 +32,6 @@ const Account = () => {
   const [singleResetId, setSingleResetId] = useState(null);
   const [resetLoading, setResetLoading] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
-  const [resetPayoutType, setResetPayoutType] = useState("gateway_payout");
-
 
   const fetchAccounts = async () => {
     try {
@@ -49,22 +48,31 @@ const Account = () => {
         params.filter_field = "balance";
         params.filter_operator = balanceFilter.balanceOperator;
         params.filter_value = balanceFilter.balanceValue;
-      }      
+      }
       if (sortBy !== "default") params.sort_by = sortBy;
       if (sortOrder !== "default") params.sort_order = sortOrder;
 
-      const res = await axios.get("/v2/accounts", { params });
+      const res = await axios.get("/v2/reconcile/centers", { params });
 
       const formatted = res.data.data.data.map((a, index) => ({
-        id: a.account_id,
+        id: a.center_account_id,
         serial: a.serial_num || index + 1,
-        name: `${a.first_name?.trim()} ${a.last_name?.trim()}`,
-        phone: a.phone,
-        email: a.email || "—",
-        balance:
+        name: a.shop_name,
+        balance: typeof a.balance === "number" ? a.balance : 0,
+        formattedBalance:
           typeof a.balance === "number" ? a.balance.toLocaleString() : "0",
-        lastPurchase: a.last_purchase || "—",
-        date: a.created_at
+        visits: a.visit_count,
+        choice: a.choice || "-",
+        date: new Date(a.created_at).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+        time: new Date(a.created_at).toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
       }));
 
       setAccounts(formatted);
@@ -97,7 +105,7 @@ const Account = () => {
               account_id: selectedIds.map((id) => String(id)),
               type: resetPayoutType,
             }
-          : { type: resetPayoutType };
+          : { type: resetPayoutType }; 
 
       console.log("Payload being sent:", payload);
 
@@ -117,6 +125,7 @@ const Account = () => {
     }
   };
   
+
   const toggleSelect = (id) => {
     const stringId = String(id);
     const updated = selectedIds.includes(stringId)
@@ -139,58 +148,57 @@ const Account = () => {
   
   const hasBalanceFilters =
     balanceFilter.balanceOperator && balanceFilter.balanceValue;
-    const hasFiltersToReset =
-      balanceFilter.balanceOperator !== "" || balanceFilter.balanceValue !== "";  
+  const hasFiltersToReset =
+    balanceFilter.balanceOperator !== "" || balanceFilter.balanceValue !== "";
 
-    const fetchAccountsWithoutFilters = async () => {
-        try {
-          setLoading(true);
-    
-          const params = {
-            search: searchTerm.trim(),
-            per_page: perPage,
-            page: currentPage,
-          };
-    
-          if (sortBy !== "default") params.sort_by = sortBy;
-          if (sortOrder !== "default") params.sort_order = sortOrder;
-    
-          const res = await axios.get("/v2/reconcile/centers", { params });
-    
-          const formatted = res.data.data.data.map((a, index) => ({
-            id: a.center_account_id,
-            serial: a.serial_num || index + 1,
-            name: a.shop_name,
-            balance:
-              typeof a.balance === "number" ? a.balance.toLocaleString() : "0",
-            visits: a.visit_count,
-            choice: a.choice || "-",
-            date: new Date(a.created_at).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            }),
-            time: new Date(a.created_at).toLocaleTimeString("en-GB", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            }),
-          }));
-    
-          setAccounts(formatted);
-          setTotalEntries(res.data.data.total || res.data.data.totalEntries || 0);
-        } catch (err) {
-          console.error("Failed to fetch accounts", err);
-        } finally {
-          setLoading(false);
-        }
+  const fetchAccountsWithoutFilters = async () => {
+    try {
+      setLoading(true);
+
+      const params = {
+        search: searchTerm.trim(),
+        per_page: perPage,
+        page: currentPage,
       };
-    
 
+      if (sortBy !== "default") params.sort_by = sortBy;
+      if (sortOrder !== "default") params.sort_order = sortOrder;
+
+      const res = await axios.get("/v2/reconcile/centers", { params });
+
+      const formatted = res.data.data.data.map((a, index) => ({
+        id: a.center_account_id,
+        serial: a.serial_num || index + 1,
+        name: a.shop_name,
+        balance: typeof a.balance === "number" ? a.balance : 0,
+        formattedBalance:
+          typeof a.balance === "number" ? a.balance.toLocaleString() : "0",
+        visits: a.visit_count,
+        choice: a.choice || "-",
+        date: new Date(a.created_at).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+        time: new Date(a.created_at).toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
+      }));
+
+      setAccounts(formatted);
+      setTotalEntries(res.data.data.total || res.data.data.totalEntries || 0);
+    } catch (err) {
+      console.error("Failed to fetch accounts", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="pb-6 px-2">
-      <h2 className="md:text-lg font-semibold mb-4">Accounts</h2>
+      <h2 className="md:text-lg font-semibold mb-4">Centers Account</h2>
 
       <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
         <div className="flex gap-3 items-center">
@@ -200,8 +208,8 @@ const Account = () => {
             className="border border-gray-300 rounded-md px-4 py-2 text-sm"
           >
             <option value="default">Sort by: Default</option>
-            <option value="firstName">First Name</option>
-            <option value="lastName">Last Name</option>
+            <option value="name">Center Name</option>
+            <option value="choice">Choice</option>
           </select>
 
           <select
@@ -251,7 +259,7 @@ const Account = () => {
           <div>
             <label className="block text-sm mb-1">Condition</label>
             <select
-              value={balanceFilter.operator}
+              value={balanceFilter.balanceOperator}
               onChange={(e) =>
                 setBalanceFilter((prev) => ({
                   ...prev,
@@ -273,7 +281,7 @@ const Account = () => {
           <div>
             <label className="block text-sm mb-1">Balance Points</label>
             <select
-              value={balanceFilter.value}
+              value={balanceFilter.balanceValue}
               onChange={(e) =>
                 setBalanceFilter((prev) => ({
                   ...prev,
@@ -340,7 +348,7 @@ const Account = () => {
                   setIsModalOpen(true);
                 }}
               >
-                Pay All Balance
+                Reset All Balance
               </button>
             </div>
           )}
@@ -353,7 +361,7 @@ const Account = () => {
         </div>
       ) : accounts.length === 0 ? (
         <div className="flex justify-center items-center py-10 text-gray-500 text-sm font-medium">
-          No accounts found.
+          No center accounts found.
         </div>
       ) : (
         <>
@@ -363,16 +371,12 @@ const Account = () => {
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>
                   <th className="text-left px-3 py-4 border-b">S/N</th>
-                  <th className="text-left px-3 py-4 border-b">Name</th>
-                  <th className="text-left px-3 py-4 border-b">Phone</th>
-                  {/* <th className="text-left px-3 py-4 border-b">Email</th> */}
+                  <th className="text-left px-3 py-4 border-b">Center Name</th>
                   <th className="text-left px-3 py-4 border-b">Balance</th>
-                  <th className="text-left px-3 py-4 border-b">
-                    Last Activity
-                  </th>
-                  {/* <th className="text-left px-3 py-4 border-b">
-                    Reset Balance
-                  </th> */}
+                  <th className="text-left px-3 py-4 border-b">Visits</th>
+                  <th className="text-left px-3 py-4 border-b">Choice</th>
+                  <th className="text-left px-3 py-4 border-b">Date</th>
+                  <th className="text-left px-3 py-4 border-b">Time</th>
                   <th className="px-3 py-4 border-b text-left">
                     <input
                       type="checkbox"
@@ -391,26 +395,18 @@ const Account = () => {
                   >
                     <td className="px-3 py-4">{a.serial}</td>
                     <td className="px-3 py-4">{a.name}</td>
-                    <td className="px-3 py-4">{a.phone}</td>
-                    {/* <td className="px-3 py-4">{a.email}</td> */}
-                    <td className="px-3 py-4">{a.balance}</td>
+                    <td className="px-3 py-4">{a.formattedBalance}</td>
+                    <td className="px-3 py-4">{a.visits}</td>
+                    <td className="px-3 py-4 capitalize">{a.choice}</td>
                     <td className="px-3 py-4">{a.date}</td>
-                    {/* <td className="px-12 py-4">
-                      <RiResetLeftFill
-                        className="text-blue-600 cursor-pointer text-lg"
-                        onClick={() => {
-                          setResetType("single");
-                          setSingleResetId(a.id);
-                          setIsModalOpen(true);
-                        }}
-                      />
-                    </td> */}
+                    <td className="px-3 py-4">{a.time}</td>
                     <td className="px-3 py-4">
                       <input
                         type="checkbox"
                         checked={selectedIds.includes(a.id)}
                         onChange={() => toggleSelect(a.id)}
-                        className="w-4 h-4 align-middle"
+                        disabled={a.balance === 0}
+                        className="w-4 h-4 align-middle disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </td>
                   </tr>
@@ -429,7 +425,7 @@ const Account = () => {
                 <p className="font-semibold">{a.name}</p>
                 <p className="text-sm">Phone: {a.phone}</p>
                 <p className="text-sm">Email: {a.email}</p>
-                <p className="text-sm">Balance: ₦{a.balance}</p>
+                <p className="text-sm">Balance: ₦{a.formattedBalance}</p>
                 <p className="text-sm">Last Purchase: {a.lastPurchase}</p>
                 <div>
                   <RiResetLeftFill />
@@ -448,17 +444,15 @@ const Account = () => {
         </>
       )}
 
-      <ResetBalanceModal
+      <ResetCenterModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleReset}
         selectedIds={resetType === "single" ? [singleResetId] : selectedIds}
         loading={resetLoading}
-        payoutType={resetPayoutType}
-        setPayoutType={setResetPayoutType}
       />
     </div>
   );
 };
 
-export default Account;
+export default Centers;

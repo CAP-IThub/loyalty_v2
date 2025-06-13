@@ -18,6 +18,7 @@ import { HiChevronDown } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import AdminInfoModal from "../adminComponents/modals/AdminInfoModal/AdminInfoModal";
 import ChangePasswordModal from "../adminComponents/modals/changePasswordModal/ChangePasswordModal";
+import PartnerInfoModal from "../partnerComponents/modals/PartnerInfoModal";
 // import axios from "../../utils/axiosInstance";
 // import { ClipLoader } from "react-spinners";
 
@@ -25,24 +26,8 @@ const PartnerLayout = ({ children }) => {
   const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpen2, setIsModalOpen2] = useState(false);
-
-  //  const openModal = () => {
-  //    setIsModalOpen(true);
-  //  };
-
-  // const closeModal = () => {
-  //   setIsModalOpen(false);
-  // };
-
-  //  const openPasswordModal = () => {
-  //    setIsModalOpen2(true);
-  //  };
-
-  //  const closePasswordModal = () => {
-  //    setIsModalOpen2(false);
-  //  };
+  const [PartnerModalOpen, setPartnerModalOpen] = useState(false);
+  const [passwordModal, setPasswordModal] = useState(false);
 
   return (
     <div className="w-full flex h-screen">
@@ -92,7 +77,7 @@ const PartnerLayout = ({ children }) => {
                         <MenuItem>
                           {({ active }) => (
                             <button
-                              onClick={openModal}
+                              onClick={() => setPartnerModalOpen(true)}
                               className={`$${
                                 active
                                   ? "bg-gray-100 text-gray-900"
@@ -107,7 +92,7 @@ const PartnerLayout = ({ children }) => {
                         <MenuItem>
                           {({ active }) => (
                             <button
-                              onClick={openPasswordModal}
+                              onClick={() => setPasswordModal(true)}
                               className={`$${
                                 active
                                   ? "bg-gray-100 text-gray-900"
@@ -147,18 +132,14 @@ const PartnerLayout = ({ children }) => {
         {children}
       </main>
 
-      {/* <AdminInfoModal isOpen={isModalOpen} closeAdminModal={closeModal} />
-      <ChangePasswordModal
-        isOpen={isModalOpen2}
-        closePasswordModal={closePasswordModal}
-      /> */}
-
-      {/* Info Modal */}
-      {/* <ProfileModal
-        isOpen={showModal}
-        closeProfileModal={() => setShowModal(false)}
-        rep={repInfo}
-      /> */}
+      <PartnerInfoModal
+        isOpen={painterModalOpen}
+        closePainterModal={() => setPainterModalOpen(false)}
+      />
+      <ChangePartnerPasswordModal
+        isOpen={passwordModal}
+        closePasswordModal={() => setPasswordModal(false)}
+      />
     </div>
   );
 };

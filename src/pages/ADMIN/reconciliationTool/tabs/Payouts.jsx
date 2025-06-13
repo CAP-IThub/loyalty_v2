@@ -50,6 +50,7 @@ const Payouts = () => {
       const res = await axios.get("/v2/payout/requests", { params });
 
       const formatted = res.data.data.data.map((p, index) => {
+        console.log("payout_status:", p.payout_status);
         return {
           ...p,
           id: p.id,
@@ -66,7 +67,7 @@ const Payouts = () => {
             year: "numeric",
             month: "short",
             day: "numeric",
-          }),
+          })
         };
       });
 
@@ -131,8 +132,11 @@ const Payouts = () => {
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
 
   const toggleSelect = (id) => {
+    const stringId = String(id);
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(stringId)
+        ? prev.filter((item) => item !== stringId)
+        : [...prev, stringId]
     );
   };
 
@@ -140,10 +144,10 @@ const Payouts = () => {
     if (selectAll) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(payouts.map((a) => a.approvalId));
+      setSelectedIds(payouts.map((a) => String(a.approvalId)));
     }
     setSelectAll(!selectAll);
-  };
+  };  
 
   useEffect(() => {
     const allIds = payouts.map((a) => a.approvalId);
@@ -153,10 +157,11 @@ const Payouts = () => {
   }, [selectedIds, payouts]);
 
   const openPayoutModal = (type, ids) => {
+    const stringIds = ids.map((id) => String(id));
     setPayoutActionType(type);
-    setTargetedIds(ids);
+    setTargetedIds(stringIds);
     setIsPayoutModalOpen(true);
-  };
+  };  
 
   const hasActiveFilters = filters.status !== appliedFilters.status;
 
@@ -169,43 +174,30 @@ const Payouts = () => {
 
   const payoutStatusIcons = {
     PENDING_AUTHORIZATION: (
-      <div className="flex items-center gap-1">
-        <span className=" text-gray-800">Pending</span>
+      <div className="flex items-center justify-center">
+        {/* <span className=" text-gray-800">Pending</span> */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          height="20"
+          height="24"
           viewBox="0 0 24 24"
-          width="20"
+          width="24"
           fill="#42A5F5"
         >
           <path d="M0 0h24v24H0z" fill="none" />
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 
-               10-4.48 10-10S17.52 2 12 2zm0 
-               18c-4.42 0-8-3.58-8-8s3.58-8 
-               8-8 8 3.58 8 8-3.58 8-8 
-               8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 
-               0-.84.79-1.43 2.1-1.43 
-               1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 
-               1.3-2.72 2.81 0 1.79 1.49 2.69 
-               3.66 3.21 1.95.46 2.34 1.15 2.34 
-               1.87 0 .53-.39 1.39-2.1 
-               1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 
-               1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 
-               2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"
-          />
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z" />
         </svg>
       </div>
     ),
     PROCESSING: (
-      <div className="flex items-center gap-1">
-        <span className=" text-gray-800">Processing</span>
+      <div className="flex items-center justify-center gap-1">
+        {/* <span className=" text-gray-800">Processing</span> */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           height="20"
           viewBox="0 0 24 24"
           width="20"
           fill="#FFA726"
+          className="animate-spin"
         >
           <path d="M0 0h24v24H0z" fill="none" />
           <path
@@ -218,10 +210,6 @@ const Payouts = () => {
                6v-3l-4 4 4 4v-3c4.42 0 
                8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"
           />
-          <style>
-            {`svg { animation: spin 1s linear infinite; } 
-          @keyframes spin { 100% { transform: rotate(360deg); } }`}
-          </style>
         </svg>
       </div>
     ),
@@ -250,8 +238,8 @@ const Payouts = () => {
       </div>
     ),
     PAYOUT_REJECTED: (
-      <div className="flex items-center gap-1">
-        <span className=" text-gray-800">Rejected</span>
+      <div className="flex items-center justify-center gap-1">
+        {/* <span className=" text-gray-800">Rejected</span> */}
 
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -275,23 +263,18 @@ const Payouts = () => {
         </svg>
       </div>
     ),
-    PAYOUT_PAID: (
-      <div className="flex items-center gap-1">
-        <span className=" text-gray-800">Paid</span>
+    PAID: (
+      <div className="flex items-center justify-center">
+        {/* <span className=" text-gray-800">Paid</span> */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          height="20"
+          height="24"
           viewBox="0 0 24 24"
-          width="20"
+          width="24"
           fill="#4CAF50"
         >
           <path d="M0 0h24v24H0z" fill="none" />
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 
-               10 10 10 10-4.48 10-10S17.52 
-               2 12 2zm-2 15l-5-5 1.41-1.41L10 
-               14.17l7.59-7.59L19 8l-9 9z"
-          />
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
         </svg>
       </div>
     ),
