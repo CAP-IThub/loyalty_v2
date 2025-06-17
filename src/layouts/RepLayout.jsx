@@ -67,7 +67,7 @@ const RepLayout = ({ children }) => {
                 />
                 <span className="text-xs">Hi, {auth.first_name}</span>
               </div>
-              <div>
+              {/* <div>
                 <Menu as="div" className="relative text-left ml-1">
                   <div>
                     <MenuButton className="flex items-center justify-center">
@@ -145,7 +145,7 @@ const RepLayout = ({ children }) => {
                     </MenuItems>
                   </Transition>
                 </Menu>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

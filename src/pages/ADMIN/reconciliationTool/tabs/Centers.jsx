@@ -99,17 +99,16 @@ const Centers = () => {
 
       const payload =
         resetType === "single"
-          ? { account_id: [String(singleResetId)], type: resetPayoutType }
+          ? { accountId: [String(singleResetId)], type: resetPayoutType }
           : resetType === "selected"
           ? {
-              account_id: selectedIds.map((id) => String(id)),
-              type: resetPayoutType,
+              accountId: selectedIds.map((id) => String(id)),
             }
           : { type: resetPayoutType }; 
 
       console.log("Payload being sent:", payload);
 
-      const res = await axios.post("/v2/total-balance/payout", payload);
+      const res = await axios.post("/v2/center-account/reset", payload);
 
       toast.success(res.data.message || "Balance reset successful");
       setIsModalOpen(false);

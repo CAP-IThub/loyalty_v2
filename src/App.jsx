@@ -40,6 +40,9 @@ import NotFoundPage from "./pages/NotFoundPage";
 import PartnerCenterDetails from "./pages/PARTNER/PartnerCenterDetails";
 import Points from "./pages/PARTNER/Points";
 import ClaimsReport from "./pages/PARTNER/Claims";
+import SetPartnerPassword from "./pages/PARTNER/SetPartnerPassword";
+import AwardPoints from "./pages/REP/AwardPoints";
+import RepRedeemPoints from "./pages/REP/RepRedeemPoints";
 
 function App() {
   return (
@@ -193,7 +196,10 @@ function App() {
         />
         <Route path="/admin/set-new-password" element={<SetNewPassword />} />
         <Route path="/painter/set-new-password" element={<SetNewPassword />} />
-        <Route path="/partner/set-new-password" element={<SetNewPassword />} />
+        <Route
+          path="/partner/set-new-password"
+          element={<SetPartnerPassword />}
+        />
 
         {/* Painter Dashboard Routes */}
         <Route
@@ -266,6 +272,28 @@ function App() {
             <ProtectedRoute allowedTypes={["rep"]}>
               <RepLayout>
                 <RepDashboard />
+              </RepLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/award-points"
+          element={
+            <ProtectedRoute allowedTypes={["rep"]}>
+              <RepLayout>
+                <AwardPoints />
+              </RepLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/rep-redeem-points"
+          element={
+            <ProtectedRoute allowedTypes={["rep"]}>
+              <RepLayout>
+                <RepRedeemPoints />
               </RepLayout>
             </ProtectedRoute>
           }

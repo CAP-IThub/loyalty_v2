@@ -36,11 +36,7 @@ const AdminLogin = () => {
   }, [auth.loginStatus, auth.loginError]);
 
   useEffect(() => {
-    if (
-      auth.first_name &&
-      auth.user_type === "admin" &&
-      auth.token
-    ) {
+    if (auth.first_name && auth.user_type === "admin" && auth.token) {
       navigate(`/admin`);
       toast.success(`Welcome, ${auth.first_name}`);
     }
@@ -159,13 +155,8 @@ const AdminLogin = () => {
                 </div>
 
                 <div className="flex items-center justify-between text-sm pb-4">
-                  <label className="flex items-center gap-2 text-black">
-                    <input type="checkbox" className="accent-[#FC7B00]" />{" "}
-                    Remember for 30 days
-                  </label>
-                  <a href="#" className="text-black hover:underline">
-                    Forgot Password?
-                  </a>
+                  <div></div>
+                  <p className="text-black hover:underline">Forgot Password?</p>
                 </div>
 
                 <button

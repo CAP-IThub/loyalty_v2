@@ -18,10 +18,10 @@ const PartnerInfoModal = ({ isOpen, closePartnerModal }) => {
     const fetchPartner = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("/v2/customer/details");
+        const res = await axios.get(`/auth/partner`);
         setPartnerData(res.data.data);
       } catch (err) {
-        console.error("Failed to fetch painter details", err);
+        console.error("Failed to fetch partner details", err);
       } finally {
         setLoading(false);
       }
@@ -29,6 +29,9 @@ const PartnerInfoModal = ({ isOpen, closePartnerModal }) => {
 
     if (isOpen) fetchPartner();
   }, [isOpen]);
+
+  const partner = partnerData?.partner?.[0];
+  const assignedShops = partnerData?.assignedShops || [];
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -56,18 +59,18 @@ const PartnerInfoModal = ({ isOpen, closePartnerModal }) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white px-6 py-8 text-left align-middle shadow-2xl transition-all">
+              <DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white px-6 py-8 text-left align-middle shadow-2xl transition-all">
                 <div className="flex items-center justify-between mb-6">
                   <DialogTitle
                     as="h3"
                     className="text-xl font-semibold text-[#1A1A27]"
                   >
-                    Painter Information
+                    Partner Information
                   </DialogTitle>
                   <button
                     type="button"
                     className="text-gray-600 hover:text-gray-900"
-                    onClick={closePainterModal}
+                    onClick={closePartnerModal}
                   >
                     <IoClose size={26} />
                   </button>
@@ -76,9 +79,9 @@ const PartnerInfoModal = ({ isOpen, closePartnerModal }) => {
                 {loading ? (
                   <p className="text-center text-gray-500">Loading...</p>
                 ) : (
-                  <div className="space-y-8">
-                    <div className="flex flex-col items-center justify-center gap-4">
-                      <div className="w-[120px] h-[120px] rounded-full overflow-hidden border-4 border-[#FC7B00] shadow-md">
+                  <>
+                    <div className="flex flex-col items-center gap-4 mb-8">
+                      <div className="w-[100px] h-[100px] rounded-full overflow-hidden border-4 border-[#FC7B00]">
                         <img
                           src={userIcon}
                           alt="avatar"
@@ -86,14 +89,14 @@ const PartnerInfoModal = ({ isOpen, closePartnerModal }) => {
                         />
                       </div>
 
-                      <div className="w-full space-y-4 text-sm text-gray-700 pl-10">
-                        <div className="grid grid-cols-2 gap-4">
+                      <div className="w-full text-sm text-gray-700 ml-24">
+                        <div className="grid grid-cols-2 gap-4 mb-4">
                           <div>
                             <p className="text-gray-400 text-xs uppercase">
                               First Name
                             </p>
                             <p className="font-medium">
-                              {customer?.firstName || "-"}
+                              {partner?.firstName || "-"}
                             </p>
                           </div>
                           <div>
@@ -101,18 +104,15 @@ const PartnerInfoModal = ({ isOpen, closePartnerModal }) => {
                               Last Name
                             </p>
                             <p className="font-medium">
-                              {customer?.lastName || "-"}
+                              {partner?.lastName || "-"}
                             </p>
                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
                           <div>
                             <p className="text-gray-400 text-xs uppercase">
                               Email
                             </p>
                             <p className="font-medium break-all">
-                              {customer?.email || "-"}
+                              {partner?.email || "-"}
                             </p>
                           </div>
                           <div>
@@ -120,55 +120,81 @@ const PartnerInfoModal = ({ isOpen, closePartnerModal }) => {
                               Phone Number
                             </p>
                             <p className="font-medium">
-                              {customer?.phoneNum || "-"}
+                              {partner?.phoneNumber || "-"}
                             </p>
                           </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
+                          <div className="col-span-2">
                             <p className="text-gray-400 text-xs uppercase">
-                              Gender
+                              Address
                             </p>
                             <p className="font-medium">
-                              {customer?.gender || "-"}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-gray-400 text-xs uppercase">
-                              Tier
-                            </p>
-                            <p className="font-medium">
-                              {painterData?.loyalty_tier?.name || "-"}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-gray-400 text-xs uppercase">
-                              Current Balance
-                            </p>
-                            <p className="font-medium text-green-600">
-                              {painterData?.current_balance?.point?.toLocaleString() ||
-                                0}{" "}
-                              pts
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-gray-400 text-xs uppercase">
-                              Lifetime Points
-                            </p>
-                            <p className="font-medium text-green-600">
-                              {painterData?.lifetime_points?.toLocaleString() ||
-                                0}{" "}
-                              pts
+                              {partner?.address || "-"}
                             </p>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+
+                    <div className="mt-4">
+                      <h4 className="font-semibold text-sm mb-3 text-[#1A1A27]">
+                        Assigned Shops
+                      </h4>
+
+                      {assignedShops.length === 0 ? (
+                        <p className="text-gray-500 text-sm">
+                          No assigned shops.
+                        </p>
+                      ) : (
+                        <div className="space-y-4 text-sm text-gray-700 mx-8">
+                          {assignedShops.map((shop) => (
+                            <div
+                              key={shop.id}
+                              className="border border-gray-200 rounded-md p-4"
+                            >
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <p className="text-gray-400 text-xs uppercase">
+                                    Shop Code
+                                  </p>
+                                  <p className="font-medium">{shop.shopCode}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-400 text-xs uppercase">
+                                    Name
+                                  </p>
+                                  <p className="font-medium">{shop.name}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-400 text-xs uppercase">
+                                    Location
+                                  </p>
+                                  <p className="font-medium">
+                                    {shop.location || "-"}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-400 text-xs uppercase">
+                                    Status
+                                  </p>
+                                  <p className="font-medium">{shop.status}</p>
+                                </div>
+                                <div className="col-span-2">
+                                  <p className="text-gray-400 text-xs uppercase">
+                                    Address
+                                  </p>
+                                  <p className="font-medium">
+                                    {shop.address
+                                      ? `${shop.address.street}, ${shop.address.state}, ${shop.address.country}`
+                                      : "—"}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
               </DialogPanel>
             </TransitionChild>
