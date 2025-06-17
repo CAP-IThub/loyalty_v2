@@ -49,6 +49,8 @@ const Claims = () => {
           c.customerLastName?.slice(1).toLowerCase() || ""
         }`,
         shop: c.shop,
+        mode: c.mode,
+        status: c.status,
         address: c.address,
         repName: `${c.repFirstName || ""} ${c.repsLastName || ""}`,
         pointsClaimed:
@@ -261,13 +263,13 @@ const Claims = () => {
               <thead className="bg-gray-100 text-gray-600 text-xs uppercase tracking-wide">
                 <tr>
                   <th className="text-left px-3 py-4 border-b">S/N</th>
-                  <th className="text-left px-3 py-4 border-b">Invoice</th>
+                  {/* <th className="text-left px-3 py-4 border-b">Invoice</th> */}
                   <th className="text-left px-3 py-4 border-b">Customer</th>
-                  <th className="text-left px-3 py-4 border-b">Center</th>
-                  <th className="text-left px-3 py-4 border-b">
-                    Representative
-                  </th>
+                  <th className="text-left px-3 py-4 border-b">Mode</th>
                   <th className="text-left px-3 py-4 border-b">Points</th>
+                  <th className="text-left px-3 py-4 border-b">
+                    Status
+                  </th>
                   <th className="text-left px-3 py-4 border-b">Date</th>
                   <th className="text-left px-3 py-4 border-b">Time</th>
                 </tr>
@@ -279,11 +281,11 @@ const Claims = () => {
                     className="bg-white border-b border-gray-100 hover:bg-gray-50"
                   >
                     <td className="px-3 py-4">{c.serial}</td>
-                    <td className="px-3 py-4">{c.invoiceNum.toUpperCase()}</td>
+                    {/* <td className="px-3 py-4">{c.invoiceNum.toUpperCase()}</td> */}
                     <td className="px-3 py-4">{c.customerName}</td>
-                    <td className="px-3 py-4">{c.shop}</td>
-                    <td className="px-3 py-4">{c.repName}</td>
+                    <td className="px-3 py-4 capitalize">{c.mode}</td>
                     <td className="px-3 py-4">{c.pointsClaimed}</td>
+                    <td className="px-3 py-4">{c.status}</td>
                     <td className="px-3 py-4">{c.date}</td>
                     <td className="px-3 py-4">{c.time}</td>
                   </tr>

@@ -59,6 +59,16 @@ const ReconciliationToolLayout = () => {
           >
             Payout Requests
           </NavLink>
+          <NavLink
+            to="centers-account"
+            className={({ isActive }) =>
+              isActive
+                ? "pb-2 border-b-2 border-orange-500 text-orange-600"
+                : "pb-2 hover:text-orange-500"
+            }
+          >
+            Centers
+          </NavLink>
         </div>
 
         <div>
