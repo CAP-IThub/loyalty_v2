@@ -46,7 +46,6 @@ const ProfileModal = ({ isOpen, closeProfileModal, rep }) => {
                     </DialogTitle>
                     <button
                       type="button"
-                      className="text-purple-600 hover:text-purple-800"
                       onClick={closeProfileModal}
                     >
                       <IoClose size={24} />

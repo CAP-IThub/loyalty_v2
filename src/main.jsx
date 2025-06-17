@@ -8,6 +8,7 @@ import { store } from "./redux/Store";
 import { loadUser } from "./slices/authSlice";
 import { setLogoutCallback } from "./utils/axiosInstance";
 import { logoutUser } from "./slices/authSlice";
+import { SageProvider } from "./context/SageContext";
 
 store.dispatch(loadUser(null));
 
@@ -23,12 +24,13 @@ setLogoutCallback(() => {
   }
 });
 
-
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <Provider store={store}>
-        <App />
+        <SageProvider>
+          <App />
+        </SageProvider>
       </Provider>
     </BrowserRouter>
   </StrictMode>

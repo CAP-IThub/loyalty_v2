@@ -1,121 +1,133 @@
-import React, { Fragment, useEffect, useState } from "react";
-import capLogo from "../../assets/images/cap-logo.png";
-import { FaBell, FaKey, FaUserCircle } from "react-icons/fa";
-import StatCard from "../../repComponents/StatCard";
-import commissionIcon from "../../assets/images/commissionIcon.png";
-import ordersIcon from "../../assets/images/ordersIcon.png";
+import React, { useEffect, useState } from "react";
+import axios from "../../utils/axiosInstance";
+import StatCard from "../../adminComponents/StatCard";
+import usersIcon from "../../assets/images/usersIcon.png";
 import totalIcon from "../../assets/images/totalIcon.png";
-import completedIcon from "../../assets/images/completedIcon.png";
 import deliveredIcon from "../../assets/images/deliveredIcon.png";
 import pendingIcon from "../../assets/images/pendingIcon.png";
-import userIcon from "../../assets/images/userIcon.png";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
-import { HiChevronDown } from "react-icons/hi";
-import axios from "../../utils/axiosInstance";
-import { baseUrl } from "../../utils/baseUrl";
-import ProfileModal from "../../repComponents/modals/ProfileModal";
+import { ClipLoader } from "react-spinners";
+import { IoIosPersonAdd } from "react-icons/io";
+import SageModal from "../../repComponents/modals/SageModal";
+import { useSage } from "../../context/SageContext";
 
 const RepDashboard = () => {
   const [data, setData] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const [repInfo, setRepInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [centerId, setCenterId] = useState(null);
+  const [sageModalOpen, setSageModalOpen] = useState(false);
+  const { isConnected } = useSage();
 
-  const auth = useSelector((state) => state.auth);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const fetchRepInfo = async () => {
+    try {
+      const res = await axios.get("/auth/rep");
+      const repData = res.data.data;
+
+      localStorage.setItem("repInfo", JSON.stringify(repData));
+      const repCenter = res.data.data.center;
+
+      let extractedCenterId = null;
+      if (Array.isArray(repCenter)) {
+        extractedCenterId = repCenter[0]?.id;
+      } else if (typeof repCenter === "object") {
+        extractedCenterId = repCenter?.id;
+      }
+
+      if (extractedCenterId) {
+        setCenterId(extractedCenterId);
+        fetchStats(extractedCenterId);
+      } else {
+        console.warn("No valid center ID found");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Failed to fetch rep info", err);
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async (centerId) => {
+    try {
+      const res = await axios.get(`/dashboard/rep/card/stats`, {
+        params: { centerId },
+      });
+
+      const stats = res.data.data || {};
+      setData({
+        customerVisits: stats.customerVisits,
+        totalPurchases: stats.totalpurchases,
+        totalPoints: stats.totalPoints,
+        totalClaimed: stats.totalClaimed,
+      });
+    } catch (err) {
+      console.error("Failed to fetch rep stats", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Dummy API data
-    setData({
-      totalVisits: 9700,
-      totalPurchases: 4000,
-      totalPoints: 3000349,
-      returnedClaimed: 590,
-      totalOrders: 40000000,
-      completedOrders: 38000000,
-    });
-
-    const fetchRep = async () => {
-      try {
-        const res = await axios.get(`${baseUrl}/auth/rep`);
-        console.log(res.data.data.rep);
-        const user = res.data.data.rep;
-        const mappedUser = {
-          id: user.id,
-          first_name: user.firstName,
-          last_name: user.lastName,
-          email: user.email,
-          phone: user.phoneNum,
-          registration_date: user.created_at?.split("T")[0],
-        };
-        setRepInfo(mappedUser);
-      } catch (err) {
-        console.error("Failed to fetch rep info:", err);
-      }
-    };
-
-    fetchRep();
+    fetchRepInfo();
   }, []);
+
+  const formatValue = (val) => {
+    if (loading || val === undefined) {
+      return <ClipLoader size={15} color="#FC7B00" />;
+    }
+    return Number(val).toLocaleString();
+  };
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Dashboard Overview */}
-      <div className="space-y-3 py-[2.4rem]">
+      <div className="space-y-3 py-[1rem]">
         <div className="flex justify-between items-center">
-          <h2 className="md:text-xl font-semibold">Rep Overview</h2>
+          <div>
+            <h2 className="md:text-xl font-semibold">Rep Overview</h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              disabled={isConnected}
+              className={`flex items-center gap-2 ${
+                isConnected
+                  ? "bg-green-600 cursor-not-allowed"
+                  : "bg-[#FC7B00] hover:bg-orange-600"
+              } text-white rounded-md px-4 py-2 text-sm transition`}
+              onClick={() => {
+                if (!isConnected) setSageModalOpen(true);
+              }}
+            >
+              {isConnected ? "Sage Connected" : "Connect to Sage"}
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           <StatCard
-            icon={commissionIcon}
-            title="Total Visits"
-            value={data.totalVisits?.toLocaleString()}
-            growth={10}
-            growthType="up"
+            icon={usersIcon}
+            title="Customers Visits"
+            value={formatValue(data.customerVisits)}
           />
-          <StatCard
-            icon={ordersIcon}
-            title="Total Purchases"
-            value={data.totalPurchases?.toLocaleString()}
-            growth={12}
-            growthType="down"
-          />
-          <StatCard
-            icon={pendingIcon}
-            title="Total Points"
-            value={data.totalPoints?.toLocaleString()}
-            growth={45}
-            growthType="up"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           <StatCard
             icon={totalIcon}
-            title="Total Claimed"
-            value={data.totalOrders?.toLocaleString()}
-            growth={24.5}
-            growthType="up"
+            title="Total Purchases"
+            value={formatValue(data.totalPurchases)}
           />
           <StatCard
             icon={deliveredIcon}
-            title="Total Orders"
-            value={data.totalOrders?.toLocaleString()}
-            growth={45}
-            growthType="down"
+            title="Total Points"
+            value={formatValue(data.totalPoints)}
           />
           <StatCard
-            icon={completedIcon}
-            title="Total Completed Orders"
-            value={data.completedOrders?.toLocaleString()}
-            growth={10}
-            growthType="up"
+            icon={pendingIcon}
+            title="Total Claimed"
+            value={formatValue(data.totalClaimed)}
           />
         </div>
       </div>
 
-      
+      <SageModal
+        isOpen={sageModalOpen}
+        closeSageModal={() => setSageModalOpen(false)}
+      />
     </div>
   );
 };

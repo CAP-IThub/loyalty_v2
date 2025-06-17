@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FaCog, FaPowerOff, FaTimes, FaBell, FaAward } from "react-icons/fa";
 import { MdDashboard, MdOutlineRedeem } from "react-icons/md";
 import logo from "../assets/images/sideLogo.png";
@@ -18,6 +18,7 @@ const RepSidebar = () => {
   const [repInfo, setRepInfo] = useState(null);
   const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRep = async () => {
@@ -146,7 +147,7 @@ const RepSidebar = () => {
                 <FaAward /> <span>Award Points</span>
               </NavLink>
               <NavLink
-                to="/redeem-points"
+                to="/rep-redeem-points"
                 onClick={handleNavClick}
                 className={({ isActive }) =>
                   `${navItem} ${isActive ? activeStyle : ""}`
@@ -162,19 +163,9 @@ const RepSidebar = () => {
         <div className="px-4 py-3 border-t border-gray-700">
           <div className="flex flex-col gap-2 px-2">
             <NavLink
-              to="/settings"
-              onClick={handleNavClick}
-              className={({ isActive }) =>
-                `${navItem} ${isActive ? activeStyle : ""}`
-              }
-            >
-              <FaCog /> <span>Settings</span>
-            </NavLink>
-
-            <NavLink
               onClick={() => {
                 dispatch(logoutUser());
-                navigate("/");
+                navigate("/rep-login");
               }}
               className="flex items-center space-x-3 py-2 px-4 text-sm text-[#FF3C3C]"
             >

@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { logoutUser } from "../../slices/authSlice";
 
-const SetNewPassword = () => {
+const SetPartnerPassword = () => {
   const auth = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -96,11 +96,12 @@ const SetNewPassword = () => {
 
     try {
       setLoading(true);
-      await axios.patch(`/change/password/partner`, {
+      await axios.post(`/change/password/partner`, {
         password: form.newPassword,
+        password_confirmation: form.confirmPassword,
       });
       dispatch(logoutUser());
-      navigate("/")
+      navigate("/partner-login");
       toast.success("Password updated successfully");
     } catch (err) {
       console.error("Failed to update password", err);
@@ -110,6 +111,7 @@ const SetNewPassword = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-[#F8FAFF] flex items-center justify-center px-4 py-16">
@@ -123,8 +125,8 @@ const SetNewPassword = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Current Password */}
-          <div>
+          
+          {/* <div>
             <label className="text-sm font-medium text-gray-700 block mb-1">
               Current Password <span className="text-red-500">*</span>
             </label>
@@ -145,7 +147,7 @@ const SetNewPassword = () => {
                 {showPassword.current ? <AiFillEyeInvisible /> : <AiFillEye />}
               </span>
             </div>
-          </div>
+          </div> */}
 
           <div>
             <label className="text-sm font-medium text-gray-700 block mb-1">
@@ -228,4 +230,4 @@ const SetNewPassword = () => {
   );
 };
 
-export default SetNewPassword;
+export default SetPartnerPassword;

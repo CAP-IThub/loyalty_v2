@@ -19,6 +19,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AdminInfoModal from "../adminComponents/modals/AdminInfoModal/AdminInfoModal";
 import ChangePasswordModal from "../adminComponents/modals/changePasswordModal/ChangePasswordModal";
 import PartnerInfoModal from "../partnerComponents/modals/PartnerInfoModal";
+import ChangePartnerPasswordModal from "../partnerComponents/modals/ChangePartnerPasswordModal";
 // import axios from "../../utils/axiosInstance";
 // import { ClipLoader } from "react-spinners";
 
@@ -26,8 +27,9 @@ const PartnerLayout = ({ children }) => {
   const auth = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [PartnerModalOpen, setPartnerModalOpen] = useState(false);
+  const [partnerModalOpen, setPartnerModalOpen] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
+  console.log(auth)
 
   return (
     <div className="w-full flex h-screen">
@@ -133,8 +135,8 @@ const PartnerLayout = ({ children }) => {
       </main>
 
       <PartnerInfoModal
-        isOpen={painterModalOpen}
-        closePainterModal={() => setPainterModalOpen(false)}
+        isOpen={partnerModalOpen}
+        closePartnerModal={() => setPartnerModalOpen(false)}
       />
       <ChangePartnerPasswordModal
         isOpen={passwordModal}
