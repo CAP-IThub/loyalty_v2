@@ -10,6 +10,7 @@ import { IoIosPersonAdd } from "react-icons/io";
 import SageModal from "../../repComponents/modals/SageModal";
 import { useSage } from "../../context/SageContext";
 import toast from "react-hot-toast";
+import AwardPointsModal from "../../repComponents/modals/AwardPointsModal";
 
 const AwardPoints = () => {
   const [sageModalOpen, setSageModalOpen] = useState(false);
@@ -21,6 +22,8 @@ const AwardPoints = () => {
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
   const [awarding, setAwarding] = useState(false);
+  const [awardModalOpen, setAwardModalOpen] = useState(false);
+  const [awardResult, setAwardResult] = useState(null);
   const { isConnected } = useSage();
 
   const handleValidate = async (e) => {
@@ -139,6 +142,9 @@ const AwardPoints = () => {
       };
 
       const res = await axios.post("/v2/award", payload);
+
+      setAwardResult(res.data); 
+      setAwardModalOpen(true);  
 
       toast.success("Points awarded successfully!");
       console.log("Award Points Response:", res.data);
@@ -290,6 +296,12 @@ const AwardPoints = () => {
       <SageModal
         isOpen={sageModalOpen}
         closeSageModal={() => setSageModalOpen(false)}
+      />
+
+      <AwardPointsModal
+        isOpen={awardModalOpen}
+        closeModal={() => setAwardModalOpen(false)}
+        awardResult={awardResult}
       />
     </div>
   );

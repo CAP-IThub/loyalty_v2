@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import capLogo from "../../assets/images/cap-logo.png";
 import capLogoW from "../../assets/images/capLogo-white.webp";
-import loginImage from "../../assets/images/loginImage.png";
+import loginImage from "../../assets/images/loyalty.png";
 import {
   AiOutlineMail,
   AiFillEyeInvisible,
@@ -138,10 +138,19 @@ const PainterRegister = () => {
               <img
                 src={loginImage}
                 alt="illustration"
-                className="w-full h-screen object-center"
+                className="w-[37rem] h-screen object-center"
               />
             </div>
           </div>
+          {/* <div className="hidden md:flex md:w-1/2 h-[100vh]">
+                      <div className="text-center">
+                        <img
+                          src={loginImage}
+                          alt="illustration"
+                          className="w-[37rem] h-full object-cover"
+                        />
+                      </div>
+                    </div> */}
         </div>
 
         {/* Form Section */}

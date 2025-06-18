@@ -26,10 +26,14 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && onLogout) {
+    if (
+      error.response?.status === 401 &&
+      onLogout &&
+      !error.config.url.includes("/v2/verify-token")
+    ) {
       toast.error("Session expired. Please log in again.");
       onLogout();
-    }
+    }    
     return Promise.reject(error);
   }
 );
