@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import capLogo from "../assets/images/cap-logo.png";
 import capLogoW from "../assets/images/capLogo-white.webp";
-import loginImage from "../assets/images/loyalty.png";
+import loginImage from "../assets/images/loyalty.jpg";
 import { AiOutlineMail, AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -158,14 +158,12 @@ const WelcomePage = () => {
           </div>
 
           {/* Left Image/Graphic Section */}
-          <div className="hidden md:flex md:w-1/2 h-[100vh]">
-            <div className="text-center">
-              <img
-                src={loginImage}
-                alt="illustration"
-                className="w-[37rem] h-full object-cover"
-              />
-            </div>
+          <div className="hidden md:flex md:w-1/2 h-screen">
+            <img
+              src={loginImage}
+              alt="illustration"
+              className="w-full h-full object-cover"
+            />
           </div>
 
           {/* Right Login Section */}

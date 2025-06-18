@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import capLogo from "../../assets/images/cap-logo.png";
 import capLogoW from "../../assets/images/capLogo-white.webp";
-import loginImage from "../../assets/images/loyalty.png";
+import loginImage from "../../assets/images/loyalty.jpg";
 import {
   AiOutlineMail,
   AiFillEyeInvisible,
@@ -117,45 +117,33 @@ const PainterRegister = () => {
 
   return (
     <div className="bg-white">
-      <div className="min-h-screen flex">
-        <div className="fixed top-0 left-0 w-1/2 h-full">
-          <div>
-            <img
-              src={capLogoW}
-              alt="CAP Logo"
-              className="hidden md:block absolute top-4 left-4 w-24 h-auto z-50"
-            />
+      <div className="min-h-screen md:flex">
+        <div>
+          <img
+            src={capLogoW}
+            alt="CAP Logo"
+            className="hidden md:block absolute top-4 left-4 w-24 h-auto z-50"
+          />
 
-            <img
-              src={capLogo}
-              alt="CAP Logo"
-              className="md:hidden w-40 z-50 py-5"
-            />
-          </div>
-
-          <div className="hidden md:block">
-            <div className="text-center">
-              <img
-                src={loginImage}
-                alt="illustration"
-                className="w-[37rem] h-screen object-center"
-              />
-            </div>
-          </div>
-          {/* <div className="hidden md:flex md:w-1/2 h-[100vh]">
-                      <div className="text-center">
-                        <img
-                          src={loginImage}
-                          alt="illustration"
-                          className="w-[37rem] h-full object-cover"
-                        />
-                      </div>
-                    </div> */}
+          <img
+            src={capLogo}
+            alt="CAP Logo"
+            className="md:hidden w-40 z-50 py-5"
+          />
         </div>
 
-        {/* Form Section */}
-        <div className="w-full md:ml-[50%] flex items-center justify-center md:py-9">
-          <div className="w-full max-w-lg px-8 py-10 md:px-14 md:py-12 md:border border-gray-400 md:shadow-sm">
+        {/* Left Image/Graphic Section */}
+        <div className="hidden md:flex md:w-1/2 h-screen">
+          <img
+            src={loginImage}
+            alt="illustration"
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Right Form Section */}
+        <div className="w-full md:w-1/2 flex items-center justify-center">
+          <div className="w-full max-w-lg md:border border-gray-400 rounded-md px-8 py-10 md:px-14 md:py-12 md:shadow-sm">
             <img
               src={capLogo}
               alt="CAP Logo"
