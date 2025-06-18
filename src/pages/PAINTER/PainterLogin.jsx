@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import capLogo from "../../assets/images/cap-logo.png";
 import capLogoW from "../../assets/images/capLogo-white.webp";
-import loginImage from "../../assets/images/loginImage.png";
+import loginImage from "../../assets/images/loyalty.png";
 import { AiOutlineMail, AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -34,7 +34,6 @@ const PainterLogin = () => {
       toast.error(auth.loginError);
     }
   }, [auth.loginStatus, auth.loginError]);
-
 
   useEffect(() => {
     if (auth.first_name && auth.user_type === "painter" && auth.token) {
@@ -77,12 +76,12 @@ const PainterLogin = () => {
             />
           </div>
 
-          <div className="hidden md:flex w-[50%] h-[100vh]">
+          <div className="hidden md:flex md:w-1/2 h-[100vh]">
             <div className="text-center">
               <img
                 src={loginImage}
                 alt="illustration"
-                className="w-full h-full object-center"
+                className="w-[37rem] h-full object-cover"
               />
             </div>
           </div>
