@@ -1,0 +1,53 @@
+name: Loyalty App Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v3
+
+      - name: 🧱 Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📦 Install Dependencies
+        run: npm install
+
+      - name: 🏗️ Build Project
+        run: npm run build
+
+      - name: 🚀 Deploy to Remote Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_USER: duluxcapici
+          REMOTE_HOST: 192.1.2.204
+          LOCAL_BUILD_DIR: dist
+        run: |
+          echo "📡 Setting up SSH"
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
+
+          echo "📤 Starting deployment..."
+          TARGET_DIRS=(
+            "/var/www/loyalty.capplc.com/"
+            "/var/www/loyalty.capplc.com/rep-login"
+            "/var/www/loyalty.capplc.com/admin-login"
+          )
+
+          for DIR in "${TARGET_DIRS[@]}"; do
+            echo "📁 Deploying to $DIR"
+            ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $DIR"
+            scp -r $LOCAL_BUILD_DIR/* $REMOTE_USER@$REMOTE_HOST:$DIR
+          done
+
+          echo "✅ Deployment complete."
