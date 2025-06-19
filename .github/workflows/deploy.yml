@@ -28,7 +28,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           REMOTE_USER: duluxcapici
-          REMOTE_HOST: 192.1.2.204
+          REMOTE_HOST: 154.113.204.99
           LOCAL_BUILD_DIR: dist
         run: |
           set -x
