@@ -31,14 +31,16 @@ jobs:
           REMOTE_HOST: 192.1.2.204
           LOCAL_BUILD_DIR: dist
         run: |
-          echo "📡 Setting up SSH"
+          set -x  # Enable step-by-step debug
+          
+          echo "📡 Setting up SSH key"
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
 
           echo "🔐 Testing SSH connection"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $REMOTE_USER@$REMOTE_HOST "echo '✅ SSH Connected Successfully'"
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $REMOTE_USER@$REMOTE_HOST "echo '✅ SSH Connected from GitHub Actions'"
 
           echo "📤 Starting deployment..."
           for DIR in \
