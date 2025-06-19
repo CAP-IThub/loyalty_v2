@@ -37,17 +37,18 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
 
-          echo "📤 Starting deployment..."
-          TARGET_DIRS=(
-            "/var/www/loyalty.capplc.com/"
-            "/var/www/loyalty.capplc.com/rep-login"
-            "/var/www/loyalty.capplc.com/admin-login"
-          )
+          echo "🔐 Testing SSH connection"
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $REMOTE_USER@$REMOTE_HOST "echo '✅ SSH Connected Successfully'"
 
-          for DIR in "${TARGET_DIRS[@]}"; do
+          echo "📤 Starting deployment..."
+          for DIR in \
+            "/var/www/loyalty.capplc.com/" \
+            "/var/www/loyalty.capplc.com/rep-login" \
+            "/var/www/loyalty.capplc.com/admin-login"
+          do
             echo "📁 Deploying to $DIR"
-            ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $DIR"
-            scp -r $LOCAL_BUILD_DIR/* $REMOTE_USER@$REMOTE_HOST:$DIR
+            ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $REMOTE_USER@$REMOTE_HOST "mkdir -p $DIR"
+            scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $LOCAL_BUILD_DIR/* $REMOTE_USER@$REMOTE_HOST:$DIR
           done
 
           echo "✅ Deployment complete."
