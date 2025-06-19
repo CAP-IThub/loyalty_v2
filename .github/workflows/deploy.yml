@@ -31,16 +31,20 @@ jobs:
           REMOTE_HOST: 192.1.2.204
           LOCAL_BUILD_DIR: dist
         run: |
-          set -x  # Enable step-by-step debug
+          set -x
           
           echo "📡 Setting up SSH key"
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $REMOTE_HOST >> ~/.ssh/known_hosts
+
+          # Disable strict host checking for CI (safe since IP is trusted)
+          echo "Host *" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
 
           echo "🔐 Testing SSH connection"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $REMOTE_USER@$REMOTE_HOST "echo '✅ SSH Connected from GitHub Actions'"
+          ssh $REMOTE_USER@$REMOTE_HOST "echo '✅ SSH Connected from GitHub Actions'"
 
           echo "📤 Starting deployment..."
           for DIR in \
@@ -49,8 +53,8 @@ jobs:
             "/var/www/loyalty.capplc.com/admin-login"
           do
             echo "📁 Deploying to $DIR"
-            ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $REMOTE_USER@$REMOTE_HOST "mkdir -p $DIR"
-            scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $LOCAL_BUILD_DIR/* $REMOTE_USER@$REMOTE_HOST:$DIR
+            ssh $REMOTE_USER@$REMOTE_HOST "mkdir -p $DIR"
+            scp -r $LOCAL_BUILD_DIR/* $REMOTE_USER@$REMOTE_HOST:$DIR
           done
 
           echo "✅ Deployment complete."
